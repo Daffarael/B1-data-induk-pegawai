@@ -1,8 +1,130 @@
+/* ============================================
+   Custom CSS — FacultyWare
+   Styling untuk layout sidebar, header, dan konten utama.
+   Komponen standar (btn, input, card) sudah di-handle Basecoat UI.
+   ============================================ */
+
+/* Import font Inter */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* Style dasar */
 body {
-  padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: #f3f4f6;
+    color: #1a1a1a;
 }
 
-a {
-  color: #00B7FF;
+/* ====== LAYOUT UTAMA ====== */
+.app-layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* ====== SIDEBAR ====== */
+.app-sidebar {
+    width: 250px;
+    background: #3d4158;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid #4a4f68;
+}
+
+.sidebar-brand {
+    padding: 1.5rem 1.25rem;
+    border-bottom: 1px solid #6b7094;
+}
+
+.sidebar-brand h1 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #fff;
+    letter-spacing: 2px;
+}
+
+.sidebar-brand p {
+    font-size: 0.6rem;
+    color: #9da1b8;
+    margin-top: 0.15rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.sidebar-nav {
+    padding: 0.75rem;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.sidebar-section {
+    margin-bottom: 1rem;
+}
+
+.sidebar-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    color: #9da1b8;
+    letter-spacing: 1.5px;
+    padding: 0.5rem 0.75rem;
+    display: block;
+    font-weight: 600;
+}
+
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.55rem 0.75rem;
+    border-radius: 6px;
+    color: #c8ccda;
+    text-decoration: none;
+    font-size: 0.825rem;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.sidebar-link:hover {
+    background: rgba(130, 140, 175, 0.12);
+    color: #e0e0e0;
+}
+
+.sidebar-link.active {
+    background: rgba(130, 140, 175, 0.18);
+    color: #fff;
+}
+
+.sidebar-link svg {
+    flex-shrink: 0;
+    opacity: 0.5;
+}
+
+.sidebar-link:hover svg,
+.sidebar-link.active svg {
+    opacity: 0.8;
+}
+
+.sidebar-footer {
+    padding: 1rem 1.25rem;
+    border-top: 1px solid #6b7094;
+}
+
+/* ====== AREA KONTEN ====== */
+.app-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+/* ====== HEADER ====== */
+.app-header {
+    background: #fff;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+/* ====== ISI HALAMAN ====== */
+.app-content {
+    padding: 1.5rem;
+    flex: 1;
 }

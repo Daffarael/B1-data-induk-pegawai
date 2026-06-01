@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= typeof title !== 'undefined' ? title + ' — ' : '' %>FacultyWare</title>
+
+    <!-- Basecoat UI CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/basecoat-css@0.3.11/dist/basecoat.cdn.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/basecoat-css@0.3.11/dist/js/all.min.js" defer></script>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- CSS custom -->
+    <link rel="stylesheet" href="/stylesheets/style.css">
+</head>
+<body>
+    <div class="app-layout">
+
+        <!-- Sidebar navigasi -->
+        <%- include('../partials/sidebar') %>
+
+        <!-- Area konten utama -->
+        <div class="app-main">
+
+            <!-- Header atas -->
+            <%- include('../partials/header') %>
+
+            <!-- Isi halaman -->
+            <main class="app-content">
+                <!-- Flash messages -->
+                <%- include('../partials/flash') %>
+
+                <!-- Konten halaman (diisi oleh masing-masing view) -->
+                <%- body %>
+            </main>
+        </div>
+    </div>
+</body>
+</html>

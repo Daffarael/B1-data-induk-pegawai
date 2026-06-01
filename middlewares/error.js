@@ -7,13 +7,26 @@ const notFoundHandler = (req, res, next) => {
 
 // error handler
 const errorHandler = (err, req, res, next) => {
-  // set locals, only providing error in development
+  // Jika headers sudah dikirim (misal setelah redirect), jangan coba render lagi
+  if (res.headersSent) {
+    return next(err);
+  }
+
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
+  const status = err.status || 500;
+  res.status(status);
+
+  if (status === 404) {
+    return res.render('errors/404', { layout: false });
+  }
+
+  if (status === 403) {
+    return res.render('errors/403', { layout: false });
+  }
+
+  res.render('errors/500', { layout: false });
 };
 
 module.exports = {
