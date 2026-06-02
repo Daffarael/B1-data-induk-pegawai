@@ -1,24 +1,20 @@
-<!-- Sidebar Navigasi — FacultyWare
-     Menu ditampilkan berdasarkan role user:
-     - Admin Kepegawaian: lihat menu Kepegawaian
-     - Admin Kemahasiswaan: lihat menu Kemahasiswaan -->
+<%# Sidebar Navigasi — FacultyWare
+     Menu ditampilkan berdasarkan role user %>
 <aside class="app-sidebar">
 
-    <!-- BRAND / LOGO -->
+    <%# Brand %>
     <div class="sidebar-brand">
-        <div style="display: flex; align-items: center; gap: 0.75rem;">
-            <img src="/assets/images/logo-fti.png" alt="Logo FTI" style="width: 28px; height: 28px; object-fit: contain; opacity: 0.7;">
-            <div>
-                <h1>FacultyWare</h1>
-                <p>Data Induk Pegawai</p>
-            </div>
+        <img src="/assets/images/logo-fti.png" alt="Logo FTI">
+        <div>
+            <h1>FacultyWare</h1>
+            <p>Data Induk Pegawai</p>
         </div>
     </div>
 
-    <!-- NAVIGASI -->
+    <%# Navigasi %>
     <nav class="sidebar-nav">
 
-        <!-- MENU UTAMA — terlihat semua role -->
+        <%# Menu Utama — terlihat semua role %>
         <div class="sidebar-section">
             <span class="sidebar-label">Menu Utama</span>
             <a href="/dashboard" class="sidebar-link">
@@ -32,12 +28,11 @@
             </a>
         </div>
 
-        <!-- MENU KEPEGAWAIAN — hanya Admin Kepegawaian -->
+        <%# Menu Kepegawaian — hanya Admin Kepegawaian %>
         <% if (user && user.role_name === 'Admin Kepegawaian') { %>
             <div class="sidebar-section">
                 <span class="sidebar-label">Kepegawaian</span>
 
-                <!-- Data Pegawai & Dosen -->
                 <a href="/pegawai" class="sidebar-link">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                         <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
@@ -48,7 +43,6 @@
                     Data Pegawai & Dosen
                 </a>
 
-                <!-- Nomenklatur Jabatan -->
                 <a href="/nomenklatur" class="sidebar-link">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                         <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
@@ -57,7 +51,6 @@
                     Nomenklatur Jabatan
                 </a>
 
-                <!-- Struktur Jabatan -->
                 <a href="/jabatan" class="sidebar-link">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                         <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
@@ -66,7 +59,6 @@
                     Struktur Jabatan
                 </a>
 
-                <!-- SBM Perjalanan Dinas -->
                 <a href="/sbm" class="sidebar-link">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                         <line x1="12" y1="1" x2="12" y2="23"/>
@@ -77,12 +69,10 @@
             </div>
         <% } %>
 
-        <!-- MENU KEMAHASISWAAN — hanya Admin Kemahasiswaan -->
+        <%# Menu Kemahasiswaan — hanya Admin Kemahasiswaan %>
         <% if (user && user.role_name === 'Admin Kemahasiswaan') { %>
             <div class="sidebar-section">
                 <span class="sidebar-label">Kemahasiswaan</span>
-
-                <!-- Data Mahasiswa -->
                 <a href="/mahasiswa" class="sidebar-link">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                         <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
@@ -94,25 +84,22 @@
         <% } %>
     </nav>
 
-    <!-- FOOTER SIDEBAR -->
+    <%# Footer %>
     <div class="sidebar-footer">
-        <div style="text-align: center; opacity: 0.5;">
-            <div style="font-size: 0.55rem; color: #c8ccda; letter-spacing: 1.5px; text-transform: uppercase;">Fakultas Teknologi Informasi</div>
-            <div style="font-size: 0.5rem; color: #9da1b8; letter-spacing: 2px; text-transform: uppercase; margin-top: 0.2rem;">Universitas Andalas</div>
-        </div>
+        <div>Fakultas Teknologi Informasi</div>
+        <div style="margin-top:0.15rem; opacity:0.6;">Universitas Andalas</div>
     </div>
 </aside>
 
-<!-- Script highlight menu aktif -->
+<%# Script highlight menu aktif %>
 <script>
-    (function() {
-        const path = window.location.pathname;
-        const links = document.querySelectorAll('.sidebar-link');
-        links.forEach(function(link) {
-            const href = link.getAttribute('href');
-            if (href === '/' ? path === '/' : path.startsWith(href)) {
-                link.classList.add('active');
-            }
-        });
-    })();
+(function() {
+    const path = window.location.pathname;
+    document.querySelectorAll('.sidebar-link').forEach(function(link) {
+        const href = link.getAttribute('href');
+        if (href === '/' ? path === '/' : path.startsWith(href)) {
+            link.classList.add('active');
+        }
+    });
+})();
 </script>

@@ -4,45 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>500 — Server Error</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/basecoat-css@0.3.11/dist/basecoat.cdn.min.css">
-    <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
     <style>
-        * { font-family: 'Inter', sans-serif; }
-        .error-code {
-            font-size: 8rem;
-            font-weight: 700;
-            letter-spacing: -4px;
-            background: linear-gradient(135deg, #991b1b 0%, #dc2626 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            opacity: 0.25;
-            line-height: 1;
-        }
-        .btn-fti {
-            background: #3d4158;
-            color: #fff;
-            padding: 0.6rem 1.5rem;
-            border-radius: 8px;
-            font-size: 0.875rem;
-            text-decoration: none;
-            display: inline-block;
-            transition: all 0.2s ease;
-        }
-        .btn-fti:hover { background: #4a4f68; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #f8fafc; }
+        .error-wrap { text-align: center; padding: 2rem; max-width: 600px; }
+        .error-code { font-size: 7rem; font-weight: 700; letter-spacing: -3px; color: #fecaca; line-height: 1; }
+        .error-title { font-size: 1.125rem; font-weight: 500; color: #475569; margin-top: 0.5rem; }
+        .error-desc { font-size: 0.875rem; color: #94a3b8; margin-top: 0.5rem; }
+        .error-stack { text-align: left; background: #fef2f2; border: 1px solid #fecaca; padding: 1rem; border-radius: 8px; font-size: 0.72rem; color: #dc2626; overflow: auto; margin-top: 1.5rem; font-family: monospace; white-space: pre-wrap; word-break: break-all; }
+        .error-btn { display: inline-block; margin-top: 1.5rem; padding: 0.55rem 1.5rem; background: #3d4158; color: #fff; border-radius: 6px; font-size: 0.8125rem; font-weight: 500; text-decoration: none; transition: background 0.15s; }
+        .error-btn:hover { background: #2e3147; }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center bg-white">
-    <div class="text-center space-y-6 p-8">
+<body>
+    <div class="error-wrap">
         <div class="error-code">500</div>
-        <h1 class="text-lg font-medium text-gray-600 tracking-wide">Terjadi Kesalahan Server</h1>
-        <p class="text-sm text-gray-400"><%= typeof message !== 'undefined' ? message : 'Terjadi kesalahan yang tidak terduga.' %></p>
+        <h1 class="error-title">Terjadi Kesalahan Server</h1>
+        <p class="error-desc"><%= typeof message !== 'undefined' ? message : 'Terjadi kesalahan yang tidak terduga.' %></p>
         <% if (typeof error !== 'undefined' && error.stack && error.stack.length > 0) { %>
-        <pre class="text-xs text-left bg-gray-50 p-4 rounded-lg text-red-500 max-w-lg overflow-auto"><%= error.stack %></pre>
+          <pre class="error-stack"><%= error.stack %></pre>
         <% } %>
-        <div class="pt-2">
-            <a href="/dashboard" class="btn-fti">Kembali ke Dashboard</a>
-        </div>
+        <a href="/dashboard" class="error-btn">Kembali ke Dashboard</a>
     </div>
 </body>
 </html>

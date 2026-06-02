@@ -1,0 +1,231 @@
+<%# views/pegawai/edit.ejs %>
+
+<div class="fw-page-header">
+  <div>
+    <a href="/pegawai/<%= pegawai.id %>" style="font-size:0.8rem; color:#94a3b8; text-decoration:none; display:inline-flex; align-items:center; gap:0.3rem; margin-bottom:0.5rem;" onmouseover="this.style.color='#64748b'" onmouseout="this.style.color='#94a3b8'">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+      Detail — <%= pegawai.name %>
+    </a>
+    <h1 class="fw-page-title">Edit Pegawai</h1>
+    <p class="fw-page-subtitle">Memperbarui data: <strong><%= pegawai.name %></strong></p>
+  </div>
+</div>
+
+<% if (errors && errors.length > 0) { %>
+  <div class="fw-alert fw-alert-error">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0; margin-top:1px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <div>
+      <div style="font-weight:600; margin-bottom:0.25rem;">Terdapat <%= errors.length %> kesalahan</div>
+      <ul style="margin:0; padding-left:1rem; font-size:0.8rem;">
+        <% errors.forEach(e => { %><li><%= e %></li><% }) %>
+      </ul>
+    </div>
+  </div>
+<% } %>
+
+<form method="POST" action="/pegawai/<%= pegawai.id %>">
+  <input type="hidden" name="_method" value="PUT">
+
+  <%# Tipe Pegawai %>
+  <div class="fw-form-section">
+    <div class="fw-form-section-header">
+      <span style="font-size:1rem;">👤</span>
+      <span class="fw-form-section-title">Tipe Pegawai</span>
+    </div>
+    <div class="fw-form-section-body">
+      <div style="display:flex; gap:1.5rem;">
+        <label style="display:flex; align-items:center; gap:0.625rem; cursor:pointer; padding:0.75rem 1.25rem; border:1px solid; border-radius:8px; transition:all 0.15s;" id="type-staf-label">
+          <input type="radio" name="employee_type" value="Staf" id="type-staf"
+                 <%= pegawai.employee_type !== 'Dosen' ? 'checked' : '' %>
+                 onchange="toggleDosenSection(this.value)" style="accent-color:#3d4158;">
+          <div>
+            <div style="font-size:0.875rem; font-weight:500;">Staf / Pegawai</div>
+            <div style="font-size:0.72rem; color:#94a3b8; margin-top:1px;">Tenaga kependidikan</div>
+          </div>
+        </label>
+        <label style="display:flex; align-items:center; gap:0.625rem; cursor:pointer; padding:0.75rem 1.25rem; border:1px solid; border-radius:8px; transition:all 0.15s;" id="type-dosen-label">
+          <input type="radio" name="employee_type" value="Dosen" id="type-dosen"
+                 <%= pegawai.employee_type === 'Dosen' ? 'checked' : '' %>
+                 onchange="toggleDosenSection(this.value)" style="accent-color:#3d4158;">
+          <div>
+            <div style="font-size:0.875rem; font-weight:500;">Dosen</div>
+            <div style="font-size:0.72rem; color:#94a3b8; margin-top:1px;">Tenaga pengajar/peneliti</div>
+          </div>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <%# Data Pribadi %>
+  <div class="fw-form-section">
+    <div class="fw-form-section-header">
+      <span style="font-size:1rem;">🪪</span>
+      <span class="fw-form-section-title">Data Pribadi</span>
+    </div>
+    <div class="fw-form-section-body">
+      <div class="fw-grid-2">
+        <div class="fw-col-span-2">
+          <label class="fw-label fw-label-required">NIP / Nomor Pegawai</label>
+          <input type="text" name="employee_number" value="<%= pegawai.employee_number %>" class="fw-input" required>
+        </div>
+        <div>
+          <label class="fw-label fw-label-required">Nama Lengkap</label>
+          <input type="text" name="name" value="<%= pegawai.name %>" class="fw-input" required>
+        </div>
+        <div>
+          <label class="fw-label">No. Telepon</label>
+          <input type="text" name="phone_number" value="<%= pegawai.phone_number || '' %>" class="fw-input">
+        </div>
+        <div>
+          <label class="fw-label">NIK (No. KTP)</label>
+          <input type="text" name="national_id_number" value="<%= pegawai.national_id_number || '' %>" class="fw-input">
+        </div>
+        <div>
+          <label class="fw-label">NPWP</label>
+          <input type="text" name="tax_id_number" value="<%= pegawai.tax_id_number || '' %>" class="fw-input">
+        </div>
+        <div>
+          <label class="fw-label fw-label-required">Tempat Lahir</label>
+          <input type="text" name="birth_place" value="<%= pegawai.birth_place %>" class="fw-input" required>
+        </div>
+        <div>
+          <label class="fw-label fw-label-required">Tanggal Lahir</label>
+          <input type="date" name="birth_date"
+                 value="<%= pegawai.birth_date ? new Date(pegawai.birth_date).toISOString().split('T')[0] : '' %>"
+                 class="fw-input" required>
+        </div>
+        <div>
+          <label class="fw-label fw-label-required">Jenis Kelamin</label>
+          <select name="gender" class="fw-select" required>
+            <option value="male"   <%= pegawai.gender === 'male'   ? 'selected' : '' %>>Laki-laki</option>
+            <option value="female" <%= pegawai.gender === 'female' ? 'selected' : '' %>>Perempuan</option>
+          </select>
+        </div>
+        <div>
+          <label class="fw-label">Agama</label>
+          <select name="religion" class="fw-select">
+            <option value="">— Pilih —</option>
+            <% ['Islam','Kristen','Katolik','Hindu','Budha','Konghucu'].forEach(r => { %>
+              <option value="<%= r %>" <%= pegawai.religion === r ? 'selected' : '' %>><%= r %></option>
+            <% }) %>
+          </select>
+        </div>
+        <div>
+          <label class="fw-label fw-label-required">Status Pernikahan</label>
+          <select name="marital_status" class="fw-select" required>
+            <option value="single"   <%= pegawai.marital_status === 'single'   ? 'selected' : '' %>>Belum Menikah</option>
+            <option value="married"  <%= pegawai.marital_status === 'married'  ? 'selected' : '' %>>Menikah</option>
+            <option value="divorced" <%= pegawai.marital_status === 'divorced' ? 'selected' : '' %>>Cerai</option>
+          </select>
+        </div>
+        <div class="fw-col-span-2">
+          <label class="fw-label fw-label-required">Alamat Lengkap</label>
+          <textarea name="address" class="fw-textarea" required><%= pegawai.address %></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%# Data Kepegawaian %>
+  <div class="fw-form-section">
+    <div class="fw-form-section-header">
+      <span style="font-size:1rem;">🏢</span>
+      <span class="fw-form-section-title">Data Kepegawaian</span>
+    </div>
+    <div class="fw-form-section-body">
+      <div class="fw-grid-2">
+        <div>
+          <label class="fw-label fw-label-required">Unit Organisasi</label>
+          <select name="organization_unit_id" class="fw-select" required>
+            <option value="">— Pilih —</option>
+            <% units.forEach(u => { %>
+              <option value="<%= u.id %>" <%= String(pegawai.organization_unit_id) === String(u.id) ? 'selected' : '' %>><%= u.name %></option>
+            <% }) %>
+          </select>
+        </div>
+        <div>
+          <label class="fw-label fw-label-required">Status Kepegawaian</label>
+          <select name="employment_status_id" class="fw-select" required>
+            <option value="">— Pilih —</option>
+            <% statuses.forEach(s => { %>
+              <option value="<%= s.id %>" <%= String(pegawai.employment_status_id) === String(s.id) ? 'selected' : '' %>><%= s.name %></option>
+            <% }) %>
+          </select>
+        </div>
+        <div>
+          <label class="fw-label fw-label-required">Tanggal Masuk</label>
+          <input type="date" name="hire_date"
+                 value="<%= pegawai.hire_date ? new Date(pegawai.hire_date).toISOString().split('T')[0] : '' %>"
+                 class="fw-input" required>
+        </div>
+        <div>
+          <label class="fw-label fw-label-required">Status Aktif</label>
+          <select name="status" class="fw-select" required>
+            <option value="active"   <%= pegawai.status === 'active'   ? 'selected' : '' %>>Aktif</option>
+            <option value="inactive" <%= pegawai.status === 'inactive' ? 'selected' : '' %>>Tidak Aktif</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%# Data Akademik %>
+  <div id="dosen-section" class="fw-form-section" style="<%= pegawai.employee_type === 'Dosen' ? '' : 'display:none;' %> border-left:3px solid #3d4158;">
+    <div class="fw-form-section-header">
+      <div style="display:flex; align-items:center; gap:0.5rem;">
+        <span style="font-size:1rem;">🎓</span>
+        <span class="fw-form-section-title">Data Akademik</span>
+      </div>
+      <span class="fw-badge fw-badge-indigo" style="font-size:0.65rem;">Khusus Dosen</span>
+    </div>
+    <div class="fw-form-section-body">
+      <div class="fw-grid-3">
+        <div>
+          <label class="fw-label fw-label-required">Pangkat Akademik</label>
+          <input type="text" name="academic_rank" value="<%= pegawai.academic_rank || '' %>" class="fw-input" placeholder="Lektor Kepala">
+        </div>
+        <div>
+          <label class="fw-label">Jabatan Fungsional</label>
+          <input type="text" name="functional_position" value="<%= pegawai.functional_position || '' %>" class="fw-input" placeholder="Asisten Ahli">
+        </div>
+        <div>
+          <label class="fw-label">Bidang Keahlian</label>
+          <input type="text" name="expertise" value="<%= pegawai.expertise || '' %>" class="fw-input" placeholder="Kecerdasan Buatan">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex; align-items:center; gap:0.75rem; padding-top:0.5rem;">
+    <button type="submit" class="fw-btn fw-btn-primary">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+      Simpan Perubahan
+    </button>
+    <a href="/pegawai/<%= pegawai.id %>" class="fw-btn fw-btn-ghost">Batal</a>
+  </div>
+</form>
+
+<script>
+function toggleDosenSection(type) {
+  const s = document.getElementById('dosen-section');
+  const labelStaf  = document.getElementById('type-staf-label');
+  const labelDosen = document.getElementById('type-dosen-label');
+  if (type === 'Dosen') {
+    s.style.display = '';
+    labelDosen.style.borderColor = '#3d4158';
+    labelDosen.style.background  = '#eaebf0';
+    labelStaf.style.borderColor  = '#e2e8f0';
+    labelStaf.style.background   = '#fff';
+  } else {
+    s.style.display = 'none';
+    labelStaf.style.borderColor  = '#4f46e5';
+    labelStaf.style.background   = '#eef2ff';
+    labelDosen.style.borderColor = '#e2e8f0';
+    labelDosen.style.background  = '#fff';
+  }
+}
+window.addEventListener('DOMContentLoaded', () => {
+  const checked = document.querySelector('input[name="employee_type"]:checked');
+  if (checked) toggleDosenSection(checked.value);
+});
+</script>
