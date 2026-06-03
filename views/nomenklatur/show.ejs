@@ -1,0 +1,174 @@
+
+<%# views/nomenklatur/show.ejs %>
+
+<%# ── Breadcrumb ─────────────────────────────────────────────── %>
+<div class="fw-page-header">
+  <div>
+    <a href="/nomenklatur" style="font-size:0.8rem; color:#94a3b8; text-decoration:none; display:inline-flex; align-items:center; gap:0.3rem; margin-bottom:0.5rem;"
+       onmouseover="this.style.color='#c8ccda'" onmouseout="this.style.color='#94a3b8'">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+      Kembali ke Daftar
+    </a>
+    <h1 class="fw-page-title"><%= nom.name %></h1>
+    <p class="fw-page-sub">Detail data nomenklatur jabatan</p>
+  </div>
+  <div style="display:flex; gap:0.5rem;">
+    <a href="/nomenklatur/<%= nom.id %>/edit" class="fw-btn fw-btn-outline fw-btn-sm">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      Edit
+    </a>
+    <form method="POST" action="/nomenklatur/<%= nom.id %>"
+          onsubmit="return confirm('Hapus nomenklatur ini beserta semua klasifikasinya?')" style="display:inline;">
+      <input type="hidden" name="_method" value="DELETE">
+      <button type="submit" class="fw-btn fw-btn-sm" style="background:#ef4444; color:#fff; border-color:#ef4444;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+        Hapus
+      </button>
+    </form>
+  </div>
+</div>
+
+<%# ── Detail Nomenklatur ─────────────────────────────────────── %>
+<div class="fw-card" style="margin-bottom:1.25rem;">
+  <div class="fw-form-section-title">🏷️ Informasi Nomenklatur</div>
+  <div class="fw-detail-grid">
+    <div class="fw-detail-item">
+      <div class="fw-detail-label">Nama Nomenklatur</div>
+      <div class="fw-detail-value"><%= nom.name %></div>
+    </div>
+    <div class="fw-detail-item">
+      <div class="fw-detail-label">Golongan / Grade</div>
+      <div class="fw-detail-value"><span class="fw-mono-chip"><%= nom.grade %></span></div>
+    </div>
+    <div class="fw-detail-item fw-col-2">
+      <div class="fw-detail-label">Kualifikasi</div>
+      <div class="fw-detail-value" style="white-space:pre-wrap;"><%= nom.qualification %></div>
+    </div>
+    <div class="fw-detail-item fw-col-2">
+      <div class="fw-detail-label">Uraian Tugas (Duties)</div>
+      <div class="fw-detail-value" style="white-space:pre-wrap;"><%= nom.duties %></div>
+    </div>
+    <div class="fw-detail-item">
+      <div class="fw-detail-label">Dibuat</div>
+      <div class="fw-detail-value fw-cell-muted">
+        <%= nom.created_at ? new Date(nom.created_at).toLocaleDateString('id-ID', {dateStyle:'long'}) : '—' %>
+      </div>
+    </div>
+    <div class="fw-detail-item">
+      <div class="fw-detail-label">Terakhir diperbarui</div>
+      <div class="fw-detail-value fw-cell-muted">
+        <%= nom.updated_at ? new Date(nom.updated_at).toLocaleDateString('id-ID', {dateStyle:'long'}) : '—' %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%# ── Klasifikasi Jabatan ──────────────────────────────────────── %>
+<div class="fw-card">
+  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem;">
+    <div class="fw-form-section-title" style="margin-bottom:0;">📂 Klasifikasi Jabatan</div>
+    <span class="fw-badge fw-badge-dark"><%= klasifikasi.length %> klasifikasi</span>
+  </div>
+
+  <%# Form tambah klasifikasi baru %>
+  <div style="background:#1e2235; border:1px solid #2a2f4a; border-radius:0.5rem; padding:1rem; margin-bottom:1rem;">
+    <div style="font-size:0.8rem; color:#94a3b8; margin-bottom:0.75rem; font-weight:600;">+ Tambah Klasifikasi Baru</div>
+    <form method="POST" action="/nomenklatur/<%= nom.id %>/klasifikasi" style="display:flex; gap:0.75rem; align-items:flex-start; flex-wrap:wrap;">
+      <div style="flex:1; min-width:160px;">
+        <input type="text" name="name" class="fw-input fw-input-sm" placeholder="Nama klasifikasi *" required>
+      </div>
+      <div style="flex:2; min-width:200px;">
+        <input type="text" name="description" class="fw-input fw-input-sm" placeholder="Deskripsi (opsional)">
+      </div>
+      <button type="submit" class="fw-btn fw-btn-primary fw-btn-sm">Tambah</button>
+    </form>
+  </div>
+
+  <% if (klasifikasi.length === 0) { %>
+    <div class="fw-empty" style="padding:2rem 0;">
+      <div class="fw-empty-title" style="font-size:0.9rem;">Belum ada klasifikasi</div>
+      <div class="fw-empty-desc">Gunakan form di atas untuk menambahkan klasifikasi pertama</div>
+    </div>
+  <% } else { %>
+    <div class="fw-table-wrap">
+      <table class="fw-table">
+        <thead>
+          <tr>
+            <th style="width:36px; text-align:center;">#</th>
+            <th>Nama Klasifikasi</th>
+            <th>Deskripsi</th>
+            <th style="width:80px; text-align:center;">Aksi</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% klasifikasi.forEach((k, i) => { %>
+            <tr id="row-k-<%= k.id %>">
+              <td style="text-align:center; color:#c8ccda; font-size:0.75rem;"><%= i + 1 %></td>
+              <td>
+                <div class="fw-cell-name" id="kname-<%= k.id %>"><%= k.name %></div>
+              </td>
+              <td class="fw-cell-muted"><%= k.description || '—' %></td>
+              <td>
+                <div class="fw-action-btns">
+                  <%# Edit inline (modal sederhana via detail) %>
+                  <button type="button" class="fw-action-btn fw-action-warn" title="Edit"
+                          data-id="<%= k.id %>" 
+                          data-name="<%= k.name %>" 
+                          data-desc="<%= k.description || '' %>"
+                          onclick="openEditKlasifikasi(this.dataset.id, this.dataset.name, this.dataset.desc)">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                  </button>
+                  <form method="POST" action="/nomenklatur/<%= nom.id %>/klasifikasi/<%= k.id %>"
+                        onsubmit="return confirm('Hapus klasifikasi ini?')" style="display:inline;">
+                    <input type="hidden" name="_method" value="DELETE">
+                    <button type="submit" class="fw-action-btn fw-action-danger" title="Hapus">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</div>
+
+<%# ── Modal Edit Klasifikasi ───────────────────────────────── %>
+<div id="modal-klasifikasi" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:1000; align-items:center; justify-content:center;">
+  <div style="background:#1a1f36; border:1px solid #2a2f4a; border-radius:0.75rem; padding:1.5rem; width:100%; max-width:460px; margin:1rem;">
+    <div style="font-size:1rem; font-weight:600; color:#e2e8f0; margin-bottom:1rem;">Edit Klasifikasi</div>
+    <form id="form-edit-klasifikasi" method="POST" action="">
+      <input type="hidden" name="_method" value="PUT">
+      <div class="fw-form-group" style="margin-bottom:0.75rem;">
+        <label class="fw-label">Nama Klasifikasi *</label>
+        <input type="text" id="edit-klas-name" name="name" class="fw-input" required>
+      </div>
+      <div class="fw-form-group" style="margin-bottom:1rem;">
+        <label class="fw-label">Deskripsi</label>
+        <input type="text" id="edit-klas-desc" name="description" class="fw-input">
+      </div>
+      <div style="display:flex; gap:0.5rem; justify-content:flex-end;">
+        <button type="button" class="fw-btn fw-btn-ghost fw-btn-sm" onclick="closeModal()">Batal</button>
+        <button type="submit" class="fw-btn fw-btn-primary fw-btn-sm">Simpan</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function openEditKlasifikasi(kid, name, desc) {
+  document.getElementById('edit-klas-name').value = name;
+  document.getElementById('edit-klas-desc').value = desc;
+  document.getElementById('form-edit-klasifikasi').action = '/nomenklatur/<%= nom.id %>/klasifikasi/' + kid;
+  const modal = document.getElementById('modal-klasifikasi');
+  modal.style.display = 'flex';
+}
+function closeModal() {
+  document.getElementById('modal-klasifikasi').style.display = 'none';
+}
+document.getElementById('modal-klasifikasi').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+</script>
