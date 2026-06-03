@@ -11,7 +11,9 @@ var flash = require('connect-flash');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var pegawaiRouter = require('./routes/pegawai');
+var nomenklaturRouter = require('./routes/nomenklatur');
 var apiPegawaiRouter = require('./routes/api/pegawai');
+
 const { notFoundHandler, errorHandler } = require('./middlewares/error');
 
 var app = express();
@@ -69,6 +71,7 @@ app.use((req, res, next) => {
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/pegawai', pegawaiRouter);
+app.use('/nomenklatur', nomenklaturRouter);
 app.use('/api', apiPegawaiRouter);
 
 // catch 404 and forward to error handler
