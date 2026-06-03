@@ -1,0 +1,136 @@
+
+
+<%# views/mahasiswa/show.ejs %>
+
+<%# ── Breadcrumb + aksi ──────────────────────────────────── %>
+<div class="fw-page-header">
+  <div>
+    <a href="/mahasiswa" style="font-size:0.8rem; color:#94a3b8; text-decoration:none; display:inline-flex; align-items:center; gap:0.3rem; margin-bottom:0.5rem; transition:color 0.15s;" onmouseover="this.style.color='#64748b'" onmouseout="this.style.color='#94a3b8'">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+      Data Mahasiswa
+    </a>
+    <h1 class="fw-page-title"><%= mahasiswa.name %></h1>
+    <div style="display:flex; align-items:center; gap:0.5rem; margin-top:0.5rem; flex-wrap:wrap;">
+      <span style="font-family:monospace; font-size:0.8rem; color:#64748b; background:#f1f5f9; padding:2px 8px; border-radius:4px; border:1px solid #e2e8f0;"><%= mahasiswa.regno %></span>
+      
+      <% if (mahasiswa.status === 1) { %>
+        <span class="fw-badge fw-badge-green">● Aktif</span>
+      <% } else if (mahasiswa.status === 2) { %>
+        <span class="fw-badge fw-badge-yellow">● Cuti</span>
+      <% } else if (mahasiswa.status === 3) { %>
+        <span class="fw-badge fw-badge-blue">● Lulus</span>
+      <% } else if (mahasiswa.status === 4) { %>
+        <span class="fw-badge fw-badge-slate">● Keluar</span>
+      <% } else { %>
+        <span class="fw-badge fw-badge-red">● Drop Out</span>
+      <% } %>
+    </div>
+  </div>
+  <div style="display:flex; gap:0.5rem; flex-shrink:0;">
+    <a href="/mahasiswa/<%= mahasiswa.id %>/edit" class="fw-btn fw-btn-outline fw-btn-sm">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      Edit
+    </a>
+    <form method="POST" action="/mahasiswa/<%= mahasiswa.id %>/delete"
+          data-name="<%= mahasiswa.name %>"
+          onsubmit="return confirm('Yakin hapus data ' + this.dataset.name + '?')">
+      <button type="submit" class="fw-btn fw-btn-danger fw-btn-sm">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+        Hapus
+      </button>
+    </form>
+  </div>
+</div>
+
+<%- include('../partials/flash') %>
+
+<%# ── Detail grid ────────────────────────────────────────── %>
+<div class="fw-detail-grid">
+
+  <%# Data Pribadi %>
+  <div class="fw-card">
+    <div class="fw-card-header">
+      <div style="display:flex; align-items:center; gap:0.5rem;">
+        <span style="font-size:1rem;">👤</span>
+        <span style="font-size:0.875rem; font-weight:600; color:#0f172a;">Data Pribadi</span>
+      </div>
+    </div>
+    <div class="fw-card-body">
+      <%
+        const pRows = [
+          ['NIM', mahasiswa.regno],
+          ['Nama Lengkap', mahasiswa.name],
+          ['Tempat Lahir', mahasiswa.birth_place],
+          ['Tanggal Lahir', mahasiswa.birth_date ? new Date(mahasiswa.birth_date).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'}) : null],
+          ['Jenis Kelamin', mahasiswa.gender_text],
+          ['Agama', mahasiswa.religion_text],
+          ['Kewarganegaraan', mahasiswa.citizenship],
+        ];
+      %>
+      <% pRows.forEach(([label, val]) => { %>
+        <div class="fw-detail-row">
+          <span class="fw-detail-label"><%= label %></span>
+          <span class="fw-detail-value"><%= val || '—' %></span>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+
+  <%# Bagian Kanan: Kontak & Kampus %>
+  <div style="display:flex; flex-direction:column; gap:1rem;">
+    
+    <%# Data Akademik %>
+    <div class="fw-card">
+      <div class="fw-card-header">
+        <div style="display:flex; align-items:center; gap:0.5rem;">
+          <span style="font-size:1rem;">🎓</span>
+          <span style="font-size:0.875rem; font-weight:600; color:#0f172a;">Data Akademik</span>
+        </div>
+      </div>
+      <div class="fw-card-body">
+        <%
+          const acadRows = [
+            ['Departemen', mahasiswa.department_name],
+            ['Tahun Angkatan', mahasiswa.year],
+            ['Status Mahasiswa', mahasiswa.status_text],
+            ['Dosen PA', mahasiswa.advisor_name],
+          ];
+        %>
+        <% acadRows.forEach(([label, val]) => { %>
+          <div class="fw-detail-row">
+            <span class="fw-detail-label"><%= label %></span>
+            <span class="fw-detail-value"><%= val || '—' %></span>
+          </div>
+        <% }) %>
+      </div>
+    </div>
+
+    <%# Data Kontak & Alamat %>
+    <div class="fw-card">
+      <div class="fw-card-header">
+        <div style="display:flex; align-items:center; gap:0.5rem;">
+          <span style="font-size:1rem;">📞</span>
+          <span style="font-size:0.875rem; font-weight:600; color:#0f172a;">Kontak & Alamat</span>
+        </div>
+      </div>
+      <div class="fw-card-body">
+        <%
+          const contactRows = [
+            ['Email Kampus', mahasiswa.campus_email],
+            ['No. Telepon / WhatsApp', mahasiswa.phone_no],
+            ['Alamat Asal', mahasiswa.home_address ? `${mahasiswa.home_address}, ${mahasiswa.home_town}, ${mahasiswa.home_province}` : null],
+            ['Alamat Domisili', mahasiswa.current_address ? `${mahasiswa.current_address}, ${mahasiswa.current_town}, ${mahasiswa.current_province}` : null],
+          ];
+        %>
+        <% contactRows.forEach(([label, val]) => { %>
+          <div class="fw-detail-row">
+            <span class="fw-detail-label"><%= label %></span>
+            <span class="fw-detail-value"><%= val || '—' %></span>
+          </div>
+        <% }) %>
+      </div>
+    </div>
+
+  </div>
+
+</div>
