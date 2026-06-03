@@ -1,0 +1,76 @@
+<%# views/struktur_jabatan/create.ejs %>
+
+    <div class="fw-page-header">
+        <div>
+            <a href="/struktur-jabatan"
+                style="font-size:0.8rem; color:#94a3b8; text-decoration:none; display:inline-flex; align-items:center; gap:0.3rem; margin-bottom:0.5rem;"
+                onmouseover="this.style.color='#c8ccda'" onmouseout="this.style.color='#94a3b8'">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="15 18 9 12 15 6" />
+                </svg>
+                Kembali ke Daftar
+            </a>
+            <h1 class="fw-page-title">Tambah Jabatan Struktural</h1>
+            <p class="fw-page-subtitle">Isi form di bawah untuk menambahkan posisi struktur baru</p>
+        </div>
+    </div>
+
+    <form method="POST" action="/struktur-jabatan">
+        <div class="fw-form-section">
+            <div class="fw-form-section-header">
+                <span style="font-size:1rem;">🏢</span>
+                <span class="fw-form-section-title">Informasi Jabatan</span>
+            </div>
+
+            <div class="fw-form-section-body">
+                <div class="fw-grid-2">
+                    <div class="fw-col-span-2">
+                        <label class="fw-label fw-label-required">Nama Jabatan</label>
+                        <input type="text" name="name" class="fw-input" value="<%= old.name || '' %>"
+                            placeholder="Misal: Kepala Bagian Kepegawaian" required>
+                    </div>
+
+                    <div class="fw-col-span-2">
+                        <label class="fw-label fw-label-required">Golongan / Grade</label>
+                        <input type="text" name="grade" class="fw-input" value="<%= old.grade || '' %>"
+                            placeholder="Misal: Eselon II.A" required>
+                    </div>
+                </div>
+
+                <div style="margin-top: 1.5rem;">
+                    <label class="fw-label">Atasan Langsung (Parent)</label>
+                    <select name="parent_id" class="fw-input">
+                        <option value="">-- Pucuk Pimpinan (Tidak ada atasan) --</option>
+                        <% parents.forEach(p=> { %>
+                            <option value="<%= p.id %>" <%=old.parent_id==p.id ? 'selected' : '' %>><%= p.name %>
+                            </option>
+                            <% }) %>
+                    </select>
+                    <p class="fw-form-hint" style="margin-top:0.25rem;">Kosongkan jika ini adalah jabatan tertinggi di
+                        struktur.</p>
+                </div>
+
+                <div style="margin-top: 1.5rem;">
+                    <label class="fw-label">Kualifikasi Jabatan</label>
+                    <textarea name="qualification" class="fw-input fw-textarea"
+                        placeholder="Syarat pendidikan, pengalaman, dll..."><%= old.qualification || '' %></textarea>
+                </div>
+
+                <div style="margin-top: 1.5rem;">
+                    <label class="fw-label">Deskripsi Tambahan</label>
+                    <textarea name="description" class="fw-input fw-textarea"
+                        placeholder="Keterangan lainnya..."><%= old.description || '' %></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="fw-form-actions">
+            <a href="/struktur-jabatan" class="fw-btn fw-btn-ghost">Batal</a>
+            <button type="submit" class="fw-btn fw-btn-primary">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="20 6 9 17 4 12" />
+                </svg>
+                Simpan Data
+            </button>
+        </div>
+    </form>
