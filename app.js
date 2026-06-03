@@ -11,8 +11,11 @@ var flash = require('connect-flash');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var pegawaiRouter = require('./routes/pegawai');
-var nomenklaturRouter = require('./routes/nomenklatur');
 var apiPegawaiRouter = require('./routes/api/pegawai');
+
+// --- Route Struktur Jabatan (Luthfi) ---
+var strukturJabatanRouter = require('./routes/strukturJabatan');
+var apiStrukturJabatanRouter = require('./routes/api/strukturJabatan');
 
 const { notFoundHandler, errorHandler } = require('./middlewares/error');
 
@@ -33,8 +36,6 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Session configuration
-// Session store — pakai tabel terpisah (express_sessions)
-// agar tidak konflik dengan tabel 'sessions' milik Laravel di schema dosen
 const sessionStore = new MySQLStore({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
@@ -57,10 +58,10 @@ app.use(session({
   }
 }));
 
-// Flash messages — untuk notifikasi login gagal, sukses, dll
+// Flash messages 
 app.use(flash());
 
-// Global variables — tersedia di semua view tanpa perlu dikirim manual dari controller
+// Global variables 
 app.use((req, res, next) => {
   res.locals.user = req.session.user || null;
   res.locals.success = req.flash('success');
@@ -68,11 +69,15 @@ app.use((req, res, next) => {
   next();
 });
 
+// --- Register Routes ---
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/pegawai', pegawaiRouter);
-app.use('/nomenklatur', nomenklaturRouter);
 app.use('/api', apiPegawaiRouter);
+
+// Register Route Luthfi
+app.use('/struktur-jabatan', strukturJabatanRouter);
+app.use('/api/struktur-jabatan', apiStrukturJabatanRouter);
 
 // catch 404 and forward to error handler
 app.use(notFoundHandler);

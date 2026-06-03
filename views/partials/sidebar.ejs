@@ -1,105 +1,110 @@
-<%# Sidebar Navigasi — FacultyWare
-     Menu ditampilkan berdasarkan role user %>
-<aside class="app-sidebar">
+<%# Sidebar Navigasi — FacultyWare Menu ditampilkan berdasarkan role user %>
+    <aside class="app-sidebar">
 
-    <%# Brand %>
-    <div class="sidebar-brand">
-        <img src="/assets/images/logo-fti.png" alt="Logo FTI">
-        <div>
-            <h1>FacultyWare</h1>
-            <p>Data Induk Pegawai</p>
-        </div>
-    </div>
-
-    <%# Navigasi %>
-    <nav class="sidebar-nav">
-
-        <%# Menu Utama — terlihat semua role %>
-        <div class="sidebar-section">
-            <span class="sidebar-label">Menu Utama</span>
-            <a href="/dashboard" class="sidebar-link">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <rect x="3" y="3" width="7" height="7" rx="1"/>
-                    <rect x="14" y="3" width="7" height="7" rx="1"/>
-                    <rect x="3" y="14" width="7" height="7" rx="1"/>
-                    <rect x="14" y="14" width="7" height="7" rx="1"/>
-                </svg>
-                Dashboard
-            </a>
-        </div>
-
-        <%# Menu Kepegawaian — hanya Admin Kepegawaian %>
-        <% if (user && user.role_name === 'Admin Kepegawaian') { %>
-            <div class="sidebar-section">
-                <span class="sidebar-label">Kepegawaian</span>
-
-                <a href="/pegawai" class="sidebar-link">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                        <circle cx="9" cy="7" r="4"/>
-                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-                    </svg>
-                    Data Pegawai & Dosen
-                </a>
-
-                <a href="/nomenklatur" class="sidebar-link">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
-                        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
-                    </svg>
-                    Nomenklatur Jabatan
-                </a>
-
-                <a href="/jabatan" class="sidebar-link">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
-                        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
-                    </svg>
-                    Struktur Jabatan
-                </a>
-
-                <a href="/sbm" class="sidebar-link">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <line x1="12" y1="1" x2="12" y2="23"/>
-                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-                    </svg>
-                    Data SBM Perjadin
-                </a>
+        <%# Brand %>
+            <div class="sidebar-brand">
+                <img src="/assets/images/logo-fti.png" alt="Logo FTI">
+                <div>
+                    <h1>FacultyWare</h1>
+                    <p>Data Induk Pegawai</p>
+                </div>
             </div>
-        <% } %>
 
-        <%# Menu Kemahasiswaan — hanya Admin Kemahasiswaan %>
-        <% if (user && user.role_name === 'Admin Kemahasiswaan') { %>
-            <div class="sidebar-section">
-                <span class="sidebar-label">Kemahasiswaan</span>
-                <a href="/mahasiswa" class="sidebar-link">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                        <circle cx="9" cy="7" r="4"/>
-                    </svg>
-                    Data Mahasiswa
-                </a>
-            </div>
-        <% } %>
-    </nav>
+            <%# Navigasi %>
+                <nav class="sidebar-nav">
 
-    <%# Footer %>
-    <div class="sidebar-footer">
-        <div>Fakultas Teknologi Informasi</div>
-        <div style="margin-top:0.15rem; opacity:0.6;">Universitas Andalas</div>
-    </div>
-</aside>
+                    <%# Menu Utama — terlihat semua role %>
+                        <div class="sidebar-section">
+                            <span class="sidebar-label">Menu Utama</span>
+                            <a href="/dashboard" class="sidebar-link">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="1.5">
+                                    <rect x="3" y="3" width="7" height="7" rx="1" />
+                                    <rect x="14" y="3" width="7" height="7" rx="1" />
+                                    <rect x="3" y="14" width="7" height="7" rx="1" />
+                                    <rect x="14" y="14" width="7" height="7" rx="1" />
+                                </svg>
+                                Dashboard
+                            </a>
+                        </div>
 
-<%# Script highlight menu aktif %>
-<script>
-(function() {
-    const path = window.location.pathname;
-    document.querySelectorAll('.sidebar-link').forEach(function(link) {
-        const href = link.getAttribute('href');
-        if (href === '/' ? path === '/' : path.startsWith(href)) {
-            link.classList.add('active');
-        }
-    });
-})();
-</script>
+                        <%# Menu Kepegawaian — hanya Admin Kepegawaian %>
+                            <% if (user && user.role_name==='Admin Kepegawaian' ) { %>
+                                <div class="sidebar-section">
+                                    <span class="sidebar-label">Kepegawaian</span>
+
+                                    <a href="/pegawai" class="sidebar-link">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="1.5">
+                                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                                            <circle cx="9" cy="7" r="4" />
+                                            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                                            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                                        </svg>
+                                        Data Pegawai & Dosen
+                                    </a>
+
+                                    <a href="/nomenklatur" class="sidebar-link">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="1.5">
+                                            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+                                            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+                                        </svg>
+                                        Nomenklatur Jabatan
+                                    </a>
+
+                                    <a href="/struktur-jabatan" class="sidebar-link">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="1.5">
+                                            <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+                                            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+                                        </svg>
+                                        Struktur Jabatan
+                                    </a>
+
+                                    <a href="/sbm" class="sidebar-link">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="1.5">
+                                            <line x1="12" y1="1" x2="12" y2="23" />
+                                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                                        </svg>
+                                        Data SBM Perjadin
+                                    </a>
+                                </div>
+                                <% } %>
+
+                                    <%# Menu Kemahasiswaan — hanya Admin Kemahasiswaan %>
+                                        <% if (user && user.role_name==='Admin Kemahasiswaan' ) { %>
+                                            <div class="sidebar-section">
+                                                <span class="sidebar-label">Kemahasiswaan</span>
+                                                <a href="/mahasiswa" class="sidebar-link">
+                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                                        stroke="currentColor" stroke-width="1.5">
+                                                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                                                        <circle cx="9" cy="7" r="4" />
+                                                    </svg>
+                                                    Data Mahasiswa
+                                                </a>
+                                            </div>
+                                            <% } %>
+                </nav>
+
+                <%# Footer %>
+                    <div class="sidebar-footer">
+                        <div>Fakultas Teknologi Informasi</div>
+                        <div style="margin-top:0.15rem; opacity:0.6;">Universitas Andalas</div>
+                    </div>
+    </aside>
+
+    <%# Script highlight menu aktif %>
+        <script>
+            (function () {
+                const path = window.location.pathname;
+                document.querySelectorAll('.sidebar-link').forEach(function (link) {
+                    const href = link.getAttribute('href');
+                    if (href === '/' ? path === '/' : path.startsWith(href)) {
+                        link.classList.add('active');
+                    }
+                });
+            })();
+        </script>
