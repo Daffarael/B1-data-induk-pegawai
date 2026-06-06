@@ -69,15 +69,22 @@ app.use((req, res, next) => {
   next();
 });
 
+const sbmRouter = require('./routes/sbm');
+const apiSbmRouter = require('./routes/api/sbm');
+
 // --- Register Routes ---
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/pegawai', pegawaiRouter);
 app.use('/api', apiPegawaiRouter);
 
-// Register Route Luthfi
+// Register Route 
 app.use('/struktur-jabatan', strukturJabatanRouter);
 app.use('/api/struktur-jabatan', apiStrukturJabatanRouter);
+
+// Routes SBM
+app.use('/sbm', sbmRouter);
+app.use('/api/sbm', apiSbmRouter);
 
 // catch 404 and forward to error handler
 app.use(notFoundHandler);
