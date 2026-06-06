@@ -10,12 +10,26 @@ var flash = require('connect-flash');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
+
+// --- Route Data Pegawai & Dosen (Daffarael) ---
 var pegawaiRouter = require('./routes/pegawai');
 var apiPegawaiRouter = require('./routes/api/pegawai');
 
 // --- Route Struktur Jabatan (Luthfi) ---
 var strukturJabatanRouter = require('./routes/strukturJabatan');
 var apiStrukturJabatanRouter = require('./routes/api/strukturJabatan');
+
+// --- Route Nomenklatur (Firza) ---
+var nomenklaturRouter = require('./routes/nomenklatur');
+var apiNomenklaturRouter = require('./routes/api/nomenklatur');
+
+// --- Route Mahasiswa (Ayesah) ---
+var mahasiswaRouter = require('./routes/mahasiswa');
+var apiMahasiswaRouter = require('./routes/api/mahasiswa');
+
+// --- Route SBM Perjalanan Dinas (Tasya) ---
+var sbmRouter = require('./routes/sbm');
+var apiSbmRouter = require('./routes/api/sbm');
 
 const { notFoundHandler, errorHandler } = require('./middlewares/error');
 
@@ -69,20 +83,27 @@ app.use((req, res, next) => {
   next();
 });
 
-const sbmRouter = require('./routes/sbm');
-const apiSbmRouter = require('./routes/api/sbm');
-
 // --- Register Routes ---
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+
+// Register Route Daffarael
 app.use('/pegawai', pegawaiRouter);
 app.use('/api', apiPegawaiRouter);
 
-// Register Route 
+// Register Route Luthfi
 app.use('/struktur-jabatan', strukturJabatanRouter);
 app.use('/api/struktur-jabatan', apiStrukturJabatanRouter);
 
-// Routes SBM
+// Register Route Firza
+app.use('/nomenklatur', nomenklaturRouter);
+app.use('/api/nomenklatur', apiNomenklaturRouter);
+
+// Register Route Ayesah
+app.use('/mahasiswa', mahasiswaRouter);
+app.use('/api/mahasiswa', apiMahasiswaRouter);
+
+// Register Route Tasya
 app.use('/sbm', sbmRouter);
 app.use('/api/sbm', apiSbmRouter);
 
