@@ -10,8 +10,27 @@ var flash = require('connect-flash');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
+
+// --- Route Data Pegawai & Dosen (Daffarael) ---
 var pegawaiRouter = require('./routes/pegawai');
 var apiPegawaiRouter = require('./routes/api/pegawai');
+
+// --- Route Struktur Jabatan (Luthfi) ---
+var strukturJabatanRouter = require('./routes/strukturJabatan');
+var apiStrukturJabatanRouter = require('./routes/api/strukturJabatan');
+
+// --- Route Nomenklatur (Firza) ---
+var nomenklaturRouter = require('./routes/nomenklatur');
+var apiNomenklaturRouter = require('./routes/api/nomenklatur');
+
+// --- Route Mahasiswa (Ayesah) ---
+var mahasiswaRouter = require('./routes/mahasiswa');
+var apiMahasiswaRouter = require('./routes/api/mahasiswa');
+
+// --- Route SBM Perjalanan Dinas (Tasya) ---
+var sbmRouter = require('./routes/sbm');
+var apiSbmRouter = require('./routes/api/sbm');
+
 const { notFoundHandler, errorHandler } = require('./middlewares/error');
 
 var app = express();
@@ -31,8 +50,6 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Session configuration
-// Session store — pakai tabel terpisah (express_sessions)
-// agar tidak konflik dengan tabel 'sessions' milik Laravel di schema dosen
 const sessionStore = new MySQLStore({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
@@ -55,10 +72,10 @@ app.use(session({
   }
 }));
 
-// Flash messages — untuk notifikasi login gagal, sukses, dll
+// Flash messages 
 app.use(flash());
 
-// Global variables — tersedia di semua view tanpa perlu dikirim manual dari controller
+// Global variables 
 app.use((req, res, next) => {
   res.locals.user = req.session.user || null;
   res.locals.success = req.flash('success');
@@ -66,10 +83,29 @@ app.use((req, res, next) => {
   next();
 });
 
+// --- Register Routes ---
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+
+// Register Route Daffarael
 app.use('/pegawai', pegawaiRouter);
 app.use('/api', apiPegawaiRouter);
+
+// Register Route Luthfi
+app.use('/struktur-jabatan', strukturJabatanRouter);
+app.use('/api/struktur-jabatan', apiStrukturJabatanRouter);
+
+// Register Route Firza
+app.use('/nomenklatur', nomenklaturRouter);
+app.use('/api/nomenklatur', apiNomenklaturRouter);
+
+// Register Route Ayesah
+app.use('/mahasiswa', mahasiswaRouter);
+app.use('/api/mahasiswa', apiMahasiswaRouter);
+
+// Register Route Tasya
+app.use('/sbm', sbmRouter);
+app.use('/api/sbm', apiSbmRouter);
 
 // catch 404 and forward to error handler
 app.use(notFoundHandler);
