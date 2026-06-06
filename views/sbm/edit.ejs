@@ -1,0 +1,95 @@
+<%# views/sbm/edit.ejs %>
+
+<div class="fw-page-header">
+  <div>
+    <a href="/sbm/<%= sbm.id %>" style="font-size:0.8rem; color:#94a3b8; text-decoration:none; display:inline-flex; align-items:center; gap:0.3rem; margin-bottom:0.5rem;" onmouseover="this.style.color='#c8ccda'" onmouseout="this.style.color='#94a3b8'">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+      Batal Edit
+    </a>
+    <h1 class="fw-page-title">Edit Data SBM</h1>
+    <p class="fw-page-subtitle">Perbarui informasi tarif Standar Biaya Masukan</p>
+  </div>
+</div>
+
+<% if (typeof errors !== 'undefined' && errors.length > 0) { %>
+  <div class="fw-alert fw-alert-error">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0; margin-top:1px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <div>
+      <div style="font-weight:600; margin-bottom:0.25rem;">Terdapat <%= errors.length %> kesalahan</div>
+      <ul style="margin:0; padding-left:1rem; font-size:0.8rem;">
+        <% errors.forEach(e => { %><li><%= e %></li><% }) %>
+      </ul>
+    </div>
+  </div>
+<% } %>
+
+<form method="POST" action="/sbm/<%= sbm.id %>">
+  <input type="hidden" name="_method" value="PUT">
+  <div class="fw-form-section">
+    <div class="fw-form-section-header">
+      <span style="font-size:1rem;">✈️</span>
+      <span class="fw-form-section-title">Informasi Tarif SBM</span>
+    </div>
+    <div class="fw-form-section-body">
+      <div class="fw-grid-2">
+        <div>
+          <label class="fw-label fw-label-required">Kota Tujuan</label>
+          <select name="city_id" class="fw-input" required>
+            <option value="">-- Pilih Kota --</option>
+            <% cities.forEach(c => { %>
+              <option value="<%= c.id %>" <%= sbm.city_id == c.id ? 'selected' : '' %>><%= c.name %></option>
+            <% }) %>
+          </select>
+        </div>
+
+        <div>
+          <label class="fw-label fw-label-required">Komponen Biaya</label>
+          <select name="travel_cost_component_id" class="fw-input" required>
+            <option value="">-- Pilih Komponen --</option>
+            <% components.forEach(c => { %>
+              <option value="<%= c.id %>" <%= sbm.travel_cost_component_id == c.id ? 'selected' : '' %>><%= c.name %> (<%= c.code %>)</option>
+            <% }) %>
+          </select>
+        </div>
+      </div>
+
+      <div style="margin-top: 1.5rem;">
+        <div style="font-size:0.75rem; color:#94a3b8; margin-bottom:0.75rem; font-weight:600; text-transform:uppercase; letter-spacing:0.05em;">Peruntukan (Pilih salah satu atau kosongkan untuk semua)</div>
+        <div class="fw-grid-2">
+          <div>
+            <label class="fw-label">Jabatan Struktural</label>
+            <select name="structural_position_id" class="fw-input">
+              <option value="">-- Semua Jabatan --</option>
+              <% positions.forEach(p => { %>
+                <option value="<%= p.id %>" <%= sbm.structural_position_id == p.id ? 'selected' : '' %>><%= p.name %></option>
+              <% }) %>
+            </select>
+          </div>
+          <div>
+            <label class="fw-label">Golongan Pegawai</label>
+            <select name="employee_grade_id" class="fw-input">
+              <option value="">-- Semua Golongan --</option>
+              <% grades.forEach(g => { %>
+                <option value="<%= g.id %>" <%= sbm.employee_grade_id == g.id ? 'selected' : '' %>><%= g.name %></option>
+              <% }) %>
+            </select>
+          </div>
+        </div>
+        <p class="fw-form-hint" style="margin-top:0.4rem;">Kosongkan keduanya jika tarif ini berlaku untuk semua jabatan dan golongan.</p>
+      </div>
+
+      <div style="margin-top: 1.5rem;">
+        <label class="fw-label fw-label-required">Jumlah Tarif (Rp)</label>
+        <input type="number" name="amount" class="fw-input" value="<%= sbm.amount %>" min="0" step="1000" required>
+      </div>
+    </div>
+  </div>
+
+  <div class="fw-form-actions">
+    <a href="/sbm/<%= sbm.id %>" class="fw-btn fw-btn-ghost">Batal</a>
+    <button type="submit" class="fw-btn fw-btn-primary">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+      Simpan Perubahan
+    </button>
+  </div>
+</form>

@@ -1,0 +1,159 @@
+
+
+<%# views/mahasiswa/create.ejs %>
+
+<div class="fw-page-header">
+  <div>
+    <a href="/mahasiswa" style="font-size:0.8rem; color:#94a3b8; text-decoration:none; display:inline-flex; align-items:center; gap:0.3rem; margin-bottom:0.5rem;" onmouseover="this.style.color='#64748b'" onmouseout="this.style.color='#94a3b8'">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+      Data Mahasiswa
+    </a>
+    <h1 class="fw-page-title">Tambah Mahasiswa Baru</h1>
+    <p class="fw-page-subtitle">Masukkan data induk mahasiswa baru secara lengkap</p>
+  </div>
+</div>
+
+<%# Error alert %>
+<% if (typeof errors !== 'undefined' && errors.length > 0) { %>
+  <div class="fw-alert fw-alert-error">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0; margin-top:1px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <div>
+      <div style="font-weight:600; margin-bottom:0.25rem;">Terdapat <%= errors.length %> kesalahan</div>
+      <ul style="margin:0; padding-left:1rem; font-size:0.8rem;">
+        <% errors.forEach(e => { %><li><%= e %></li><% }) %>
+      </ul>
+    </div>
+  </div>
+<% } %>
+
+<form action="/mahasiswa/create" method="POST">
+  
+  <%# Biodata Pribadi %>
+  <div class="fw-form-section">
+    <div class="fw-form-section-header">
+      <span style="font-size:1rem;">👤</span>
+      <span class="fw-form-section-title">Biodata Pribadi</span>
+    </div>
+    <div class="fw-form-section-body">
+      <div class="fw-grid-2">
+        <div class="fw-col-span-2">
+          <label class="fw-label fw-label-required">NIM</label>
+          <input type="text" name="regno" value="<%= (typeof input !== 'undefined' && input.regno) ? input.regno : '' %>" required class="fw-input" placeholder="Contoh: 2411523002">
+        </div>
+        
+        <div class="fw-col-span-2">
+          <label class="fw-label fw-label-required">Nama Lengkap</label>
+          <input type="text" name="name" value="<%= (typeof input !== 'undefined' && input.name) ? input.name : '' %>" required class="fw-input" placeholder="Nama Lengkap">
+        </div>
+
+        <div>
+          <label class="fw-label">Tempat Lahir</label>
+          <input type="text" name="birth_place" value="<%= (typeof input !== 'undefined' && input.birth_place) ? input.birth_place : '' %>" class="fw-input" placeholder="Kota Kelahiran">
+        </div>
+
+        <div>
+          <label class="fw-label fw-label-required">Tanggal Lahir</label>
+          <input type="date" name="birth_date" value="<%= (typeof input !== 'undefined' && input.birth_date) ? input.birth_date : '' %>" required class="fw-input">
+        </div>
+
+        <div>
+          <label class="fw-label fw-label-required">Jenis Kelamin</label>
+          <select name="gender" required class="fw-select">
+            <option value="">Pilih...</option>
+            <option value="1" <%= (typeof input !== 'undefined' && input.gender == '1') ? 'selected' : '' %>>Laki-laki</option>
+            <option value="2" <%= (typeof input !== 'undefined' && input.gender == '2') ? 'selected' : '' %>>Perempuan</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="fw-label">Agama</label>
+          <select name="religion" class="fw-select">
+            <option value="">Pilih...</option>
+            <option value="1" <%= (typeof input !== 'undefined' && input.religion == '1') ? 'selected' : '' %>>Islam</option>
+            <option value="2" <%= (typeof input !== 'undefined' && input.religion == '2') ? 'selected' : '' %>>Katolik</option>
+            <option value="3" <%= (typeof input !== 'undefined' && input.religion == '3') ? 'selected' : '' %>>Protestan</option>
+            <option value="4" <%= (typeof input !== 'undefined' && input.religion == '4') ? 'selected' : '' %>>Hindu</option>
+            <option value="5" <%= (typeof input !== 'undefined' && input.religion == '5') ? 'selected' : '' %>>Buddha</option>
+            <option value="6" <%= (typeof input !== 'undefined' && input.religion == '6') ? 'selected' : '' %>>Konghucu</option>
+          </select>
+        </div>
+
+        <div class="fw-col-span-2">
+          <label class="fw-label">Kewarganegaraan</label>
+          <input type="text" name="nationality" value="<%= (typeof input !== 'undefined' && input.nationality) ? input.nationality : 'Indonesia' %>" class="fw-input">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%# Data Akademik & Kontak %>
+  <div class="fw-form-section">
+    <div class="fw-form-section-header">
+      <span style="font-size:1rem;">🎓</span>
+      <span class="fw-form-section-title">Data Akademik & Kontak</span>
+    </div>
+    <div class="fw-form-section-body">
+      <div class="fw-grid-2">
+        <div class="fw-col-span-2">
+          <label class="fw-label fw-label-required">Program Studi/Departemen</label>
+          <select name="department_id" required class="fw-select">
+            <option value="">Pilih Departemen...</option>
+            <% if (typeof departments !== 'undefined') { %>
+              <% departments.forEach(dept => { %>
+                <option value="<%= dept.id %>" <%= (typeof input !== 'undefined' && input.department_id == dept.id) ? 'selected' : '' %>><%= dept.name %></option>
+              <% }) %>
+            <% } %>
+          </select>
+        </div>
+
+        <div>
+          <label class="fw-label fw-label-required">Tahun Angkatan</label>
+          <input type="number" name="year" value="<%= (typeof input !== 'undefined' && input.year) ? input.year : '' %>" required class="fw-input" placeholder="Misal: 2024">
+        </div>
+
+        <div>
+          <label class="fw-label fw-label-required">Status Mahasiswa</label>
+          <select name="status" required class="fw-select">
+            <option value="">Pilih Status...</option>
+            <% if (typeof statusMap !== 'undefined') { %>
+              <% Object.entries(statusMap).forEach(([key, val]) => { %>
+                <option value="<%= key %>" <%= (typeof input !== 'undefined' && input.status == key) ? 'selected' : '' %>><%= val %></option>
+              <% }) %>
+            <% } %>
+          </select>
+        </div>
+
+        <div class="fw-col-span-2">
+          <label class="fw-label">Dosen Pembimbing Akademik (PA)</label>
+          <select name="advisor_id" class="fw-select">
+            <option value="">Pilih Dosen PA...</option>
+            <% if (typeof advisors !== 'undefined') { %>
+              <% advisors.forEach(adv => { %>
+                <option value="<%= adv.id %>" <%= (typeof input !== 'undefined' && input.advisor_id == adv.id) ? 'selected' : '' %>><%= adv.name %></option>
+              <% }) %>
+            <% } %>
+          </select>
+        </div>
+
+        <div>
+          <label class="fw-label">Email</label>
+          <input type="email" name="email" value="<%= (typeof input !== 'undefined' && input.email) ? input.email : '' %>" class="fw-input" placeholder="Email aktif">
+        </div>
+
+        <div>
+          <label class="fw-label">Telepon/HP</label>
+          <input type="text" name="phone" value="<%= (typeof input !== 'undefined' && input.phone) ? input.phone : '' %>" class="fw-input" placeholder="08xxxxxxxx">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%# Action buttons %>
+  <div style="display:flex; align-items:center; gap:0.75rem; padding-top:0.5rem; margin-bottom:2rem;">
+    <button type="submit" class="fw-btn fw-btn-primary">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+      Simpan Data
+    </button>
+    <a href="/mahasiswa" class="fw-btn fw-btn-ghost">Batal</a>
+  </div>
+</form>
