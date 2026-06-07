@@ -1,218 +1,279 @@
 <%# views/pegawai/index.ejs %>
 
-<%# ── Stat cards ─────────────────────────────────────────── %>
-<div class="fw-stats-grid">
-  <div class="fw-stat">
-    <div class="fw-stat-label">Total Pegawai</div>
-    <div class="fw-stat-value"><%= total %></div>
-    <div class="fw-stat-sub">terdaftar</div>
-  </div>
-  <div class="fw-stat">
-    <div class="fw-stat-label">Dosen</div>
-    <div class="fw-stat-value"><%= pegawai.filter(p => p.employee_type === 'Dosen').length %></div>
-    <div class="fw-stat-sub">di halaman ini</div>
-  </div>
-  <div class="fw-stat">
-    <div class="fw-stat-label">Staf</div>
-    <div class="fw-stat-value"><%= pegawai.filter(p => p.employee_type !== 'Dosen').length %></div>
-    <div class="fw-stat-sub">di halaman ini</div>
-  </div>
-  <div class="fw-stat">
-    <div class="fw-stat-label">Aktif</div>
-    <div class="fw-stat-value"><%= pegawai.filter(p => p.status === 'active').length %></div>
-    <div class="fw-stat-sub">di halaman ini</div>
-  </div>
-</div>
-
-<%# ── Main card ────────────────────────────────────────────── %>
-<div class="fw-card">
-
-  <%# Toolbar: search + filter + actions — semua sejajar satu baris %>
-  <div class="fw-toolbar">
-    <form method="GET" action="/pegawai" class="fw-toolbar-form">
-
-      <%# Search input %>
-      <div class="fw-toolbar-field fw-toolbar-search">
-        <div class="fw-input-icon-wrap">
-          <svg class="fw-input-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-          </svg>
-          <input type="text" name="search" value="<%= search %>"
-                 placeholder="Cari nama atau NIP..."
-                 class="fw-input fw-input-with-icon">
+  <%# ── Stat cards ─────────────────────────────────────────── %>
+    <div class="fw-stats-grid">
+      <div class="fw-stat">
+        <div class="fw-stat-label">Total Pegawai</div>
+        <div class="fw-stat-value">
+          <%= total %>
         </div>
+        <div class="fw-stat-sub">terdaftar</div>
       </div>
-
-      <%# Status filter %>
-      <div class="fw-toolbar-field">
-        <select name="status" class="fw-select" style="width:150px;">
-          <option value="">Semua Status</option>
-          <option value="active"   <%= statusFilter === 'active'   ? 'selected' : '' %>>Aktif</option>
-          <option value="inactive" <%= statusFilter === 'inactive' ? 'selected' : '' %>>Tidak Aktif</option>
-        </select>
+      <div class="fw-stat">
+        <div class="fw-stat-label">Dosen</div>
+        <div class="fw-stat-value">
+          <%= pegawai.filter(p=> p.employee_type === 'Dosen').length %>
+        </div>
+        <div class="fw-stat-sub">di halaman ini</div>
       </div>
-
-      <%# Action buttons — sejajar dengan input %>
-      <div class="fw-toolbar-actions">
-        <button type="submit" class="fw-btn fw-btn-primary fw-btn-sm">Cari</button>
-        <a href="/pegawai" class="fw-btn fw-btn-ghost fw-btn-sm">Reset</a>
+      <div class="fw-stat">
+        <div class="fw-stat-label">Staf</div>
+        <div class="fw-stat-value">
+          <%= pegawai.filter(p=> p.employee_type !== 'Dosen').length %>
+        </div>
+        <div class="fw-stat-sub">di halaman ini</div>
       </div>
-    </form>
-
-    <%# Right-side buttons %>
-    <div class="fw-toolbar-right">
-      <a href="/pegawai/export/pdf?search=<%= encodeURIComponent(search) %>&status=<%= statusFilter %>"
-         class="fw-btn fw-btn-outline fw-btn-sm" target="_blank">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-          <polyline points="14 2 14 8 20 8"/>
-          <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
-        </svg>
-        Export PDF
-      </a>
-      <a href="/pegawai/create" class="fw-btn fw-btn-primary fw-btn-sm">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-        </svg>
-        Tambah
-      </a>
-    </div>
-  </div>
-
-  <%# Import CSV — row tersendiri di bawah toolbar %>
-  <div class="fw-import-row">
-    <details>
-      <summary class="fw-import-toggle">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-          <polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
-        </svg>
-        Import dari CSV
-      </summary>
-      <div class="fw-import-body">
-        <form method="POST" action="/pegawai/import" enctype="multipart/form-data" class="fw-import-form">
-          <input type="file" name="csv_file" accept=".csv" class="fw-import-file">
-          <button type="submit" class="fw-btn fw-btn-sm" style="background:#10b981; color:#fff; border-color:#10b981;">
-            Upload & Import
-          </button>
-        </form>
-        <p class="fw-import-hint">
-          Kolom wajib CSV: <code>employee_number, name, birth_place, birth_date, gender, marital_status, address, organization_unit_id, hire_date, employment_status_id, status</code>
-        </p>
+      <div class="fw-stat">
+        <div class="fw-stat-label">Aktif</div>
+        <div class="fw-stat-value">
+          <%= pegawai.filter(p=> p.status === 'active').length %>
+        </div>
+        <div class="fw-stat-sub">di halaman ini</div>
       </div>
-    </details>
-  </div>
-
-  <%# Divider %>
-  <div class="fw-divider"></div>
-
-  <%# Empty state %>
-  <% if (pegawai.length === 0) { %>
-    <div class="fw-empty">
-      <svg class="fw-empty-icon" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
-        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-        <circle cx="9" cy="7" r="4"/>
-        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-      </svg>
-      <div class="fw-empty-title">Belum ada data pegawai</div>
-      <div class="fw-empty-desc">Klik "Tambah" untuk menambahkan data baru</div>
-      <a href="/pegawai/create" class="fw-btn fw-btn-primary fw-btn-sm" style="margin-top:1rem;">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        Tambah Pegawai
-      </a>
     </div>
 
-  <% } else { %>
-    <%# Data table %>
-    <div class="fw-table-wrap">
-      <table class="fw-table">
-        <thead>
-          <tr>
-            <th style="width:36px; text-align:center;">#</th>
-            <th>NIP</th>
-            <th>Nama</th>
-            <th>Tipe</th>
-            <th>Unit Organisasi</th>
-            <th>Tgl Masuk</th>
-            <th>Status</th>
-            <th style="width:96px; text-align:center;">Aksi</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% pegawai.forEach((p, i) => { %>
-            <tr>
-              <td style="text-align:center; color:#c8ccda; font-size:0.75rem;"><%= (currentPage - 1) * 10 + i + 1 %></td>
-              <td>
-                <span class="fw-mono-chip"><%= p.employee_number %></span>
-              </td>
-              <td>
-                <div class="fw-cell-name"><%= p.name %></div>
-                <% if (p.phone_number) { %>
-                  <div class="fw-cell-sub"><%= p.phone_number %></div>
-                <% } %>
-              </td>
-              <td>
-                <% if (p.employee_type === 'Dosen') { %>
-                  <span class="fw-badge fw-badge-dark">Dosen</span>
-                <% } else { %>
-                  <span class="fw-badge fw-badge-slate">Staf</span>
-                <% } %>
-              </td>
-              <td class="fw-cell-muted"><%= p.unit_name || '—' %></td>
-              <td class="fw-cell-muted fw-nowrap">
-                <%= p.hire_date ? new Date(p.hire_date).toLocaleDateString('id-ID', {day:'numeric', month:'short', year:'numeric'}) : '—' %>
-              </td>
-              <td>
-                <% if (p.status === 'active') { %>
-                  <span class="fw-badge fw-badge-green">● Aktif</span>
-                <% } else { %>
-                  <span class="fw-badge fw-badge-red">● Nonaktif</span>
-                <% } %>
-              </td>
-              <td>
-                <div class="fw-action-btns">
-                  <a href="/pegawai/<%= p.id %>" class="fw-action-btn" title="Detail">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                  </a>
-                  <a href="/pegawai/<%= p.id %>/edit" class="fw-action-btn fw-action-warn" title="Edit">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                  </a>
-                  <form method="POST" action="/pegawai/<%= p.id %>"
-                        onsubmit="return confirm('Hapus data <%= p.name.replace(/'/g,"&#39;") %>?')"
-                        style="display:inline;">
-                    <input type="hidden" name="_method" value="DELETE">
-                    <button type="submit" class="fw-action-btn fw-action-danger" title="Hapus">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+    <%# ── Main card ────────────────────────────────────────────── %>
+      <div class="fw-card">
+
+        <%# Toolbar: search + filter + actions — semua sejajar satu baris %>
+          <div class="fw-toolbar">
+            <form method="GET" action="/pegawai" class="fw-toolbar-form">
+
+              <%# Search input %>
+                <div class="fw-toolbar-field fw-toolbar-search">
+                  <div class="fw-input-icon-wrap">
+                    <svg class="fw-input-icon" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" stroke-width="2">
+                      <circle cx="11" cy="11" r="8" />
+                      <path d="m21 21-4.35-4.35" />
+                    </svg>
+                    <input type="text" name="search" value="<%= search %>" placeholder="Cari nama atau NIP..."
+                      class="fw-input fw-input-with-icon">
+                  </div>
+                </div>
+
+                <%# Status filter %>
+                  <div class="fw-toolbar-field">
+                    <select name="status" class="fw-select" style="width:150px;">
+                      <option value="">Semua Status</option>
+                      <option value="active" <%=statusFilter==='active' ? 'selected' : '' %>>Aktif</option>
+                      <option value="inactive" <%=statusFilter==='inactive' ? 'selected' : '' %>>Tidak Aktif</option>
+                    </select>
+                  </div>
+
+                  <%# Action buttons — sejajar dengan input %>
+                    <div class="fw-toolbar-actions">
+                      <button type="submit" class="fw-btn fw-btn-primary fw-btn-sm">Cari</button>
+                      <a href="/pegawai" class="fw-btn fw-btn-ghost fw-btn-sm">Reset</a>
+                    </div>
+            </form>
+
+            <%# Right-side buttons %>
+              <div class="fw-toolbar-right">
+                <a href="/pegawai/export/pdf?search=<%= encodeURIComponent(search) %>&status=<%= statusFilter %>"
+                  class="fw-btn fw-btn-outline fw-btn-sm" target="_blank">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                    <line x1="16" y1="13" x2="8" y2="13" />
+                    <line x1="16" y1="17" x2="8" y2="17" />
+                  </svg>
+                  Export PDF
+                </a>
+                <a href="/pegawai/export/json?search=<%= encodeURIComponent(search) %>&status=<%= statusFilter %>"
+                  class="fw-btn fw-btn-outline fw-btn-sm">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="16 18 22 12 16 6" />
+                    <polyline points="8 6 2 12 8 18" />
+                  </svg>
+                  Export JSON
+                </a>
+                <a href="/pegawai/create" class="fw-btn fw-btn-primary fw-btn-sm">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <line x1="12" y1="5" x2="12" y2="19" />
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                  </svg>
+                  Tambah
+                </a>
+              </div>
+
+          </div>
+
+          <%# Import CSV — row tersendiri di bawah toolbar %>
+            <div class="fw-import-row">
+              <details>
+                <summary class="fw-import-toggle">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="17 8 12 3 7 8" />
+                    <line x1="12" y1="3" x2="12" y2="15" />
+                  </svg>
+                  Import dari CSV
+                </summary>
+                <div class="fw-import-body">
+                  <form method="POST" action="/pegawai/import" enctype="multipart/form-data" class="fw-import-form">
+                    <input type="file" name="csv_file" accept=".csv" class="fw-import-file">
+                    <button type="submit" class="fw-btn fw-btn-sm"
+                      style="background:#10b981; color:#fff; border-color:#10b981;">
+                      Upload & Import
                     </button>
                   </form>
+                  <p class="fw-import-hint">
+                    Kolom wajib CSV:
+                    <code>employee_number, name, birth_place, birth_date, gender, marital_status, address, organization_unit_id, hire_date, employment_status_id, status</code>
+                  </p>
                 </div>
-              </td>
-            </tr>
-          <% }) %>
-        </tbody>
-      </table>
-    </div>
+              </details>
+            </div>
 
-    <%# Footer: info + pagination %>
-    <div class="fw-table-footer">
-      <span class="fw-table-info">
-        Menampilkan <%= (currentPage - 1) * 10 + 1 %>–<%= Math.min(currentPage * 10, total) %> dari <strong><%= total %></strong> data
-      </span>
-      <% if (totalPages > 1) { %>
-        <div class="fw-pagination">
-          <% if (currentPage > 1) { %>
-            <a href="/pegawai?page=<%= currentPage-1 %>&search=<%= encodeURIComponent(search) %>&status=<%= statusFilter %>" class="fw-page-btn">‹</a>
-          <% } %>
-          <% for(let pg = Math.max(1, currentPage-2); pg <= Math.min(totalPages, currentPage+2); pg++) { %>
-            <a href="/pegawai?page=<%= pg %>&search=<%= encodeURIComponent(search) %>&status=<%= statusFilter %>"
-               class="fw-page-btn <%= pg === currentPage ? 'active' : '' %>"><%= pg %></a>
-          <% } %>
-          <% if (currentPage < totalPages) { %>
-            <a href="/pegawai?page=<%= currentPage+1 %>&search=<%= encodeURIComponent(search) %>&status=<%= statusFilter %>" class="fw-page-btn">›</a>
-          <% } %>
-        </div>
-      <% } %>
-    </div>
-  <% } %>
-</div>
+            <%# Divider %>
+              <div class="fw-divider"></div>
+
+              <%# Empty state %>
+                <% if (pegawai.length===0) { %>
+                  <div class="fw-empty">
+                    <svg class="fw-empty-icon" width="40" height="40" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" stroke-width="1.2">
+                      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                      <circle cx="9" cy="7" r="4" />
+                      <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                    </svg>
+                    <div class="fw-empty-title">Belum ada data pegawai</div>
+                    <div class="fw-empty-desc">Klik "Tambah" untuk menambahkan data baru</div>
+                    <a href="/pegawai/create" class="fw-btn fw-btn-primary fw-btn-sm" style="margin-top:1rem;">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2.5">
+                        <line x1="12" y1="5" x2="12" y2="19" />
+                        <line x1="5" y1="12" x2="19" y2="12" />
+                      </svg>
+                      Tambah Pegawai
+                    </a>
+                  </div>
+
+                  <% } else { %>
+                    <%# Data table %>
+                      <div class="fw-table-wrap">
+                        <table class="fw-table">
+                          <thead>
+                            <tr>
+                              <th style="width:36px; text-align:center;">#</th>
+                              <th>NIP</th>
+                              <th>Nama</th>
+                              <th>Tipe</th>
+                              <th>Unit Organisasi</th>
+                              <th>Tgl Masuk</th>
+                              <th>Status</th>
+                              <th style="width:96px; text-align:center;">Aksi</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <% pegawai.forEach((p, i)=> { %>
+                              <tr>
+                                <td style="text-align:center; color:#c8ccda; font-size:0.75rem;">
+                                  <%= (currentPage - 1) * 10 + i + 1 %>
+                                </td>
+                                <td>
+                                  <span class="fw-mono-chip">
+                                    <%= p.employee_number %>
+                                  </span>
+                                </td>
+                                <td>
+                                  <div class="fw-cell-name">
+                                    <%= p.name %>
+                                  </div>
+                                  <% if (p.phone_number) { %>
+                                    <div class="fw-cell-sub">
+                                      <%= p.phone_number %>
+                                    </div>
+                                    <% } %>
+                                </td>
+                                <td>
+                                  <% if (p.employee_type==='Dosen' ) { %>
+                                    <span class="fw-badge fw-badge-dark">Dosen</span>
+                                    <% } else { %>
+                                      <span class="fw-badge fw-badge-slate">Staf</span>
+                                      <% } %>
+                                </td>
+                                <td class="fw-cell-muted">
+                                  <%= p.unit_name || '—' %>
+                                </td>
+                                <td class="fw-cell-muted fw-nowrap">
+                                  <%= p.hire_date ? new Date(p.hire_date).toLocaleDateString('id-ID', {day:'numeric',
+                                    month:'short', year:'numeric'}) : '—' %>
+                                </td>
+                                <td>
+                                  <% if (p.status==='active' ) { %>
+                                    <span class="fw-badge fw-badge-green">● Aktif</span>
+                                    <% } else { %>
+                                      <span class="fw-badge fw-badge-red">● Nonaktif</span>
+                                      <% } %>
+                                </td>
+                                <td>
+                                  <div class="fw-action-btns">
+                                    <a href="/pegawai/<%= p.id %>" class="fw-action-btn" title="Detail">
+                                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                                        <circle cx="12" cy="12" r="3" />
+                                      </svg>
+                                    </a>
+                                    <a href="/pegawai/<%= p.id %>/edit" class="fw-action-btn fw-action-warn"
+                                      title="Edit">
+                                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                                      </svg>
+                                    </a>
+                                    <form method="POST" action="/pegawai/<%= p.id %>" data-name="<%= p.name %>"
+                                      onsubmit="return confirm('Hapus data ' + this.dataset.name + '?')"
+                                      style="display:inline;">
+                                      <input type="hidden" name="_method" value="DELETE">
+                                      <button type="submit" class="fw-action-btn fw-action-danger" title="Hapus">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                                          stroke="currentColor" stroke-width="2">
+                                          <polyline points="3 6 5 6 21 6" />
+                                          <path
+                                            d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+                                        </svg>
+                                      </button>
+                                    </form>
+                                  </div>
+                                </td>
+                              </tr>
+                              <% }) %>
+                          </tbody>
+                        </table>
+                      </div>
+
+                      <%# Footer: info + pagination %>
+                        <div class="fw-table-footer">
+                          <span class="fw-table-info">
+                            Menampilkan <%= (currentPage - 1) * 10 + 1 %>–<%= Math.min(currentPage * 10, total) %> dari
+                                <strong>
+                                  <%= total %>
+                                </strong> data
+                          </span>
+                          <% if (totalPages> 1) { %>
+                            <div class="fw-pagination">
+                              <% if (currentPage> 1) { %>
+                                <a href="/pegawai?page=<%= currentPage-1 %>&search=<%= encodeURIComponent(search) %>&status=<%= statusFilter %>"
+                                  class="fw-page-btn">‹</a>
+                                <% } %>
+                                  <% for(let pg=Math.max(1, currentPage-2); pg <=Math.min(totalPages, currentPage+2);
+                                    pg++) { %>
+                                    <a href="/pegawai?page=<%= pg %>&search=<%= encodeURIComponent(search) %>&status=<%= statusFilter %>"
+                                      class="fw-page-btn <%= pg === currentPage ? 'active' : '' %>">
+                                      <%= pg %>
+                                    </a>
+                                    <% } %>
+                                      <% if (currentPage < totalPages) { %>
+                                        <a href="/pegawai?page=<%= currentPage+1 %>&search=<%= encodeURIComponent(search) %>&status=<%= statusFilter %>"
+                                          class="fw-page-btn">›</a>
+                                        <% } %>
+                            </div>
+                            <% } %>
+                        </div>
+                        <% } %>
+      </div>

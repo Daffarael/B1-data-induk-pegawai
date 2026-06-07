@@ -470,70 +470,172 @@ const exportPdf = async (req, res, next) => {
       params
     );
 
-    const doc = new PDFDocument({ margin: 40, size: 'A4', layout: 'landscape' });
-
+    const doc = new PDFDocument({ margin: 0, size: 'A4', layout: 'landscape', autoFirstPage: true });
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', 'attachment; filename="data-pegawai.pdf"');
     doc.pipe(res);
 
-    // ── Header PDF ──
-    doc.fontSize(16).font('Helvetica-Bold')
-       .text('DAFTAR DATA PEGAWAI & DOSEN', { align: 'center' });
-    doc.fontSize(10).font('Helvetica')
-       .text('FacultyWare — Fakultas Teknologi Informasi, Universitas Andalas', { align: 'center' });
-    doc.moveDown(0.5);
-    doc.fontSize(9).text(`Dicetak: ${new Date().toLocaleDateString('id-ID', { dateStyle: 'long' })}`, { align: 'right' });
-    doc.moveDown();
+    const W   = doc.page.width;   // 841.89
+    const H   = doc.page.height;  // 595.28
+    const ML  = 45;
+    const MR  = 45;
+    const tanggal = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+    const logoPath = path.join(__dirname, '../public/assets/images/logo-fti.png');
 
-    // ── Header tabel ──
-    const colWidths = [100, 150, 60, 80, 110, 80, 80, 80];
-    const headers = ['NIP', 'Nama', 'Tipe', 'Jenis Kelamin', 'Unit', 'Status Kepeg.', 'Tgl Masuk', 'Status'];
-    let x = 40;
-    const headerY = doc.y;
+    // ── Warna ──
+    const C_DARK   = '#1f2937';   // teks gelap
+    const C_GRAY   = '#6b7280';   // teks abu
+    const C_LINE   = '#e5e7eb';   // garis tabel
+    const C_STRIPE = '#f9fafb';   // stripe baris
+    const C_HEAD   = '#374151';   // header tabel
 
-    doc.rect(40, headerY, colWidths.reduce((a, b) => a + b, 0), 18).fill('#2563eb');
-    doc.fillColor('white').fontSize(8).font('Helvetica-Bold');
-    headers.forEach((h, i) => {
-      doc.text(h, x + 3, headerY + 4, { width: colWidths[i] - 6, align: 'left' });
-      x += colWidths[i];
-    });
+    // ══════════════════════════════════════
+    // Fungsi render satu halaman header
+    // ══════════════════════════════════════
+    const drawPageHeader = () => {
+      const KOP_H = 90;
 
-    // ── Baris data ──
-    doc.fillColor('black').font('Helvetica').fontSize(8);
-    let rowY = headerY + 18;
-
-    pegawai.forEach((p, idx) => {
-      const rowH = 18;
-      if (idx % 2 === 0) {
-        doc.rect(40, rowY, colWidths.reduce((a, b) => a + b, 0), rowH).fill('#f1f5f9');
+      // ── Logo FTI (kiri) ──
+      try {
+        doc.image(logoPath, ML, 14, { height: 58 });
+      } catch (e) {
+        // Fallback teks jika logo tidak ditemukan
+        doc.rect(ML, 14, 58, 58).fill(C_HEAD);
+        doc.fillColor('white').fontSize(11).font('Helvetica-Bold')
+           .text('FTI', ML, 34, { width: 58, align: 'center' });
       }
-      doc.fillColor('black');
-      x = 40;
+
+      // ── Teks kop (tengah kanan logo) ──
+      const textX = ML + 68;
+      doc.fillColor(C_GRAY).fontSize(7).font('Helvetica')
+         .text('KEMENTERIAN PENDIDIKAN, KEBUDAYAAN, RISET, DAN TEKNOLOGI', textX, 15, { characterSpacing: 0.2 });
+      doc.fillColor(C_DARK).fontSize(9).font('Helvetica-Bold')
+         .text('UNIVERSITAS ANDALAS', textX, 25);
+      doc.fillColor(C_DARK).fontSize(9).font('Helvetica-Bold')
+         .text('FAKULTAS TEKNOLOGI INFORMASI', textX, 37);
+      doc.fillColor(C_GRAY).fontSize(7).font('Helvetica')
+         .text('Kampus Unand Limau Manis, Padang 25163, Telp. (0751) 72586', textX, 50);
+      doc.fillColor(C_GRAY).fontSize(7)
+         .text('Website: fti.unand.ac.id  |  Email: fti@unand.ac.id', textX, 60);
+
+      // ── Garis kop (dobel) ──
+      doc.moveTo(ML, KOP_H - 4).lineTo(W - MR, KOP_H - 4)
+         .strokeColor(C_DARK).lineWidth(2).stroke();
+      doc.moveTo(ML, KOP_H).lineTo(W - MR, KOP_H)
+         .strokeColor(C_DARK).lineWidth(0.5).stroke();
+
+      // ── Judul dokumen ──
+      doc.fillColor(C_DARK).fontSize(11).font('Helvetica-Bold')
+         .text('DAFTAR DATA PEGAWAI DAN DOSEN', 0, KOP_H + 10, { width: W, align: 'center' });
+      doc.fillColor(C_GRAY).fontSize(7.5).font('Helvetica')
+         .text(`Fakultas Teknologi Informasi, Universitas Andalas`, 0, KOP_H + 25, { width: W, align: 'center' });
+
+      // ── Info tanggal & total (kanan) ──
+      doc.fillColor(C_GRAY).fontSize(7).font('Helvetica')
+         .text(`Dicetak: ${tanggal}`, 0, 22, { width: W - MR, align: 'right' })
+         .text(`Total Data: ${pegawai.length} pegawai`, 0, 33, { width: W - MR, align: 'right' });
+
+      return KOP_H + 36; // posisi Y setelah header
+    };
+
+    // ══════════════════════════════════════
+    // Fungsi tabel
+    // ══════════════════════════════════════
+    const colWidths  = [110, 155, 55, 80, 130, 100, 75, 70];
+    const headers    = ['NIP', 'Nama Lengkap', 'Tipe', 'Jenis Kelamin', 'Unit Organisasi', 'Status Kepeg.', 'Tgl Masuk', 'Status'];
+    const totalTableW = colWidths.reduce((a, b) => a + b, 0);
+    const ROW_H  = 18;
+    const HEAD_H = 20;
+    const pageBottom = H - 36;
+
+    const drawTableHeader = (y) => {
+      doc.rect(ML, y, totalTableW, HEAD_H).fill(C_HEAD);
+      doc.fillColor('white').fontSize(7.5).font('Helvetica-Bold');
+      let cx = ML;
+      headers.forEach((h, i) => {
+        doc.text(h, cx + 5, y + 6, { width: colWidths[i] - 8, align: 'left' });
+        cx += colWidths[i];
+      });
+      return y + HEAD_H;
+    };
+
+    const drawRow = (p, idx, y) => {
+      if (idx % 2 !== 0) {
+        doc.rect(ML, y, totalTableW, ROW_H).fill(C_STRIPE);
+      }
+      doc.moveTo(ML, y + ROW_H).lineTo(ML + totalTableW, y + ROW_H)
+         .strokeColor(C_LINE).lineWidth(0.3).stroke();
+
       const values = [
-        p.employee_number,
-        p.name,
-        p.employee_type,
+        p.employee_number || '-',
+        p.name || '-',
+        p.employee_type || '-',
         p.gender === 'male' ? 'Laki-laki' : 'Perempuan',
         p.unit_name || '-',
         p.employment_status_name || '-',
-        p.hire_date ? new Date(p.hire_date).toLocaleDateString('id-ID') : '-',
-        p.status === 'active' ? 'Aktif' : 'Tidak Aktif'
+        p.hire_date ? new Date(p.hire_date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : '-',
+        p.status === 'active' ? 'Aktif' : 'Nonaktif'
       ];
-      values.forEach((v, i) => {
-        doc.text(String(v || '-'), x + 3, rowY + 4, { width: colWidths[i] - 6, align: 'left' });
-        x += colWidths[i];
-      });
-      rowY += rowH;
 
-      // Tambah halaman baru jika hampir habis
-      if (rowY > doc.page.height - 60) {
+      let cx = ML;
+      values.forEach((v, i) => {
+        if (i === 7)      doc.fillColor(v === 'Aktif' ? '#15803d' : '#9ca3af').font('Helvetica-Bold');
+        else if (i === 2) doc.fillColor(C_HEAD).font('Helvetica');
+        else              doc.fillColor(C_DARK).font('Helvetica');
+        doc.fontSize(7.5).text(String(v), cx + 5, y + 5, { width: colWidths[i] - 8, align: 'left' });
+        cx += colWidths[i];
+      });
+    };
+
+    const drawTableBorder = (yTop, yBottom) => {
+      doc.rect(ML, yTop, totalTableW, yBottom - yTop)
+         .strokeColor('#d1d5db').lineWidth(0.5).stroke();
+    };
+
+    const drawColLines = (yTop, yBottom) => {
+      let cx = ML;
+      colWidths.forEach((w, i) => {
+        cx += w;
+        if (i < colWidths.length - 1) {
+          doc.moveTo(cx, yTop).lineTo(cx, yBottom)
+             .strokeColor(C_LINE).lineWidth(0.3).stroke();
+        }
+      });
+    };
+
+    const drawFooter = (pageNum) => {
+      doc.moveTo(ML, H - 22).lineTo(W - MR, H - 22)
+         .strokeColor('#d1d5db').lineWidth(0.4).stroke();
+      doc.fillColor(C_GRAY).fontSize(6.5).font('Helvetica')
+         .text('FacultyWare | Sistem Informasi Kepegawaian FTI Universitas Andalas', ML, H - 17)
+         .text(`Halaman ${pageNum}  |  ${tanggal}`, 0, H - 17, { width: W - MR, align: 'right' });
+    };
+
+    // ══════════════════════════════════════
+    // RENDER
+    // ══════════════════════════════════════
+    let startY  = drawPageHeader();
+    let tableTopY = startY;
+    let rowY    = drawTableHeader(startY);
+    let pageNum = 1;
+
+    pegawai.forEach((p, idx) => {
+      if (rowY + ROW_H > pageBottom) {
+        drawTableBorder(tableTopY, rowY);
+        drawColLines(tableTopY, rowY);
+        drawFooter(pageNum++);
         doc.addPage();
-        rowY = 40;
+        startY    = drawPageHeader();
+        tableTopY = startY;
+        rowY      = drawTableHeader(startY);
       }
+      drawRow(p, idx, rowY);
+      rowY += ROW_H;
     });
 
-    doc.moveDown(2);
-    doc.fontSize(8).text(`Total: ${pegawai.length} pegawai`, 40);
+    drawTableBorder(tableTopY, rowY);
+    drawColLines(tableTopY, rowY);
+    drawFooter(pageNum);
 
     doc.end();
   } catch (err) {
@@ -541,8 +643,52 @@ const exportPdf = async (req, res, next) => {
   }
 };
 
+
+// ────────────────────────────────────────────────────────────────────
+// GET /pegawai/export/json — Export daftar ke JSON
+// ────────────────────────────────────────────────────────────────────
+const exportJson = async (req, res, next) => {
+  try {
+    const search = req.query.search || '';
+    const statusFilter = req.query.status || '';
+    const { whereClause, params } = buildListQuery(search, statusFilter);
+
+    const [pegawai] = await db.query(
+      `SELECT
+         e.id, e.employee_number, e.national_id_number, e.tax_id_number,
+         e.name, e.birth_place, e.birth_date, e.gender, e.religion,
+         e.marital_status, e.address, e.phone_number,
+         e.hire_date, e.status,
+         ou.name AS unit_name,
+         es.name AS employment_status_name,
+         IF(l.id IS NOT NULL, 'Dosen', 'Staf') AS employee_type,
+         l.academic_rank, l.functional_position, l.expertise
+       FROM employees e
+       LEFT JOIN organization_units ou ON e.organization_unit_id = ou.id
+       LEFT JOIN employment_statuses es ON e.employment_status_id = es.id
+       LEFT JOIN lecturers l ON e.id = l.id
+       ${whereClause}
+       ORDER BY e.name ASC`,
+      params
+    );
+
+    const output = {
+      exported_at: new Date().toISOString(),
+      total: pegawai.length,
+      data: pegawai
+    };
+
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Content-Disposition', 'attachment; filename="data-pegawai.json"');
+    res.send(JSON.stringify(output, null, 2));
+  } catch (err) {
+    next(err);
+  }
+};
+
 // ────────────────────────────────────────────────────────────────────
 // POST /pegawai/import — Import dari CSV
+
 // ────────────────────────────────────────────────────────────────────
 const importCsv = async (req, res, next) => {
   if (!req.file) {
@@ -643,6 +789,7 @@ module.exports = {
   update,
   destroy,
   exportPdf,
+  exportJson,
   importCsv,
   upload  // expose multer middleware
 };
