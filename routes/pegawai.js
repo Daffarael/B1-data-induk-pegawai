@@ -13,6 +13,9 @@ router.get('/', guard, pegawaiController.index);
 // GET  /pegawai/export/pdf   — Export PDF (harus SEBELUM /:id agar tidak bentrok)
 router.get('/export/pdf', guard, pegawaiController.exportPdf);
 
+// GET  /pegawai/export/json  — Export JSON
+router.get('/export/json', guard, pegawaiController.exportJson);
+
 // POST /pegawai/import       — Import CSV
 router.post('/import', guard, pegawaiController.upload.single('csv_file'), pegawaiController.importCsv);
 
