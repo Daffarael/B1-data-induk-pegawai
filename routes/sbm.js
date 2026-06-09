@@ -17,5 +17,10 @@ router.get('/:id',     c.show);
 router.get('/:id/edit', c.edit);
 router.put('/:id',     c.update);
 router.delete('/:id',  c.destroy);
+router.post('/:id', (req, res, next) => {
+  if (req.body._method === 'PUT') return c.update(req, res, next);
+  if (req.body._method === 'DELETE') return c.destroy(req, res, next);
+  next();
+});
 
 module.exports = router;
