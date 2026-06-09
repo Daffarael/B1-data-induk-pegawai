@@ -17,20 +17,14 @@ router.get('/export/json', guard, c.exportJson);
 router.post('/import',     guard, c.upload.single('csv_file'), c.importCsv);
 
 // ── Detail, Edit, Hapus Nomenklatur ──
-router.get('/:id',       guard, c.show);
-router.get('/:id/edit',  guard, c.edit);
-router.post('/:id',      guard, (req, res, next) => {
-  if (req.body._method === 'PUT')    return c.update(req, res, next);
-  if (req.body._method === 'DELETE') return c.destroy(req, res, next);
-  next();
-});
+router.get('/:id',        guard, c.show);
+router.get('/:id/edit',   guard, c.edit);
+router.put('/:id',        guard, c.update);
+router.delete('/:id',     guard, c.destroy);
 
 // ── Klasifikasi (inline di halaman show) ──
-router.post('/:id/klasifikasi',        guard, c.storeKlasifikasi);
-router.post('/:id/klasifikasi/:kid',   guard, (req, res, next) => {
-  if (req.body._method === 'PUT')    return c.updateKlasifikasi(req, res, next);
-  if (req.body._method === 'DELETE') return c.destroyKlasifikasi(req, res, next);
-  next();
-});
+router.post('/:id/klasifikasi',              guard, c.storeKlasifikasi);
+router.put('/:id/klasifikasi/:kid',          guard, c.updateKlasifikasi);
+router.delete('/:id/klasifikasi/:kid',       guard, c.destroyKlasifikasi);
 
 module.exports = router;
