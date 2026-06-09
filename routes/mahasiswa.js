@@ -1,5 +1,3 @@
-
-
 const express = require('express');
 const router = express.Router();
 const mahasiswaController = require('../controllers/mahasiswaController');
@@ -15,6 +13,9 @@ router.get('/', mahasiswaController.index);
 
 // GET /mahasiswa/export/pdf
 router.get('/export/pdf', mahasiswaController.exportPdf);
+
+// GET /mahasiswa/export/json
+router.get('/export/json', mahasiswaController.exportJson);
 
 // POST /mahasiswa/import
 router.post('/import', mahasiswaController.upload.single('file'), mahasiswaController.importCsv);
@@ -33,8 +34,8 @@ router.get('/:id/edit', mahasiswaController.edit);
 // Tapi lebih baik tetap POST /mahasiswa/:id untuk update kalau tidak pakai method-override
 router.post('/:id/update', mahasiswaController.update);
 
-// POST /mahasiswa/:id/delete untuk delete
-router.post('/:id/delete', mahasiswaController.destroy);
+// DELETE /mahasiswa/:id/delete untuk delete
+router.delete('/:id/delete', mahasiswaController.destroy);
 
 // GET /mahasiswa/:id
 router.get('/:id', mahasiswaController.show);

@@ -1,5 +1,3 @@
-
-
 const db = require('../lib/db');
 const PDFDocument = require('pdfkit');
 const multer = require('multer');
@@ -158,6 +156,7 @@ const create = async (req, res, next) => {
       title: 'Tambah Mahasiswa',
       units,
       advisors,
+      statusMap,
       old: {},
       errors: []
     });
@@ -190,7 +189,7 @@ const store = async (req, res, next) => {
     const [advisors] = await db.query("SELECT e.id, e.name FROM employees e INNER JOIN lecturers l ON e.id = l.id ORDER BY e.name ASC");
     return res.status(422).render('mahasiswa/create', {
       title: 'Tambah Mahasiswa',
-      units, advisors, errors, old: req.body
+      units, advisors, statusMap, errors, old: req.body
     });
   }
 
@@ -205,7 +204,7 @@ const store = async (req, res, next) => {
       const [advisors] = await db.query("SELECT e.id, e.name FROM employees e INNER JOIN lecturers l ON e.id = l.id ORDER BY e.name ASC");
       return res.status(422).render('mahasiswa/create', {
         title: 'Tambah Mahasiswa',
-        units, advisors,
+        units, advisors, statusMap,
         errors: ['NIM sudah terdaftar'],
         old: req.body
       });
@@ -267,6 +266,7 @@ const edit = async (req, res, next) => {
       mahasiswa,
       units,
       advisors,
+      statusMap,
       errors: []
     });
   } catch (err) {
@@ -296,10 +296,10 @@ const update = async (req, res, next) => {
     const [units] = await db.query("SELECT id, name FROM organization_units WHERE type='department' ORDER BY name ASC");
     const [advisors] = await db.query("SELECT e.id, e.name FROM employees e INNER JOIN lecturers l ON e.id = l.id ORDER BY e.name ASC");
     const mahasiswa = { id, ...req.body };
-    return res.status(422).render('mahasiswa/edit', {
-      title: 'Edit Mahasiswa',
-      mahasiswa, units, advisors, errors
-    });
+      return res.status(422).render('mahasiswa/edit', {
+        title: 'Edit Mahasiswa',
+        mahasiswa, units, advisors, statusMap, errors
+      });
   }
 
   const conn = await db.getConnection();
@@ -311,11 +311,11 @@ const update = async (req, res, next) => {
       await conn.rollback();
       const [units] = await conn.query("SELECT id, name FROM organization_units WHERE type='department' ORDER BY name ASC");
       const [advisors] = await db.query("SELECT e.id, e.name FROM employees e INNER JOIN lecturers l ON e.id = l.id ORDER BY e.name ASC");
-      return res.status(422).render('mahasiswa/edit', {
-        title: 'Edit Mahasiswa',
-        mahasiswa: { id, ...req.body }, units, advisors,
-        errors: ['NIM sudah digunakan mahasiswa lain']
-      });
+        return res.status(422).render('mahasiswa/edit', {
+          title: 'Edit Mahasiswa',
+          mahasiswa: { id, ...req.body }, units, advisors, statusMap,
+          errors: ['NIM sudah digunakan mahasiswa lain']
+        });
     }
 
     await conn.query(
@@ -380,55 +380,95 @@ const exportPdf = async (req, res, next) => {
       params
     );
 
-    const doc = new PDFDocument({ margin: 40, size: 'A4', layout: 'landscape' });
+    const doc = new PDFDocument({ margin: 0, size: 'A4', layout: 'landscape', autoFirstPage: true });
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', 'attachment; filename="data-mahasiswa.pdf"');
     doc.pipe(res);
 
-    doc.fontSize(16).font('Helvetica-Bold').text('DAFTAR DATA MAHASISWA', { align: 'center' });
-    doc.fontSize(10).font('Helvetica').text('FacultyWare — Fakultas Teknologi Informasi, Universitas Andalas', { align: 'center' });
-    doc.moveDown(0.5);
-    doc.fontSize(9).text(`Dicetak: ${new Date().toLocaleDateString('id-ID', { dateStyle: 'long' })}`, { align: 'right' });
-    doc.moveDown();
+    const W = doc.page.width, H = doc.page.height;
+    const ML = 45, MR = 45;
+    const tanggal = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+    const logoPath = path.join(__dirname, '../public/assets/images/logo-fti.png');
+    const C_DARK = '#1f2937', C_GRAY = '#6b7280', C_LINE = '#e5e7eb', C_STRIPE = '#f9fafb', C_HEAD = '#374151';
 
-    const colWidths = [120, 180, 80, 80, 150, 80];
+    const drawPageHeader = () => {
+      const KOP_H = 90;
+      try { doc.image(logoPath, ML, 14, { height: 58 }); } catch(e) {
+        doc.rect(ML, 14, 58, 58).fill(C_HEAD);
+        doc.fillColor('white').fontSize(11).font('Helvetica-Bold').text('FTI', ML, 34, { width: 58, align: 'center' });
+      }
+      const textX = ML + 68;
+      doc.fillColor(C_GRAY).fontSize(7).font('Helvetica').text('KEMENTERIAN PENDIDIKAN, KEBUDAYAAN, RISET, DAN TEKNOLOGI', textX, 15, { characterSpacing: 0.2 });
+      doc.fillColor(C_DARK).fontSize(9).font('Helvetica-Bold').text('UNIVERSITAS ANDALAS', textX, 25);
+      doc.fillColor(C_DARK).fontSize(9).font('Helvetica-Bold').text('FAKULTAS TEKNOLOGI INFORMASI', textX, 37);
+      doc.fillColor(C_GRAY).fontSize(7).font('Helvetica').text('Kampus Unand Limau Manis, Padang 25163, Telp. (0751) 72586', textX, 50);
+      doc.fillColor(C_GRAY).fontSize(7).text('Website: fti.unand.ac.id  |  Email: fti@unand.ac.id', textX, 60);
+      doc.moveTo(ML, KOP_H - 4).lineTo(W - MR, KOP_H - 4).strokeColor(C_DARK).lineWidth(2).stroke();
+      doc.moveTo(ML, KOP_H).lineTo(W - MR, KOP_H).strokeColor(C_DARK).lineWidth(0.5).stroke();
+      doc.fillColor(C_DARK).fontSize(11).font('Helvetica-Bold').text('DAFTAR DATA MAHASISWA', 0, KOP_H + 10, { width: W, align: 'center' });
+      doc.fillColor(C_GRAY).fontSize(7.5).font('Helvetica').text('Fakultas Teknologi Informasi, Universitas Andalas', 0, KOP_H + 25, { width: W, align: 'center' });
+      doc.fillColor(C_GRAY).fontSize(7).font('Helvetica')
+         .text(`Dicetak: ${tanggal}`, 0, 22, { width: W - MR, align: 'right' })
+         .text(`Total Data: ${mahasiswa.length} mahasiswa`, 0, 33, { width: W - MR, align: 'right' });
+      return KOP_H + 36;
+    };
+
+    const colWidths = [130, 200, 60, 70, 190, 100];
     const headers = ['NIM', 'Nama Lengkap', 'L/P', 'Angkatan', 'Program Studi', 'Status'];
-    let x = 40;
-    const headerY = doc.y;
+    const totalTableW = colWidths.reduce((a, b) => a + b, 0);
+    const ROW_H = 18, HEAD_H = 20, pageBottom = H - 36;
 
-    doc.rect(40, headerY, colWidths.reduce((a, b) => a + b, 0), 18).fill('#2563eb');
-    doc.fillColor('white').fontSize(8).font('Helvetica-Bold');
-    headers.forEach((h, i) => {
-      doc.text(h, x + 3, headerY + 4, { width: colWidths[i] - 6, align: 'left' });
-      x += colWidths[i];
-    });
+    const drawTableHeader = (y) => {
+      doc.rect(ML, y, totalTableW, HEAD_H).fill(C_HEAD);
+      doc.fillColor('white').fontSize(7.5).font('Helvetica-Bold');
+      let cx = ML;
+      headers.forEach((h, i) => { doc.text(h, cx + 5, y + 6, { width: colWidths[i] - 8 }); cx += colWidths[i]; });
+      return y + HEAD_H;
+    };
 
-    doc.fillColor('black').font('Helvetica').fontSize(8);
-    let rowY = headerY + 18;
+    const drawRow = (m, idx, y) => {
+      if (idx % 2 !== 0) doc.rect(ML, y, totalTableW, ROW_H).fill(C_STRIPE);
+      doc.moveTo(ML, y + ROW_H).lineTo(ML + totalTableW, y + ROW_H).strokeColor(C_LINE).lineWidth(0.3).stroke();
+      const values = [m.regno, m.name, genderMap[m.gender] || '-', m.year || '-', m.department_name || '-', statusMap[m.status] || '-'];
+      let cx = ML;
+      values.forEach((v, i) => {
+        if (i === 5) doc.fillColor(v === 'Aktif' ? '#15803d' : '#9ca3af').font('Helvetica-Bold');
+        else doc.fillColor(C_DARK).font('Helvetica');
+        doc.fontSize(7.5).text(String(v), cx + 5, y + 5, { width: colWidths[i] - 8 });
+        cx += colWidths[i];
+      });
+    };
+
+    const drawTableBorder = (yT, yB) => doc.rect(ML, yT, totalTableW, yB - yT).strokeColor('#d1d5db').lineWidth(0.5).stroke();
+    const drawColLines = (yT, yB) => {
+      let cx = ML;
+      colWidths.forEach((w, i) => { cx += w; if (i < colWidths.length - 1) doc.moveTo(cx, yT).lineTo(cx, yB).strokeColor(C_LINE).lineWidth(0.3).stroke(); });
+    };
+    const drawFooter = (pageNum) => {
+      doc.moveTo(ML, H - 22).lineTo(W - MR, H - 22).strokeColor('#d1d5db').lineWidth(0.4).stroke();
+      doc.fillColor(C_GRAY).fontSize(6.5).font('Helvetica')
+         .text('FacultyWare | Sistem Informasi Kepegawaian FTI Universitas Andalas', ML, H - 17)
+         .text(`Halaman ${pageNum}  |  ${tanggal}`, 0, H - 17, { width: W - MR, align: 'right' });
+    };
+
+    let startY = drawPageHeader(), tableTopY = startY;
+    let rowY = drawTableHeader(startY), pageNum = 1;
 
     mahasiswa.forEach((m, idx) => {
-      const rowH = 18;
-      if (idx % 2 === 0) doc.rect(40, rowY, colWidths.reduce((a, b) => a + b, 0), rowH).fill('#f1f5f9');
-      doc.fillColor('black');
-      x = 40;
-      const values = [
-        m.regno, m.name, genderMap[m.gender] || '-', m.year || '-', m.department_name || '-', statusMap[m.status] || '-'
-      ];
-      values.forEach((v, i) => {
-        doc.text(String(v), x + 3, rowY + 4, { width: colWidths[i] - 6, align: 'left' });
-        x += colWidths[i];
-      });
-      rowY += rowH;
-      if (rowY > doc.page.height - 60) { doc.addPage(); rowY = 40; }
+      if (rowY + ROW_H > pageBottom) {
+        drawTableBorder(tableTopY, rowY); drawColLines(tableTopY, rowY); drawFooter(pageNum++);
+        doc.addPage(); startY = drawPageHeader(); tableTopY = startY; rowY = drawTableHeader(startY);
+      }
+      drawRow(m, idx, rowY); rowY += ROW_H;
     });
 
-    doc.moveDown(2);
-    doc.fontSize(8).text(`Total: ${mahasiswa.length} mahasiswa`, 40);
+    drawTableBorder(tableTopY, rowY); drawColLines(tableTopY, rowY); drawFooter(pageNum);
     doc.end();
   } catch (err) {
     next(err);
   }
 };
+
 
 // POST /mahasiswa/import
 const importCsv = async (req, res, next) => {
@@ -485,6 +525,29 @@ const importCsv = async (req, res, next) => {
   }
 };
 
-module.exports = {
-  index, show, create, store, edit, update, destroy, exportPdf, importCsv, upload
+// GET /mahasiswa/export/json
+const exportJson = async (req, res, next) => {
+  try {
+    const [mahasiswa] = await db.query(
+      `SELECT s.*, ou.name AS department_name, e.name AS advisor_name
+       FROM students s
+       LEFT JOIN organization_units ou ON s.department_id = ou.id
+       LEFT JOIN employees e ON s.advisor_id = e.id
+       ORDER BY s.regno ASC`
+    );
+
+    const output = {
+      exported_at: new Date().toISOString(),
+      total: mahasiswa.length,
+      data: mahasiswa
+    };
+
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Content-Disposition', 'attachment; filename="data-mahasiswa.json"');
+    res.send(JSON.stringify(output, null, 2));
+  } catch (err) { next(err); }
 };
+
+module.exports = {
+  index, show, create, store, edit, update, destroy, exportPdf, exportJson, importCsv, upload
+}

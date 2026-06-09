@@ -1,5 +1,3 @@
-
-
 <%# views/mahasiswa/edit.ejs %>
 
 <div class="fw-page-header">
@@ -27,11 +25,11 @@
 <% } %>
 
 <% 
-  // Gabungkan form data dari 'input' (jika ada error) atau dari objek 'm' asli
-  const formData = (typeof input !== 'undefined' && Object.keys(input).length > 0) ? input : m;
+  // Gabungkan form data dari 'input' (jika ada error) atau dari objek 'mahasiswa' asli
+  const formData = (typeof input !== 'undefined' && Object.keys(input).length > 0) ? input : mahasiswa;
 %>
 
-<form action="/mahasiswa/<%= m.id %>/edit" method="POST">
+<form action="/mahasiswa/<%= mahasiswa.id %>/update" method="POST">
   
   <%# Biodata Pribadi %>
   <div class="fw-form-section">
@@ -112,8 +110,8 @@
           <label class="fw-label fw-label-required">Program Studi/Departemen</label>
           <select name="department_id" required class="fw-select">
             <option value="">Pilih Departemen...</option>
-            <% if (typeof departments !== 'undefined') { %>
-              <% departments.forEach(dept => { %>
+            <% if (typeof units !== 'undefined') { %>
+              <% units.forEach(dept => { %>
                 <option value="<%= dept.id %>" <%= formData.department_id == dept.id ? 'selected' : '' %>><%= dept.name %></option>
               <% }) %>
             <% } %>
@@ -168,6 +166,6 @@
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
       Perbarui Data
     </button>
-    <a href="/mahasiswa/<%= m.id %>" class="fw-btn fw-btn-ghost">Batal</a>
+    <a href="/mahasiswa/<%= mahasiswa.id %>" class="fw-btn fw-btn-ghost">Batal</a>
   </div>
 </form>
