@@ -172,9 +172,12 @@ const destroy = async (req, res, next) => {
     const [[nom]] = await conn.query('SELECT name FROM nomenclatures WHERE id = ?', [id]);
     if (!nom) { await conn.rollback(); return res.status(404).render('errors/404', { title: 'Tidak Ditemukan' }); }
 
-    // Cek apakah digunakan oleh staff
+    // Cek apakah digunakan oleh staff (lewat klasifikasi)
     const [[{ cnt }]] = await conn.query(
-      'SELECT COUNT(*) as cnt FROM staff_nomenclature_histories WHERE nomenclature_id = ?', [id]
+      `SELECT COUNT(*) as cnt FROM staff_nomenclature_histories
+       WHERE nomenclature_class_id IN (
+         SELECT id FROM nomenclature_classifications WHERE nomenclature_id = ?
+       )`, [id]
     );
     if (cnt > 0) {
       await conn.rollback();
