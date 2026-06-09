@@ -5,7 +5,8 @@ const { isAuthenticated } = require('../middlewares/auth');
 
 router.use(isAuthenticated);
 
-router.get('/export/pdf', c.exportPdf);
+router.get('/export/pdf',  c.exportPdf);
+router.get('/export/json', c.exportJson);
 router.get('/import', (req, res) => res.redirect('/sbm'));
 router.post('/import', c.upload.single('csv_file'), c.importCsv);
 
