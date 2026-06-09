@@ -25,7 +25,7 @@ const getDropdownData = async () => {
 };
 
 // ────────────────────────────────────────────────────────────────────
-// GET /sbm — Daftar SBM + search + pagination
+// GET /sbm - Daftar SBM + search + pagination
 // ────────────────────────────────────────────────────────────────────
 const index = async (req, res, next) => {
   try {
@@ -94,7 +94,7 @@ const create = async (req, res, next) => {
 };
 
 // ────────────────────────────────────────────────────────────────────
-// POST /sbm — Simpan SBM baru
+// POST /sbm - Simpan SBM baru
 // ────────────────────────────────────────────────────────────────────
 const store = async (req, res, next) => {
   const { city_id, travel_cost_component_id, structural_position_id, employee_grade_id, amount } = req.body;
@@ -129,7 +129,7 @@ const store = async (req, res, next) => {
 };
 
 // ────────────────────────────────────────────────────────────────────
-// GET /sbm/:id — Detail SBM
+// GET /sbm/:id - Detail SBM
 // ────────────────────────────────────────────────────────────────────
 const show = async (req, res, next) => {
   try {
@@ -147,7 +147,7 @@ const show = async (req, res, next) => {
     );
     if (!sbm) return res.status(404).render('errors/404', { title: 'Tidak Ditemukan' });
 
-    res.render('sbm/show', { title: `Detail SBM — ${sbm.kota}`, sbm });
+    res.render('sbm/show', { title: `Detail SBM - ${sbm.kota}`, sbm });
   } catch (err) { next(err); }
 };
 
@@ -165,7 +165,7 @@ const edit = async (req, res, next) => {
 };
 
 // ────────────────────────────────────────────────────────────────────
-// PUT /sbm/:id — Update SBM
+// PUT /sbm/:id - Update SBM
 // ────────────────────────────────────────────────────────────────────
 const update = async (req, res, next) => {
   const { id } = req.params;
@@ -203,7 +203,7 @@ const update = async (req, res, next) => {
 };
 
 // ────────────────────────────────────────────────────────────────────
-// DELETE /sbm/:id — Hapus SBM
+// DELETE /sbm/:id - Hapus SBM
 // ────────────────────────────────────────────────────────────────────
 const destroy = async (req, res, next) => {
   const { id } = req.params;
@@ -327,7 +327,7 @@ const exportPdf = async (req, res, next) => {
 
 
 // ────────────────────────────────────────────────────────────────────
-// POST /sbm/import — Import dari CSV
+// POST /sbm/import - Import dari CSV
 // ────────────────────────────────────────────────────────────────────
 const importCsv = async (req, res, next) => {
   if (!req.file) {
