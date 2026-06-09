@@ -1,5 +1,3 @@
-
-
 <%# views/mahasiswa/index.ejs %>
 
 <%# ── Stat cards ─────────────────────────────────────────── %>
@@ -73,6 +71,13 @@
         </svg>
         Export PDF
       </a>
+      <a href="/mahasiswa/export/json?search=<%= encodeURIComponent(search) %>&status=<%= statusFilter %>"
+         class="fw-btn fw-btn-outline fw-btn-sm">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+        </svg>
+        Export JSON
+      </a>
       <a href="/mahasiswa/create" class="fw-btn fw-btn-primary fw-btn-sm">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
           <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
@@ -80,6 +85,7 @@
         Tambah
       </a>
     </div>
+
   </div>
 
   <%# Import CSV — row tersendiri di bawah toolbar %>
@@ -176,14 +182,10 @@
                   <a href="/mahasiswa/<%= m.id %>/edit" class="fw-action-btn fw-action-warn" title="Edit">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                   </a>
-                  <form method="POST" action="/mahasiswa/<%= m.id %>/delete"
-                        data-name="<%= m.name %>"
-                        onsubmit="return confirm('Hapus data ' + this.dataset.name + '?')"
-                        style="display:inline;">
-                    <button type="submit" class="fw-action-btn fw-action-danger" title="Hapus">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
-                    </button>
-                  </form>
+                  <button type="button" class="fw-action-btn fw-action-danger" title="Hapus"
+                          onclick="fwShowDeleteModal('/mahasiswa/<%= m.id %>/delete', 'mahasiswa <%= m.name %>')">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                  </button>
                 </div>
               </td>
             </tr>

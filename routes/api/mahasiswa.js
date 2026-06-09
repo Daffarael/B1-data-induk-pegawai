@@ -1,10 +1,13 @@
-
 const express = require('express');
 const router = express.Router();
 const db = require('../../lib/db');
+const { isAuthenticated } = require('../../middlewares/auth');
+const { hasRole } = require('../../middlewares/acl');
+
+const guard = [isAuthenticated, hasRole('Admin Kemahasiswaan')];
 
 // GET /api/mahasiswa - Ambil semua mahasiswa
-router.get('/', async (req, res) => {
+router.get('/', guard, async (req, res) => {
   try {
     const [rows] = await db.query(`
       SELECT s.*, ou.name AS department_name 
@@ -19,7 +22,7 @@ router.get('/', async (req, res) => {
 });
 
 // GET /api/mahasiswa/:id - Ambil detail mahasiswa
-router.get('/:id', async (req, res) => {
+router.get('/:id', guard, async (req, res) => {
   try {
     const [rows] = await db.query(`
       SELECT s.*, ou.name AS department_name, e.name AS advisor_name
@@ -37,7 +40,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // POST /api/mahasiswa - Tambah mahasiswa
-router.post('/', async (req, res) => {
+router.post('/', guard, async (req, res) => {
   const { regno, name, department_id, year, gender, status } = req.body;
   if (!regno || !name) {
     return res.status(400).json({ success: false, error: 'regno dan name wajib diisi' });
@@ -71,7 +74,7 @@ router.post('/', async (req, res) => {
 });
 
 // PUT /api/mahasiswa/:id - Update mahasiswa
-router.put('/:id', async (req, res) => {
+router.put('/:id', guard, async (req, res) => {
   const { id } = req.params;
   const { regno, name, department_id, year, gender, status } = req.body;
   
@@ -97,7 +100,7 @@ router.put('/:id', async (req, res) => {
 });
 
 // DELETE /api/mahasiswa/:id - Hapus mahasiswa
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', guard, async (req, res) => {
   try {
     const [exist] = await db.query('SELECT id FROM students WHERE id = ?', [req.params.id]);
     if (exist.length === 0) return res.status(404).json({ success: false, error: 'Data tidak ditemukan' });
