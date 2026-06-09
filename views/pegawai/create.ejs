@@ -4,7 +4,7 @@
   <div>
     <a href="/pegawai" style="font-size:0.8rem; color:#94a3b8; text-decoration:none; display:inline-flex; align-items:center; gap:0.3rem; margin-bottom:0.5rem;" onmouseover="this.style.color='#64748b'" onmouseout="this.style.color='#94a3b8'">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-      Data Pegawai & Dosen
+      Kembali
     </a>
     <h1 class="fw-page-title">Tambah Pegawai / Dosen</h1>
     <p class="fw-page-subtitle">Isi formulir di bawah untuk menambahkan data pegawai atau dosen baru</p>
@@ -67,7 +67,8 @@
         <div class="fw-col-span-2">
           <label class="fw-label fw-label-required">NIP / Nomor Pegawai</label>
           <input type="text" name="employee_number" value="<%= old.employee_number || '' %>"
-                 class="fw-input" placeholder="Contoh: 197001012000031001" required>
+                 class="fw-input" placeholder="Contoh: 197001012000031001" required
+                 inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
           <span class="fw-form-hint">Nomor Induk Pegawai sesuai SK</span>
         </div>
         <div>
@@ -78,17 +79,20 @@
         <div>
           <label class="fw-label">No. Telepon</label>
           <input type="text" name="phone_number" value="<%= old.phone_number || '' %>"
-                 class="fw-input" placeholder="08xxxxxxxxxx">
+                 class="fw-input" placeholder="08xxxxxxxxxx"
+                 inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
         </div>
         <div>
           <label class="fw-label">NIK (No. KTP)</label>
           <input type="text" name="national_id_number" value="<%= old.national_id_number || '' %>"
-                 class="fw-input" placeholder="16 digit NIK">
+                 class="fw-input" placeholder="16 digit NIK"
+                 inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
         </div>
         <div>
           <label class="fw-label">NPWP</label>
           <input type="text" name="tax_id_number" value="<%= old.tax_id_number || '' %>"
-                 class="fw-input" placeholder="Nomor NPWP">
+                 class="fw-input" placeholder="Nomor NPWP"
+                 inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
         </div>
         <div>
           <label class="fw-label fw-label-required">Tempat Lahir</label>
@@ -104,7 +108,7 @@
         <div>
           <label class="fw-label fw-label-required">Jenis Kelamin</label>
           <select name="gender" class="fw-select" required>
-            <option value="">— Pilih —</option>
+            <option value="">- Pilih -</option>
             <option value="male"   <%= old.gender === 'male'   ? 'selected' : '' %>>Laki-laki</option>
             <option value="female" <%= old.gender === 'female' ? 'selected' : '' %>>Perempuan</option>
           </select>
@@ -112,19 +116,10 @@
         <div>
           <label class="fw-label">Agama</label>
           <select name="religion" class="fw-select">
-            <option value="">— Pilih —</option>
+            <option value="">- Pilih -</option>
             <% ['Islam','Kristen','Katolik','Hindu','Budha','Konghucu'].forEach(r => { %>
               <option value="<%= r %>" <%= old.religion === r ? 'selected' : '' %>><%= r %></option>
             <% }) %>
-          </select>
-        </div>
-        <div>
-          <label class="fw-label fw-label-required">Status Pernikahan</label>
-          <select name="marital_status" class="fw-select" required>
-            <option value="">— Pilih —</option>
-            <option value="single"   <%= old.marital_status === 'single'   ? 'selected' : '' %>>Belum Menikah</option>
-            <option value="married"  <%= old.marital_status === 'married'  ? 'selected' : '' %>>Menikah</option>
-            <option value="divorced" <%= old.marital_status === 'divorced' ? 'selected' : '' %>>Cerai</option>
           </select>
         </div>
         <div class="fw-col-span-2">
@@ -146,7 +141,7 @@
         <div>
           <label class="fw-label fw-label-required">Unit Organisasi</label>
           <select name="organization_unit_id" class="fw-select" required>
-            <option value="">— Pilih Unit —</option>
+            <option value="">- Pilih Unit -</option>
             <% units.forEach(u => { %>
               <option value="<%= u.id %>" <%= String(old.organization_unit_id) === String(u.id) ? 'selected' : '' %>><%= u.name %></option>
             <% }) %>
@@ -158,7 +153,7 @@
         <div>
           <label class="fw-label fw-label-required">Status Kepegawaian</label>
           <select name="employment_status_id" class="fw-select" required>
-            <option value="">— Pilih Status —</option>
+            <option value="">- Pilih Status -</option>
             <% statuses.forEach(s => { %>
               <option value="<%= s.id %>" <%= String(old.employment_status_id) === String(s.id) ? 'selected' : '' %>><%= s.name %></option>
             <% }) %>
@@ -176,7 +171,7 @@
         <div>
           <label class="fw-label fw-label-required">Status Aktif</label>
           <select name="status" class="fw-select" required>
-            <option value="">— Pilih —</option>
+            <option value="">- Pilih -</option>
             <option value="active"   <%= old.status === 'active'   ? 'selected' : '' %>>Aktif</option>
             <option value="inactive" <%= old.status === 'inactive' ? 'selected' : '' %>>Tidak Aktif</option>
           </select>
@@ -185,7 +180,7 @@
     </div>
   </div>
 
-  <%# Data Akademik (Dosen) — kondisional %>
+  <%# Data Akademik (Dosen) - kondisional %>
   <div id="dosen-section" class="fw-form-section" style="<%= old.employee_type === 'Dosen' ? '' : 'display:none;' %> border-left:3px solid #3d4158;">
     <div class="fw-form-section-header">
       <div style="display:flex; align-items:center; gap:0.5rem;">
@@ -195,7 +190,13 @@
       <span class="fw-badge fw-badge-indigo" style="font-size:0.65rem;">Khusus Dosen</span>
     </div>
     <div class="fw-form-section-body">
-      <div class="fw-grid-3">
+      <div class="fw-grid-2">
+        <div>
+          <label class="fw-label">NIDN</label>
+          <input type="text" name="nidn" value="<%= old.nidn || '' %>"
+                 class="fw-input" placeholder="Nomor Induk Dosen Nasional"
+                 inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+        </div>
         <div>
           <label class="fw-label fw-label-required">Pangkat Akademik</label>
           <input type="text" name="academic_rank" value="<%= old.academic_rank || '' %>"
@@ -219,9 +220,8 @@
   <div style="display:flex; align-items:center; gap:0.75rem; padding-top:0.5rem;">
     <button type="submit" class="fw-btn fw-btn-primary">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-      Simpan Data
-    </button>
-    <a href="/pegawai" class="fw-btn fw-btn-ghost">Batal</a>
+      Kembali
+    </a>
   </div>
 
 </form>

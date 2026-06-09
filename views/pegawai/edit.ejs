@@ -4,7 +4,7 @@
   <div>
     <a href="/pegawai/<%= pegawai.id %>" style="font-size:0.8rem; color:#94a3b8; text-decoration:none; display:inline-flex; align-items:center; gap:0.3rem; margin-bottom:0.5rem;" onmouseover="this.style.color='#64748b'" onmouseout="this.style.color='#94a3b8'">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-      Detail — <%= pegawai.name %>
+      Kembali
     </a>
     <h1 class="fw-page-title">Edit Pegawai</h1>
     <p class="fw-page-subtitle">Memperbarui data: <strong><%= pegawai.name %></strong></p>
@@ -66,7 +66,8 @@
       <div class="fw-grid-2">
         <div class="fw-col-span-2">
           <label class="fw-label fw-label-required">NIP / Nomor Pegawai</label>
-          <input type="text" name="employee_number" value="<%= pegawai.employee_number %>" class="fw-input" required>
+          <input type="text" name="employee_number" value="<%= pegawai.employee_number %>" class="fw-input" required
+                 inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
         </div>
         <div>
           <label class="fw-label fw-label-required">Nama Lengkap</label>
@@ -74,15 +75,18 @@
         </div>
         <div>
           <label class="fw-label">No. Telepon</label>
-          <input type="text" name="phone_number" value="<%= pegawai.phone_number || '' %>" class="fw-input">
+          <input type="text" name="phone_number" value="<%= pegawai.phone_number || '' %>" class="fw-input"
+                 inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
         </div>
         <div>
           <label class="fw-label">NIK (No. KTP)</label>
-          <input type="text" name="national_id_number" value="<%= pegawai.national_id_number || '' %>" class="fw-input">
+          <input type="text" name="national_id_number" value="<%= pegawai.national_id_number || '' %>" class="fw-input"
+                 inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
         </div>
         <div>
           <label class="fw-label">NPWP</label>
-          <input type="text" name="tax_id_number" value="<%= pegawai.tax_id_number || '' %>" class="fw-input">
+          <input type="text" name="tax_id_number" value="<%= pegawai.tax_id_number || '' %>" class="fw-input"
+                 inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
         </div>
         <div>
           <label class="fw-label fw-label-required">Tempat Lahir</label>
@@ -104,18 +108,10 @@
         <div>
           <label class="fw-label">Agama</label>
           <select name="religion" class="fw-select">
-            <option value="">— Pilih —</option>
+            <option value="">- Pilih -</option>
             <% ['Islam','Kristen','Katolik','Hindu','Budha','Konghucu'].forEach(r => { %>
               <option value="<%= r %>" <%= pegawai.religion === r ? 'selected' : '' %>><%= r %></option>
             <% }) %>
-          </select>
-        </div>
-        <div>
-          <label class="fw-label fw-label-required">Status Pernikahan</label>
-          <select name="marital_status" class="fw-select" required>
-            <option value="single"   <%= pegawai.marital_status === 'single'   ? 'selected' : '' %>>Belum Menikah</option>
-            <option value="married"  <%= pegawai.marital_status === 'married'  ? 'selected' : '' %>>Menikah</option>
-            <option value="divorced" <%= pegawai.marital_status === 'divorced' ? 'selected' : '' %>>Cerai</option>
           </select>
         </div>
         <div class="fw-col-span-2">
@@ -137,7 +133,7 @@
         <div>
           <label class="fw-label fw-label-required">Unit Organisasi</label>
           <select name="organization_unit_id" class="fw-select" required>
-            <option value="">— Pilih —</option>
+            <option value="">- Pilih -</option>
             <% units.forEach(u => { %>
               <option value="<%= u.id %>" <%= String(pegawai.organization_unit_id) === String(u.id) ? 'selected' : '' %>><%= u.name %></option>
             <% }) %>
@@ -146,7 +142,7 @@
         <div>
           <label class="fw-label fw-label-required">Status Kepegawaian</label>
           <select name="employment_status_id" class="fw-select" required>
-            <option value="">— Pilih —</option>
+            <option value="">- Pilih -</option>
             <% statuses.forEach(s => { %>
               <option value="<%= s.id %>" <%= String(pegawai.employment_status_id) === String(s.id) ? 'selected' : '' %>><%= s.name %></option>
             <% }) %>
@@ -179,7 +175,12 @@
       <span class="fw-badge fw-badge-indigo" style="font-size:0.65rem;">Khusus Dosen</span>
     </div>
     <div class="fw-form-section-body">
-      <div class="fw-grid-3">
+      <div class="fw-grid-2">
+        <div>
+          <label class="fw-label">NIDN</label>
+          <input type="text" name="nidn" value="<%= pegawai.nidn || '' %>" class="fw-input"
+                 inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+        </div>
         <div>
           <label class="fw-label fw-label-required">Pangkat Akademik</label>
           <input type="text" name="academic_rank" value="<%= pegawai.academic_rank || '' %>" class="fw-input" placeholder="Lektor Kepala">
@@ -199,9 +200,8 @@
   <div style="display:flex; align-items:center; gap:0.75rem; padding-top:0.5rem;">
     <button type="submit" class="fw-btn fw-btn-primary">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-      Simpan Perubahan
-    </button>
-    <a href="/pegawai/<%= pegawai.id %>" class="fw-btn fw-btn-ghost">Batal</a>
+      Kembali
+    </a>
   </div>
 </form>
 
