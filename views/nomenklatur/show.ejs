@@ -6,7 +6,7 @@
     <a href="/nomenklatur" style="font-size:0.8rem; color:#94a3b8; text-decoration:none; display:inline-flex; align-items:center; gap:0.3rem; margin-bottom:0.5rem; transition:color 0.15s;"
        onmouseover="this.style.color='#64748b'" onmouseout="this.style.color='#94a3b8'">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-      Nomenklatur Jabatan
+      Kembali
     </a>
     <h1 class="fw-page-title"><%= nom.name %></h1>
     <div style="display:flex; align-items:center; gap:0.5rem; margin-top:0.5rem;">
@@ -47,19 +47,19 @@
     </div>
     <div class="fw-detail-row">
       <span class="fw-detail-label">Kualifikasi</span>
-      <span class="fw-detail-value" style="white-space:pre-wrap;"><%= nom.qualification || '—' %></span>
+      <span class="fw-detail-value" style="white-space:pre-wrap;"><%= nom.qualification || '-' %></span>
     </div>
     <div class="fw-detail-row">
       <span class="fw-detail-label">Uraian Tugas (Duties)</span>
-      <span class="fw-detail-value" style="white-space:pre-wrap;"><%= nom.duties || '—' %></span>
+      <span class="fw-detail-value" style="white-space:pre-wrap;"><%= nom.duties || '-' %></span>
     </div>
     <div class="fw-detail-row">
       <span class="fw-detail-label">Dibuat</span>
-      <span class="fw-detail-value"><%= nom.created_at ? new Date(nom.created_at).toLocaleDateString('id-ID', {dateStyle:'long'}) : '—' %></span>
+      <span class="fw-detail-value"><%= nom.created_at ? new Date(nom.created_at).toLocaleDateString('id-ID', {dateStyle:'long'}) : '-' %></span>
     </div>
     <div class="fw-detail-row">
       <span class="fw-detail-label">Terakhir diperbarui</span>
-      <span class="fw-detail-value"><%= nom.updated_at ? new Date(nom.updated_at).toLocaleDateString('id-ID', {dateStyle:'long'}) : '—' %></span>
+      <span class="fw-detail-value"><%= nom.updated_at ? new Date(nom.updated_at).toLocaleDateString('id-ID', {dateStyle:'long'}) : '-' %></span>
     </div>
   </div>
 </div>
@@ -120,7 +120,7 @@
               <tr id="row-k-<%= k.id %>">
                 <td style="text-align:center; color:#c8ccda; font-size:0.75rem;"><%= i + 1 %></td>
                 <td><div class="fw-cell-name" id="kname-<%= k.id %>"><%= k.name %></div></td>
-                <td class="fw-cell-muted"><%= k.description || '—' %></td>
+                <td class="fw-cell-muted"><%= k.description || '-' %></td>
                 <td>
                   <div class="fw-action-btns">
                     <button type="button" class="fw-action-btn fw-action-warn" title="Edit"

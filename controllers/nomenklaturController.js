@@ -16,7 +16,7 @@ const upload = multer({
 });
 
 // ────────────────────────────────────────────────────────────────────
-// GET /nomenklatur — Daftar nomenklatur + search + pagination
+// GET /nomenklatur - Daftar nomenklatur + search + pagination
 // ────────────────────────────────────────────────────────────────────
 const index = async (req, res, next) => {
   try {
@@ -67,7 +67,7 @@ const index = async (req, res, next) => {
 };
 
 // ────────────────────────────────────────────────────────────────────
-// GET /nomenklatur/:id — Detail + daftar klasifikasi
+// GET /nomenklatur/:id - Detail + daftar klasifikasi
 // ────────────────────────────────────────────────────────────────────
 const show = async (req, res, next) => {
   try {
@@ -80,7 +80,7 @@ const show = async (req, res, next) => {
     );
 
     res.render('nomenklatur/show', {
-      title: `Detail — ${nom.name}`,
+      title: `Detail - ${nom.name}`,
       nom,
       klasifikasi
     });
@@ -95,7 +95,7 @@ const create = (req, res) => {
 };
 
 // ────────────────────────────────────────────────────────────────────
-// POST /nomenklatur — Simpan nomenklatur baru
+// POST /nomenklatur - Simpan nomenklatur baru
 // ────────────────────────────────────────────────────────────────────
 const store = async (req, res, next) => {
   const { name, qualification, duties, grade } = req.body;
@@ -128,12 +128,12 @@ const edit = async (req, res, next) => {
   try {
     const [[nom]] = await db.query('SELECT * FROM nomenclatures WHERE id = ?', [req.params.id]);
     if (!nom) return res.status(404).render('errors/404', { title: 'Tidak Ditemukan' });
-    res.render('nomenklatur/edit', { title: `Edit — ${nom.name}`, nom, errors: [] });
+    res.render('nomenklatur/edit', { title: `Edit - ${nom.name}`, nom, errors: [] });
   } catch (err) { next(err); }
 };
 
 // ────────────────────────────────────────────────────────────────────
-// PUT /nomenklatur/:id — Update nomenklatur
+// PUT /nomenklatur/:id - Update nomenklatur
 // ────────────────────────────────────────────────────────────────────
 const update = async (req, res, next) => {
   const { id } = req.params;
@@ -162,7 +162,7 @@ const update = async (req, res, next) => {
 };
 
 // ────────────────────────────────────────────────────────────────────
-// DELETE /nomenklatur/:id — Hapus nomenklatur (cascade ke klasifikasi)
+// DELETE /nomenklatur/:id - Hapus nomenklatur (cascade ke klasifikasi)
 // ────────────────────────────────────────────────────────────────────
 const destroy = async (req, res, next) => {
   const { id } = req.params;
@@ -195,7 +195,7 @@ const destroy = async (req, res, next) => {
 };
 
 // ────────────────────────────────────────────────────────────────────
-// POST /nomenklatur/:id/klasifikasi — Tambah klasifikasi
+// POST /nomenklatur/:id/klasifikasi - Tambah klasifikasi
 // ────────────────────────────────────────────────────────────────────
 const storeKlasifikasi = async (req, res, next) => {
   const { id } = req.params;
@@ -215,7 +215,7 @@ const storeKlasifikasi = async (req, res, next) => {
 };
 
 // ────────────────────────────────────────────────────────────────────
-// POST /nomenklatur/:id/klasifikasi/:kid — Update klasifikasi
+// POST /nomenklatur/:id/klasifikasi/:kid - Update klasifikasi
 // ────────────────────────────────────────────────────────────────────
 const updateKlasifikasi = async (req, res, next) => {
   const { id, kid } = req.params;
@@ -235,7 +235,7 @@ const updateKlasifikasi = async (req, res, next) => {
 };
 
 // ────────────────────────────────────────────────────────────────────
-// DELETE /nomenklatur/:id/klasifikasi/:kid — Hapus klasifikasi
+// DELETE /nomenklatur/:id/klasifikasi/:kid - Hapus klasifikasi
 // ────────────────────────────────────────────────────────────────────
 const destroyKlasifikasi = async (req, res, next) => {
   const { id, kid } = req.params;
@@ -354,7 +354,7 @@ const exportPdf = async (req, res, next) => {
 
 
 // ────────────────────────────────────────────────────────────────────
-// POST /nomenklatur/import — Import dari CSV
+// POST /nomenklatur/import - Import dari CSV
 // ────────────────────────────────────────────────────────────────────
 const importCsv = async (req, res, next) => {
   if (!req.file) {
@@ -398,7 +398,7 @@ const importCsv = async (req, res, next) => {
 };
 
 // ────────────────────────────────────────────────────────────────────
-// GET /nomenklatur/export/json — Export daftar ke JSON
+// GET /nomenklatur/export/json - Export daftar ke JSON
 // ────────────────────────────────────────────────────────────────────
 const exportJson = async (req, res, next) => {
   try {
