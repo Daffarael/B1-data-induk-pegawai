@@ -1,7 +1,7 @@
 const bcrypt = require("bcryptjs");
 const db = require("../lib/db");
 
-// GET / — root, redirect ke dashboard atau login
+// GET / - root, redirect ke dashboard atau login
 const index = (req, res) => {
   if (req.session.user) {
     return res.redirect("/dashboard");
@@ -9,14 +9,14 @@ const index = (req, res) => {
   res.redirect("/login");
 };
 
-// GET /dashboard — halaman utama setelah login
+// GET /dashboard - halaman utama setelah login
 const dashboard = (req, res) => {
   res.render("dashboard/home", {
     title: "Dashboard"
   });
 };
 
-// GET /login — tampilkan form login
+// GET /login - tampilkan form login
 const loginPage = (req, res) => {
   if (req.session.user) {
     return res.redirect("/dashboard");
@@ -28,7 +28,7 @@ const loginPage = (req, res) => {
   });
 };
 
-// POST /login — proses login
+// POST /login - proses login
 const login = async (req, res, next) => {
   const { email, password } = req.body;
 
@@ -100,7 +100,7 @@ const login = async (req, res, next) => {
   }
 };
 
-// GET /logout — hapus session dan redirect ke login
+// GET /logout - hapus session dan redirect ke login
 const logout = (req, res, next) => {
   req.session.destroy((err) => {
     if (err) {
