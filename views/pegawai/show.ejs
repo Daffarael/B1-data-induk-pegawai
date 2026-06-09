@@ -5,7 +5,7 @@
   <div>
     <a href="/pegawai" style="font-size:0.8rem; color:#94a3b8; text-decoration:none; display:inline-flex; align-items:center; gap:0.3rem; margin-bottom:0.5rem; transition:color 0.15s;" onmouseover="this.style.color='#64748b'" onmouseout="this.style.color='#94a3b8'">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-      Data Pegawai & Dosen
+      Kembali
     </a>
     <h1 class="fw-page-title"><%= pegawai.name %></h1>
     <div style="display:flex; align-items:center; gap:0.5rem; margin-top:0.5rem; flex-wrap:wrap;">
@@ -27,14 +27,11 @@
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
       Edit
     </a>
-    <form method="POST" action="/pegawai/<%= pegawai.id %>"
-          onsubmit="return confirm('Yakin hapus data <%= pegawai.name.replace(/'/g, '&#39;') %>?')">
-      <input type="hidden" name="_method" value="DELETE">
-      <button type="submit" class="fw-btn fw-btn-danger fw-btn-sm">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
-        Hapus
-      </button>
-    </form>
+    <button type="button" class="fw-btn fw-btn-danger fw-btn-sm"
+            onclick="fwShowDeleteModal('/pegawai/<%= pegawai.id %>', '<%= pegawai.name.replace(/'/g, '\\\'') %>')">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+      Hapus
+    </button>
   </div>
 </div>
 
@@ -58,7 +55,6 @@
           ['Tanggal Lahir', pegawai.birth_date ? new Date(pegawai.birth_date).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'}) : null],
           ['Jenis Kelamin', pegawai.gender === 'male' ? 'Laki-laki' : 'Perempuan'],
           ['Agama', pegawai.religion],
-          ['Status Pernikahan', {single:'Belum Menikah', married:'Menikah', divorced:'Cerai'}[pegawai.marital_status] || pegawai.marital_status],
           ['No. Telepon', pegawai.phone_number],
           ['Alamat', pegawai.address],
         ];
@@ -66,7 +62,7 @@
       <% rows.forEach(([label, val]) => { %>
         <div class="fw-detail-row">
           <span class="fw-detail-label"><%= label %></span>
-          <span class="fw-detail-value"><%= val || '—' %></span>
+          <span class="fw-detail-value"><%= val || '-' %></span>
         </div>
       <% }) %>
     </div>
@@ -93,7 +89,7 @@
         <% kepRows.forEach(([label, val]) => { %>
           <div class="fw-detail-row">
             <span class="fw-detail-label"><%= label %></span>
-            <span class="fw-detail-value"><%= val || '—' %></span>
+            <span class="fw-detail-value"><%= val || '-' %></span>
           </div>
         <% }) %>
       </div>
@@ -111,16 +107,20 @@
         </div>
         <div class="fw-card-body">
           <div class="fw-detail-row">
+            <span class="fw-detail-label">NIDN</span>
+            <span class="fw-detail-value"><%= pegawai.nidn || '-' %></span>
+          </div>
+          <div class="fw-detail-row">
             <span class="fw-detail-label">Pangkat Akademik</span>
-            <span class="fw-detail-value"><%= pegawai.academic_rank || '—' %></span>
+            <span class="fw-detail-value"><%= pegawai.academic_rank || '-' %></span>
           </div>
           <div class="fw-detail-row">
             <span class="fw-detail-label">Jabatan Fungsional</span>
-            <span class="fw-detail-value"><%= pegawai.functional_position || '—' %></span>
+            <span class="fw-detail-value"><%= pegawai.functional_position || '-' %></span>
           </div>
           <div class="fw-detail-row">
             <span class="fw-detail-label">Bidang Keahlian</span>
-            <span class="fw-detail-value"><%= pegawai.expertise || '—' %></span>
+            <span class="fw-detail-value"><%= pegawai.expertise || '-' %></span>
           </div>
         </div>
       </div>

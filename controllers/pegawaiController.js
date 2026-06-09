@@ -39,7 +39,7 @@ const buildListQuery = (search, statusFilter) => {
 };
 
 // ────────────────────────────────────────────────────────────────────
-// GET /pegawai — Daftar pegawai + search + pagination
+// GET /pegawai - Daftar pegawai + search + pagination
 // ────────────────────────────────────────────────────────────────────
 const index = async (req, res, next) => {
   try {
@@ -96,7 +96,7 @@ const index = async (req, res, next) => {
 };
 
 // ────────────────────────────────────────────────────────────────────
-// GET /pegawai/:id — Detail satu pegawai
+// GET /pegawai/:id - Detail satu pegawai
 // ────────────────────────────────────────────────────────────────────
 const show = async (req, res, next) => {
   try {
@@ -122,7 +122,7 @@ const show = async (req, res, next) => {
     }
 
     res.render('pegawai/show', {
-      title: `Detail — ${rows[0].name}`,
+      title: `Detail - ${rows[0].name}`,
       pegawai: rows[0]
     });
   } catch (err) {
@@ -131,7 +131,7 @@ const show = async (req, res, next) => {
 };
 
 // ────────────────────────────────────────────────────────────────────
-// GET /pegawai/create — Form tambah pegawai
+// GET /pegawai/create - Form tambah pegawai
 // ────────────────────────────────────────────────────────────────────
 const create = async (req, res, next) => {
   try {
@@ -151,12 +151,12 @@ const create = async (req, res, next) => {
 };
 
 // ────────────────────────────────────────────────────────────────────
-// POST /pegawai — Simpan data pegawai baru
+// POST /pegawai - Simpan data pegawai baru
 // ────────────────────────────────────────────────────────────────────
 const store = async (req, res, next) => {
   const {
     employee_number, national_id_number, tax_id_number,
-    name, birth_place, birth_date, gender, religion, marital_status,
+    name, birth_place, birth_date, gender, religion,
     address, phone_number, organization_unit_id, hire_date,
     employment_status_id, status, employee_type,
     academic_rank, functional_position, expertise
@@ -169,8 +169,7 @@ const store = async (req, res, next) => {
   if (!birth_place?.trim()) errors.push('Tempat lahir wajib diisi');
   if (!birth_date) errors.push('Tanggal lahir wajib diisi');
   if (!gender) errors.push('Jenis kelamin wajib dipilih');
-  if (!marital_status) errors.push('Status pernikahan wajib dipilih');
-  if (!address?.trim()) errors.push('Alamat wajib diisi');
+    if (!address?.trim()) errors.push('Alamat wajib diisi');
   if (!organization_unit_id) errors.push('Unit organisasi wajib dipilih');
   if (!hire_date) errors.push('Tanggal masuk wajib diisi');
   if (!employment_status_id) errors.push('Status kepegawaian wajib dipilih');
@@ -211,7 +210,7 @@ const store = async (req, res, next) => {
     const [result] = await conn.query(
       `INSERT INTO employees
          (employee_number, national_id_number, tax_id_number, name,
-          birth_place, birth_date, gender, religion, marital_status,
+          birth_place, birth_date, gender, religion,
           address, phone_number, organization_unit_id, hire_date,
           employment_status_id, status, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
@@ -220,7 +219,7 @@ const store = async (req, res, next) => {
         national_id_number?.trim() || null,
         tax_id_number?.trim() || null,
         name.trim(), birth_place.trim(), birth_date,
-        gender, religion?.trim() || null, marital_status,
+        gender, religion?.trim() || null,
         address.trim(), phone_number?.trim() || null,
         organization_unit_id, hire_date,
         employment_status_id, status
@@ -233,14 +232,15 @@ const store = async (req, res, next) => {
     if (employee_type === 'Dosen') {
       await conn.query(
         `INSERT INTO lecturers
-           (id, academic_rank, functional_position, expertise, created_at, updated_at)
-         VALUES (?, ?, ?, ?, NOW(), NOW())`,
-        [
-          newId,
-          academic_rank?.trim() || null,
-          functional_position?.trim() || null,
-          expertise?.trim() || null
-        ]
+             (id, nidn, academic_rank, functional_position, expertise, created_at, updated_at)
+           VALUES (?, ?, ?, ?, ?, NOW(), NOW())`,
+          [
+            newId,
+            nidn?.trim() || null,
+            academic_rank?.trim() || null,
+            functional_position?.trim() || null,
+            expertise?.trim() || null
+          ]
       );
     }
 
@@ -256,7 +256,7 @@ const store = async (req, res, next) => {
 };
 
 // ────────────────────────────────────────────────────────────────────
-// GET /pegawai/:id/edit — Form edit pegawai
+// GET /pegawai/:id/edit - Form edit pegawai
 // ────────────────────────────────────────────────────────────────────
 const edit = async (req, res, next) => {
   try {
@@ -265,7 +265,7 @@ const edit = async (req, res, next) => {
     const [rows] = await db.query(
       `SELECT e.*,
          IF(l.id IS NOT NULL, 'Dosen', 'Staf') AS employee_type,
-         l.academic_rank, l.functional_position, l.expertise
+         l.nidn, l.academic_rank, l.functional_position, l.expertise
        FROM employees e
        LEFT JOIN lecturers l ON e.id = l.id
        WHERE e.id = ?`,
@@ -280,7 +280,7 @@ const edit = async (req, res, next) => {
     const [statuses] = await db.query('SELECT id, name FROM employment_statuses ORDER BY name ASC');
 
     res.render('pegawai/edit', {
-      title: `Edit — ${rows[0].name}`,
+      title: `Edit - ${rows[0].name}`,
       pegawai: rows[0],
       units,
       statuses,
@@ -292,16 +292,16 @@ const edit = async (req, res, next) => {
 };
 
 // ────────────────────────────────────────────────────────────────────
-// PUT /pegawai/:id — Update data pegawai
+// PUT /pegawai/:id - Update data pegawai
 // ────────────────────────────────────────────────────────────────────
 const update = async (req, res, next) => {
   const { id } = req.params;
   const {
     employee_number, national_id_number, tax_id_number,
-    name, birth_place, birth_date, gender, religion, marital_status,
+    name, birth_place, birth_date, gender, religion,
     address, phone_number, organization_unit_id, hire_date,
     employment_status_id, status, employee_type,
-    academic_rank, functional_position, expertise
+    nidn, academic_rank, functional_position, expertise
   } = req.body;
 
   // ── Validasi server-side ──
@@ -311,8 +311,7 @@ const update = async (req, res, next) => {
   if (!birth_place?.trim()) errors.push('Tempat lahir wajib diisi');
   if (!birth_date) errors.push('Tanggal lahir wajib diisi');
   if (!gender) errors.push('Jenis kelamin wajib dipilih');
-  if (!marital_status) errors.push('Status pernikahan wajib dipilih');
-  if (!address?.trim()) errors.push('Alamat wajib diisi');
+    if (!address?.trim()) errors.push('Alamat wajib diisi');
   if (!organization_unit_id) errors.push('Unit organisasi wajib dipilih');
   if (!hire_date) errors.push('Tanggal masuk wajib diisi');
   if (!employment_status_id) errors.push('Status kepegawaian wajib dipilih');
@@ -354,7 +353,7 @@ const update = async (req, res, next) => {
       `UPDATE employees SET
          employee_number = ?, national_id_number = ?, tax_id_number = ?,
          name = ?, birth_place = ?, birth_date = ?, gender = ?,
-         religion = ?, marital_status = ?, address = ?, phone_number = ?,
+         religion = ?, address = ?, phone_number = ?,
          organization_unit_id = ?, hire_date = ?,
          employment_status_id = ?, status = ?, updated_at = NOW()
        WHERE id = ?`,
@@ -363,7 +362,7 @@ const update = async (req, res, next) => {
         national_id_number?.trim() || null,
         tax_id_number?.trim() || null,
         name.trim(), birth_place.trim(), birth_date,
-        gender, religion?.trim() || null, marital_status,
+        gender, religion?.trim() || null,
         address.trim(), phone_number?.trim() || null,
         organization_unit_id, hire_date,
         employment_status_id, status, id
@@ -380,16 +379,16 @@ const update = async (req, res, next) => {
         // Update lecturers
         await conn.query(
           `UPDATE lecturers SET
-             academic_rank = ?, functional_position = ?, expertise = ?, updated_at = NOW()
-           WHERE id = ?`,
-          [academic_rank?.trim() || null, functional_position?.trim() || null, expertise?.trim() || null, id]
+               nidn = ?, academic_rank = ?, functional_position = ?, expertise = ?, updated_at = NOW()
+             WHERE id = ?`,
+            [nidn?.trim() || null, academic_rank?.trim() || null, functional_position?.trim() || null, expertise?.trim() || null, id]
         );
       } else {
         // Insert ke lecturers (baru dijadikan Dosen)
         await conn.query(
-          `INSERT INTO lecturers (id, academic_rank, functional_position, expertise, created_at, updated_at)
-           VALUES (?, ?, ?, ?, NOW(), NOW())`,
-          [id, academic_rank?.trim() || null, functional_position?.trim() || null, expertise?.trim() || null]
+          `INSERT INTO lecturers (id, nidn, academic_rank, functional_position, expertise, created_at, updated_at)
+             VALUES (?, ?, ?, ?, ?, NOW(), NOW())`,
+            [id, nidn?.trim() || null, academic_rank?.trim() || null, functional_position?.trim() || null, expertise?.trim() || null]
         );
       }
     } else {
@@ -411,7 +410,7 @@ const update = async (req, res, next) => {
 };
 
 // ────────────────────────────────────────────────────────────────────
-// DELETE /pegawai/:id — Hapus pegawai
+// DELETE /pegawai/:id - Hapus pegawai
 // ────────────────────────────────────────────────────────────────────
 const destroy = async (req, res, next) => {
   const { id } = req.params;
@@ -446,7 +445,7 @@ const destroy = async (req, res, next) => {
 };
 
 // ────────────────────────────────────────────────────────────────────
-// GET /pegawai/export/pdf — Export daftar ke PDF
+// GET /pegawai/export/pdf - Export daftar ke PDF
 // ────────────────────────────────────────────────────────────────────
 const exportPdf = async (req, res, next) => {
   try {
@@ -645,7 +644,7 @@ const exportPdf = async (req, res, next) => {
 
 
 // ────────────────────────────────────────────────────────────────────
-// GET /pegawai/export/json — Export daftar ke JSON
+// GET /pegawai/export/json - Export daftar ke JSON
 // ────────────────────────────────────────────────────────────────────
 const exportJson = async (req, res, next) => {
   try {
@@ -657,7 +656,7 @@ const exportJson = async (req, res, next) => {
       `SELECT
          e.id, e.employee_number, e.national_id_number, e.tax_id_number,
          e.name, e.birth_place, e.birth_date, e.gender, e.religion,
-         e.marital_status, e.address, e.phone_number,
+         e. e.address, e.phone_number,
          e.hire_date, e.status,
          ou.name AS unit_name,
          es.name AS employment_status_name,
@@ -687,7 +686,7 @@ const exportJson = async (req, res, next) => {
 };
 
 // ────────────────────────────────────────────────────────────────────
-// POST /pegawai/import — Import dari CSV
+// POST /pegawai/import - Import dari CSV
 
 // ────────────────────────────────────────────────────────────────────
 const importCsv = async (req, res, next) => {
@@ -719,7 +718,7 @@ const importCsv = async (req, res, next) => {
 
     // Validasi kolom wajib ada di CSV
     const requiredCols = ['employee_number', 'name', 'birth_place', 'birth_date',
-                          'gender', 'marital_status', 'address',
+                          'gender', 'address',
                           'organization_unit_id', 'hire_date', 'employment_status_id', 'status'];
     const firstRow = records[0];
     const missingCols = requiredCols.filter(col => !(col in firstRow));
@@ -744,14 +743,14 @@ const importCsv = async (req, res, next) => {
       const [result] = await conn.query(
         `INSERT INTO employees
            (employee_number, national_id_number, tax_id_number, name,
-            birth_place, birth_date, gender, religion, marital_status,
+            birth_place, birth_date, gender, religion,
             address, phone_number, organization_unit_id, hire_date,
             employment_status_id, status, created_at, updated_at)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
         [
           row.employee_number, row.national_id_number || null, row.tax_id_number || null,
           row.name, row.birth_place, row.birth_date,
-          row.gender, row.religion || null, row.marital_status,
+          row.gender, row.religion || null, row.
           row.address, row.phone_number || null,
           row.organization_unit_id, row.hire_date,
           row.employment_status_id, row.status

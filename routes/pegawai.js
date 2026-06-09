@@ -31,11 +31,10 @@ router.get('/:id', guard, pegawaiController.show);
 // GET  /pegawai/:id/edit     — Form edit
 router.get('/:id/edit', guard, pegawaiController.edit);
 
-// POST /pegawai/:id?_method=PUT — Update (HTML form tidak support PUT)
-router.post('/:id', guard, (req, res, next) => {
-  if (req.body._method === 'PUT') return pegawaiController.update(req, res, next);
-  if (req.body._method === 'DELETE') return pegawaiController.destroy(req, res, next);
-  next();
-});
+// PUT /pegawai/:id — Update
+router.put('/:id', guard, pegawaiController.update);
+
+// DELETE /pegawai/:id — Delete
+router.delete('/:id', guard, pegawaiController.destroy);
 
 module.exports = router;
