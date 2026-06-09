@@ -302,24 +302,94 @@ module.exports = {
             query += ` ORDER BY s.name ASC`;
             const [rows] = await db.query(query, params);
 
-            const doc = new PDFDocument({ margin: 30, size: 'A4' });
-            res.setHeader('Content-disposition', 'attachment; filename="Data_Struktur_Jabatan.pdf"');
-            res.setHeader('Content-type', 'application/pdf');
+            const doc = new PDFDocument({ margin: 0, size: 'A4', autoFirstPage: true });
+            res.setHeader('Content-Disposition', 'attachment; filename="Data_Struktur_Jabatan.pdf"');
+            res.setHeader('Content-Type', 'application/pdf');
             doc.pipe(res);
 
-            doc.fontSize(16).text('Data Struktur Jabatan', { align: 'center' }).moveDown();
-            rows.forEach((r, i) => {
-                doc.fontSize(11).text(`${i + 1}. ${r.name}`);
-                doc.fontSize(9).text(`   Golongan: ${r.grade}`);
-                doc.fontSize(9).text(`   Atasan: ${r.parent_name || '-'}`);
-                doc.moveDown(0.5);
+            const W = doc.page.width, H = doc.page.height;
+            const ML = 45, MR = 45;
+            const tanggal = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+            const logoPath = path.join(__dirname, '../public/assets/images/logo-fti.png');
+            const C_DARK = '#1f2937', C_GRAY = '#6b7280', C_LINE = '#e5e7eb', C_STRIPE = '#f9fafb', C_HEAD = '#374151';
+
+            const drawPageHeader = () => {
+                const KOP_H = 90;
+                try { doc.image(logoPath, ML, 14, { height: 58 }); } catch (e) {
+                    doc.rect(ML, 14, 58, 58).fill(C_HEAD);
+                    doc.fillColor('white').fontSize(11).font('Helvetica-Bold').text('FTI', ML, 34, { width: 58, align: 'center' });
+                }
+                const textX = ML + 68;
+                doc.fillColor(C_GRAY).fontSize(7).font('Helvetica').text('KEMENTERIAN PENDIDIKAN, KEBUDAYAAN, RISET, DAN TEKNOLOGI', textX, 15, { characterSpacing: 0.2 });
+                doc.fillColor(C_DARK).fontSize(9).font('Helvetica-Bold').text('UNIVERSITAS ANDALAS', textX, 25);
+                doc.fillColor(C_DARK).fontSize(9).font('Helvetica-Bold').text('FAKULTAS TEKNOLOGI INFORMASI', textX, 37);
+                doc.fillColor(C_GRAY).fontSize(7).font('Helvetica').text('Kampus Unand Limau Manis, Padang 25163, Telp. (0751) 72586', textX, 50);
+                doc.fillColor(C_GRAY).fontSize(7).text('Website: fti.unand.ac.id  |  Email: fti@unand.ac.id', textX, 60);
+                doc.moveTo(ML, KOP_H - 4).lineTo(W - MR, KOP_H - 4).strokeColor(C_DARK).lineWidth(2).stroke();
+                doc.moveTo(ML, KOP_H).lineTo(W - MR, KOP_H).strokeColor(C_DARK).lineWidth(0.5).stroke();
+                doc.fillColor(C_DARK).fontSize(11).font('Helvetica-Bold').text('DAFTAR JABATAN STRUKTURAL', 0, KOP_H + 10, { width: W, align: 'center' });
+                doc.fillColor(C_GRAY).fontSize(7.5).font('Helvetica').text('Fakultas Teknologi Informasi, Universitas Andalas', 0, KOP_H + 25, { width: W, align: 'center' });
+                doc.fillColor(C_GRAY).fontSize(7).font('Helvetica')
+                    .text(`Dicetak: ${tanggal}`, 0, 22, { width: W - MR, align: 'right' })
+                    .text(`Total Data: ${rows.length} jabatan`, 0, 33, { width: W - MR, align: 'right' });
+                return KOP_H + 36;
+            };
+
+            const colWidths = [220, 70, 180, 220];
+            const headers = ['Nama Jabatan', 'Golongan', 'Jabatan Atasan', 'Kualifikasi'];
+            const totalTableW = colWidths.reduce((a, b) => a + b, 0);
+            const ROW_H = 18, HEAD_H = 20, pageBottom = H - 36;
+
+            const drawTableHeader = (y) => {
+                doc.rect(ML, y, totalTableW, HEAD_H).fill(C_HEAD);
+                doc.fillColor('white').fontSize(7.5).font('Helvetica-Bold');
+                let cx = ML;
+                headers.forEach((h, i) => { doc.text(h, cx + 5, y + 6, { width: colWidths[i] - 8 }); cx += colWidths[i]; });
+                return y + HEAD_H;
+            };
+
+            const drawRow = (r, idx, y) => {
+                if (idx % 2 !== 0) doc.rect(ML, y, totalTableW, ROW_H).fill(C_STRIPE);
+                doc.moveTo(ML, y + ROW_H).lineTo(ML + totalTableW, y + ROW_H).strokeColor(C_LINE).lineWidth(0.3).stroke();
+                const values = [r.name, r.grade || '-', r.parent_name || '-', r.qualification?.substring(0, 60) || '-'];
+                let cx = ML;
+                values.forEach((v, i) => {
+                    doc.fillColor(C_DARK).fontSize(7.5).font('Helvetica').text(String(v), cx + 5, y + 5, { width: colWidths[i] - 8 });
+                    cx += colWidths[i];
+                });
+            };
+
+            const drawTableBorder = (yT, yB) => doc.rect(ML, yT, totalTableW, yB - yT).strokeColor('#d1d5db').lineWidth(0.5).stroke();
+            const drawColLines = (yT, yB) => {
+                let cx = ML;
+                colWidths.forEach((w, i) => { cx += w; if (i < colWidths.length - 1) doc.moveTo(cx, yT).lineTo(cx, yB).strokeColor(C_LINE).lineWidth(0.3).stroke(); });
+            };
+            const drawFooter = (pageNum) => {
+                doc.moveTo(ML, H - 22).lineTo(W - MR, H - 22).strokeColor('#d1d5db').lineWidth(0.4).stroke();
+                doc.fillColor(C_GRAY).fontSize(6.5).font('Helvetica')
+                    .text('FacultyWare | Sistem Informasi Kepegawaian FTI Universitas Andalas', ML, H - 17)
+                    .text(`Halaman ${pageNum}  |  ${tanggal}`, 0, H - 17, { width: W - MR, align: 'right' });
+            };
+
+            let startY = drawPageHeader(), tableTopY = startY;
+            let rowY = drawTableHeader(startY), pageNum = 1;
+
+            rows.forEach((r, idx) => {
+                if (rowY + ROW_H > pageBottom) {
+                    drawTableBorder(tableTopY, rowY); drawColLines(tableTopY, rowY); drawFooter(pageNum++);
+                    doc.addPage(); startY = drawPageHeader(); tableTopY = startY; rowY = drawTableHeader(startY);
+                }
+                drawRow(r, idx, rowY); rowY += ROW_H;
             });
+
+            drawTableBorder(tableTopY, rowY); drawColLines(tableTopY, rowY); drawFooter(pageNum);
             doc.end();
         } catch (err) {
             req.flash('error', 'Gagal export PDF: ' + err.message);
             res.redirect('/struktur-jabatan');
         }
     },
+
 
     importCsv: async (req, res) => {
         if (!req.file) {
@@ -366,6 +436,35 @@ module.exports = {
             res.redirect('/struktur-jabatan');
         } finally {
             conn.release();
+        }
+    },
+
+    // GET /struktur-jabatan/export/json
+    exportJson: async (req, res, next) => {
+        try {
+            const [rows] = await db.query(`
+                SELECT s.id, s.name, s.grade, s.qualification, s.description,
+                       p.name AS parent_name,
+                       COUNT(jr.id) AS jumlah_tupoksi
+                FROM structural_positions s
+                LEFT JOIN structural_positions p ON s.parent_id = p.id
+                LEFT JOIN job_responsibilities jr ON jr.structural_position_id = s.id
+                GROUP BY s.id
+                ORDER BY s.name ASC
+            `);
+
+            const output = {
+                exported_at: new Date().toISOString(),
+                total: rows.length,
+                data: rows
+            };
+
+            res.setHeader('Content-Type', 'application/json');
+            res.setHeader('Content-Disposition', 'attachment; filename="data-struktur-jabatan.json"');
+            res.send(JSON.stringify(output, null, 2));
+        } catch (err) {
+            if (next) next(err);
+            else { req.flash('error', 'Gagal export JSON: ' + err.message); res.redirect('/struktur-jabatan'); }
         }
     }
 };

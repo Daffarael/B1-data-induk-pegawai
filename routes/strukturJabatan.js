@@ -13,6 +13,7 @@ router.post('/', c.store);
 
 // Export & Import
 router.get('/export/pdf', c.exportPdf);
+router.get('/export/json', c.exportJson);
 router.post('/import', c.upload.single('csv_file'), c.importCsv);
 
 router.get('/:id', c.show);
