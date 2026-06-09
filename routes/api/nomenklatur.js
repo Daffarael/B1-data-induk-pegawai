@@ -1,10 +1,13 @@
-
 const express = require('express');
 const router = express.Router();
 const db = require('../../lib/db');
+const { isAuthenticated } = require('../../middlewares/auth');
+const { hasRole } = require('../../middlewares/acl');
+
+const guard = [isAuthenticated, hasRole('Admin Kepegawaian')];
 
 // GET /api/nomenklatur - Ambil semua nomenklatur
-router.get('/', async (req, res) => {
+router.get('/', guard, async (req, res) => {
   try {
     const [rows] = await db.query(`
       SELECT n.*, COUNT(nc.id) AS jumlah_klasifikasi
@@ -20,7 +23,7 @@ router.get('/', async (req, res) => {
 });
 
 // GET /api/nomenklatur/:id - Ambil detail nomenklatur + klasifikasinya
-router.get('/:id', async (req, res) => {
+router.get('/:id', guard, async (req, res) => {
   try {
     const [[nom]] = await db.query('SELECT * FROM nomenclatures WHERE id = ?', [req.params.id]);
     if (!nom) return res.status(404).json({ success: false, error: 'Data tidak ditemukan' });
@@ -36,7 +39,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // POST /api/nomenklatur - Tambah nomenklatur
-router.post('/', async (req, res) => {
+router.post('/', guard, async (req, res) => {
   const { name, qualification, duties, grade } = req.body;
   if (!name || !qualification || !duties || !grade) {
     return res.status(400).json({ success: false, error: 'name, qualification, duties, dan grade wajib diisi' });
@@ -53,7 +56,7 @@ router.post('/', async (req, res) => {
 });
 
 // PUT /api/nomenklatur/:id - Update nomenklatur
-router.put('/:id', async (req, res) => {
+router.put('/:id', guard, async (req, res) => {
   const { id } = req.params;
   const { name, qualification, duties, grade } = req.body;
   if (!name || !qualification || !duties || !grade) {
@@ -74,7 +77,7 @@ router.put('/:id', async (req, res) => {
 });
 
 // DELETE /api/nomenklatur/:id - Hapus nomenklatur
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', guard, async (req, res) => {
   const conn = await db.getConnection();
   try {
     const [[exist]] = await conn.query('SELECT name FROM nomenclatures WHERE id = ?', [req.params.id]);

@@ -1,4 +1,3 @@
-
 const express = require('express');
 const router = express.Router();
 const c = require('../controllers/nomenklaturController');
@@ -13,8 +12,9 @@ router.get('/create',    guard, c.create);
 router.post('/',         guard, c.store);
 
 // ── Export & Import ──
-router.get('/export/pdf', guard, c.exportPdf);
-router.post('/import',    guard, c.upload.single('csv_file'), c.importCsv);
+router.get('/export/pdf',  guard, c.exportPdf);
+router.get('/export/json', guard, c.exportJson);
+router.post('/import',     guard, c.upload.single('csv_file'), c.importCsv);
 
 // ── Detail, Edit, Hapus Nomenklatur ──
 router.get('/:id',       guard, c.show);
