@@ -1,272 +1,349 @@
 <%# views/struktur_jabatan/show.ejs %>
 
-    <div class="fw-page-header">
-        <div>
-            <a href="/struktur-jabatan"
-                style="font-size:0.8rem; color:#94a3b8; text-decoration:none; display:inline-flex; align-items:center; gap:0.3rem; margin-bottom:0.5rem;"
-                onmouseover="this.style.color='#c8ccda'" onmouseout="this.style.color='#94a3b8'">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                    <polyline points="15 18 9 12 15 6" />
-                </svg>
-                Kembali ke Daftar
-            </a>
-            <h1 class="fw-page-title">
-                <%= jabatan.name %>
-            </h1>
-            <p class="fw-page-sub">Detail data struktur jabatan</p>
-        </div>
-        <div style="display:flex; gap:0.5rem;">
-            <a href="/struktur-jabatan/<%= jabatan.id %>/edit" class="fw-btn fw-btn-outline fw-btn-sm">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                </svg>
-                Edit
-            </a>
-            <form method="POST" action="/struktur-jabatan/<%= jabatan.id %>"
-                onsubmit="return confirm('Hapus jabatan ini?')" style="display:inline;">
-                <input type="hidden" name="_method" value="DELETE">
-                <button type="submit" class="fw-btn fw-btn-sm"
-                    style="background:#ef4444; color:#fff; border-color:#ef4444;">
+    <%# ── Breadcrumb + aksi ──────────────────────────────────── %>
+        <div class="fw-page-header">
+            <div>
+                <a href="/struktur-jabatan"
+                    style="font-size:0.8rem; color:#94a3b8; text-decoration:none; display:inline-flex; align-items:center; gap:0.3rem; margin-bottom:0.5rem; transition:color 0.15s;"
+                    onmouseover="this.style.color='#64748b'" onmouseout="this.style.color='#94a3b8'">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2.5">
+                        <polyline points="15 18 9 12 15 6" />
+                    </svg>
+                    Struktur Jabatan
+                </a>
+                <h1 class="fw-page-title">
+                    <%= jabatan.name %>
+                </h1>
+                <div style="display:flex; align-items:center; gap:0.5rem; margin-top:0.5rem; flex-wrap:wrap;">
+                    <span class="fw-mono-chip">
+                        <%= jabatan.grade %>
+                    </span>
+                    <% if (jabatan.parent_name) { %>
+                        <span class="fw-badge fw-badge-slate">Atasan: <%= jabatan.parent_name %></span>
+                        <% } else { %>
+                            <span class="fw-badge fw-badge-dark">Pucuk Pimpinan</span>
+                            <% } %>
+                </div>
+            </div>
+            <div style="display:flex; gap:0.5rem; flex-shrink:0;">
+                <a href="/struktur-jabatan/<%= jabatan.id %>/edit" class="fw-btn fw-btn-outline fw-btn-sm">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                    </svg>
+                    Edit
+                </a>
+                <button type="button" class="fw-btn fw-btn-danger fw-btn-sm" data-id="<%= jabatan.id %>"
+                    data-name="<%= jabatan.name %>"
+                    onclick="fwShowDeleteModal('/struktur-jabatan/' + this.dataset.id, this.dataset.name)">
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <polyline points="3 6 5 6 21 6" />
                         <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
                     </svg>
                     Hapus
                 </button>
-            </form>
-        </div>
-    </div>
-
-    <div class="fw-card" style="margin-bottom:1.25rem;">
-        <div class="fw-form-section-title">🏷️ Informasi Jabatan</div>
-        <div class="fw-detail-grid">
-            <div class="fw-detail-item">
-                <div class="fw-detail-label">Nama Jabatan</div>
-                <div class="fw-detail-value">
-                    <%= jabatan.name %>
-                </div>
-            </div>
-            <div class="fw-detail-item">
-                <div class="fw-detail-label">Golongan / Grade</div>
-                <div class="fw-detail-value"><span class="fw-mono-chip">
-                        <%= jabatan.grade %>
-                    </span></div>
-            </div>
-            <div class="fw-detail-item">
-                <div class="fw-detail-label">Atasan Langsung</div>
-                <div class="fw-detail-value">
-                    <% if (jabatan.parent_name) { %>
-                        <a href="/struktur-jabatan/<%= jabatan.parent_id %>"
-                            style="color:#60a5fa; text-decoration:none;">
-                            <%= jabatan.parent_name %>
-                        </a>
-                        <% } else { %>
-                            <span style="color:#475569; font-style:italic;">- Pucuk Pimpinan -</span>
-                            <% } %>
-                </div>
-            </div>
-            <div class="fw-detail-item">
-                <div class="fw-detail-label">Bawahan Langsung</div>
-                <div class="fw-detail-value">
-                    <% if (bawahan && bawahan.length> 0) { %>
-                        <div style="display:flex; flex-direction:column; gap:0.25rem;">
-                            <% bawahan.forEach(b=> { %>
-                                <a href="/struktur-jabatan/<%= b.id %>"
-                                    style="color:#60a5fa; text-decoration:none; font-size:0.85rem;">
-                                    • <%= b.name %>
-                                </a>
-                                <% }) %>
-                        </div>
-                        <% } else { %>
-                            <span style="color:#475569; font-style:italic;">- Tidak ada -</span>
-                            <% } %>
-                </div>
-            </div>
-            <div class="fw-detail-item fw-col-2">
-                <div class="fw-detail-label">Kualifikasi</div>
-                <div class="fw-detail-value" style="white-space:pre-wrap;">
-                    <%= jabatan.qualification || '-' %>
-                </div>
-            </div>
-            <div class="fw-detail-item fw-col-2">
-                <div class="fw-detail-label">Deskripsi</div>
-                <div class="fw-detail-value" style="white-space:pre-wrap;">
-                    <%= jabatan.description || '-' %>
-                </div>
             </div>
         </div>
-    </div>
 
-    <%# ── Tupoksi (Job Responsibilities) ──────────────────────────────────────── %>
-        <div class="fw-card">
-            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem;">
-                <div class="fw-form-section-title" style="margin-bottom:0;">📋 Tugas Pokok & Fungsi (Tupoksi)</div>
-                <span class="fw-badge fw-badge-dark">
-                    <%= tupoksi.length %> tugas
-                </span>
-            </div>
+        <%# ── Detail Jabatan ─────────────────────────────────────── %>
+            <div class="fw-detail-grid" style="margin-bottom:1.25rem;">
 
-            <%# Form tambah tupoksi baru %>
-                <div
-                    style="background:#1e2235; border:1px solid #2a2f4a; border-radius:0.5rem; padding:1rem; margin-bottom:1rem;">
-                    <div style="font-size:0.8rem; color:#94a3b8; margin-bottom:0.75rem; font-weight:600;">+ Tambah Tugas
-                        Baru</div>
-                    <form method="POST" action="/struktur-jabatan/<%= jabatan.id %>/tupoksi"
-                        style="display:flex; gap:0.75rem; align-items:flex-start; flex-wrap:wrap;">
-                        <div style="flex:1; min-width:160px;">
-                            <input type="text" name="title" class="fw-input fw-input-sm" placeholder="Judul tugas *"
-                                required>
+                <%# Kartu kiri: Info Jabatan %>
+                    <div class="fw-card">
+                        <div class="fw-card-header">
+                            <div style="display:flex; align-items:center; gap:0.5rem;">
+                                <span style="font-size:1rem;">🏢</span>
+                                <span style="font-size:0.875rem; font-weight:600; color:#0f172a;">Informasi
+                                    Jabatan</span>
+                            </div>
                         </div>
-                        <div style="width:120px;">
-                            <select name="type" class="fw-input fw-input-sm" required>
-                                <option value="main">Main (Pokok)</option>
-                                <option value="function">Function (Fungsi)</option>
-                            </select>
+                        <div class="fw-card-body">
+                            <div class="fw-detail-row">
+                                <span class="fw-detail-label">Nama Jabatan</span>
+                                <span class="fw-detail-value">
+                                    <%= jabatan.name %>
+                                </span>
+                            </div>
+                            <div class="fw-detail-row">
+                                <span class="fw-detail-label">Golongan / Grade</span>
+                                <span class="fw-detail-value"><span class="fw-mono-chip">
+                                        <%= jabatan.grade %>
+                                    </span></span>
+                            </div>
+                            <div class="fw-detail-row">
+                                <span class="fw-detail-label">Atasan Langsung</span>
+                                <span class="fw-detail-value">
+                                    <% if (jabatan.parent_name) { %>
+                                        <a href="/struktur-jabatan/<%= jabatan.parent_id %>"
+                                            style="color:#4f46e5; text-decoration:none;">
+                                            <%= jabatan.parent_name %>
+                                        </a>
+                                        <% } else { %>
+                                            <span style="color:#94a3b8; font-style:italic;">Pucuk Pimpinan</span>
+                                            <% } %>
+                                </span>
+                            </div>
                         </div>
-                        <div style="flex:2; min-width:200px;">
-                            <input type="text" name="description" class="fw-input fw-input-sm"
-                                placeholder="Deskripsi tugas *" required>
-                        </div>
-                        <div style="width:70px;">
-                            <input type="number" name="order" class="fw-input fw-input-sm" placeholder="Urutan"
-                                value="0">
-                        </div>
-                        <button type="submit" class="fw-btn fw-btn-primary fw-btn-sm">Tambah</button>
-                    </form>
-                </div>
-
-                <% if (tupoksi.length===0) { %>
-                    <div class="fw-empty" style="padding:2rem 0;">
-                        <div class="fw-empty-title" style="font-size:0.9rem;">Belum ada tupoksi</div>
-                        <div class="fw-empty-desc">Gunakan form di atas untuk menambahkan tugas pokok dan fungsi</div>
                     </div>
-                    <% } else { %>
-                        <div class="fw-table-wrap">
-                            <table class="fw-table">
-                                <thead>
-                                    <tr>
-                                        <th style="width:40px; text-align:center;">No</th>
-                                        <th style="width:100px; text-align:center;">Tipe</th>
-                                        <th>Judul Tugas</th>
-                                        <th>Deskripsi</th>
-                                        <th style="width:80px; text-align:center;">Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <% tupoksi.forEach((t)=> { %>
-                                        <tr>
-                                            <td style="text-align:center; color:#c8ccda; font-size:0.75rem;">
-                                                <%= t.order || 0 %>
-                                            </td>
-                                            <td style="text-align:center;">
-                                                <span
-                                                    class="fw-badge <%= t.type === 'main' ? 'fw-badge-dark' : 'fw-badge-gray' %>">
-                                                    <%= t.type.toUpperCase() %>
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <div class="fw-cell-name">
-                                                    <%= t.title %>
-                                                </div>
-                                            </td>
-                                            <td class="fw-cell-muted">
-                                                <%= t.description %>
-                                            </td>
-                                            <td>
-                                                <div class="fw-action-btns">
-                                                    <button type="button" class="fw-action-btn fw-action-warn"
-                                                        title="Edit" data-id="<%= t.id %>" data-title="<%= t.title %>"
-                                                        data-desc="<%= t.description %>" data-type="<%= t.type %>"
-                                                        data-order="<%= t.order %>"
-                                                        onclick="openEditTupoksi(this.dataset.id, this.dataset.title, this.dataset.desc, this.dataset.type, this.dataset.order)">
-                                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-                                                            stroke="currentColor" stroke-width="2">
-                                                            <path
-                                                                d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                                                            <path
-                                                                d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                                                        </svg>
-                                                    </button>
-                                                    <form method="POST"
-                                                        action="/struktur-jabatan/<%= jabatan.id %>/tupoksi/<%= t.id %>"
-                                                        onsubmit="return confirm('Hapus tugas ini?')"
-                                                        style="display:inline;">
-                                                        <input type="hidden" name="_method" value="DELETE">
-                                                        <button type="submit" class="fw-action-btn fw-action-danger"
-                                                            title="Hapus">
-                                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-                                                                stroke="currentColor" stroke-width="2">
-                                                                <polyline points="3 6 5 6 21 6" />
-                                                                <path
-                                                                    d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
-                                                            </svg>
-                                                        </button>
-                                                    </form>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <% }) %>
-                                </tbody>
-                            </table>
-                        </div>
-                        <% } %>
-        </div>
 
-        <%# ── Modal Edit Tupoksi ───────────────────────────────── %>
-            <div id="modal-tupoksi"
-                style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:1000; align-items:center; justify-content:center;">
-                <div
-                    style="background:#1a1f36; border:1px solid #2a2f4a; border-radius:0.75rem; padding:1.5rem; width:100%; max-width:500px; margin:1rem;">
-                    <div style="font-size:1rem; font-weight:600; color:#e2e8f0; margin-bottom:1rem;">Edit Tugas Pokok &
-                        Fungsi</div>
-                    <form id="form-edit-tupoksi" method="POST" action="">
-                        <input type="hidden" name="_method" value="PUT">
-                        <div class="fw-form-group" style="margin-bottom:0.75rem;">
-                            <label class="fw-label">Judul Tugas *</label>
-                            <input type="text" id="edit-tup-title" name="title" class="fw-input" required>
-                        </div>
-                        <div class="fw-grid-2" style="margin-bottom:0.75rem;">
-                            <div class="fw-form-group">
-                                <label class="fw-label">Tipe Tugas *</label>
-                                <select id="edit-tup-type" name="type" class="fw-input" required>
-                                    <option value="main">Main (Pokok)</option>
-                                    <option value="function">Function (Fungsi)</option>
-                                </select>
+                    <%# Kartu kanan: Bawahan + Kualifikasi %>
+                        <div style="display:flex; flex-direction:column; gap:1rem;">
+                            <div class="fw-card">
+                                <div class="fw-card-header">
+                                    <div style="display:flex; align-items:center; gap:0.5rem;">
+                                        <span style="font-size:1rem;">👥</span>
+                                        <span style="font-size:0.875rem; font-weight:600; color:#0f172a;">Bawahan
+                                            Langsung</span>
+                                    </div>
+                                    <span class="fw-badge fw-badge-dark">
+                                        <%= bawahan ? bawahan.length : 0 %>
+                                    </span>
+                                </div>
+                                <div class="fw-card-body">
+                                    <% if (bawahan && bawahan.length> 0) { %>
+                                        <% bawahan.forEach(b=> { %>
+                                            <div class="fw-detail-row">
+                                                <span class="fw-detail-label" style="width:auto; flex:none;">
+                                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none"
+                                                        stroke="currentColor" stroke-width="2.5"
+                                                        style="margin-right:4px; vertical-align:middle;">
+                                                        <polyline points="9 18 15 12 9 6" />
+                                                    </svg>
+                                                </span>
+                                                <span class="fw-detail-value">
+                                                    <a href="/struktur-jabatan/<%= b.id %>"
+                                                        style="color:#4f46e5; text-decoration:none; font-size:0.875rem;">
+                                                        <%= b.name %>
+                                                    </a>
+                                                </span>
+                                            </div>
+                                            <% }) %>
+                                                <% } else { %>
+                                                    <div
+                                                        style="color:#94a3b8; font-style:italic; font-size:0.85rem; padding:0.25rem 0;">
+                                                        Tidak ada bawahan langsung</div>
+                                                    <% } %>
+                                </div>
                             </div>
-                            <div class="fw-form-group">
-                                <label class="fw-label">Urutan</label>
-                                <input type="number" id="edit-tup-order" name="order" class="fw-input">
-                            </div>
+
+                            <% if (jabatan.qualification || jabatan.description) { %>
+                                <div class="fw-card">
+                                    <div class="fw-card-header">
+                                        <div style="display:flex; align-items:center; gap:0.5rem;">
+                                            <span style="font-size:1rem;">📋</span>
+                                            <span
+                                                style="font-size:0.875rem; font-weight:600; color:#0f172a;">Kualifikasi
+                                                & Deskripsi</span>
+                                        </div>
+                                    </div>
+                                    <div class="fw-card-body">
+                                        <% if (jabatan.qualification) { %>
+                                            <div class="fw-detail-row">
+                                                <span class="fw-detail-label">Kualifikasi</span>
+                                                <span class="fw-detail-value" style="white-space:pre-wrap;"><%= jabatan.qualification %></span>
+                                            </div>
+                                            <% } %>
+                                                <% if (jabatan.description) { %>
+                                                    <div class="fw-detail-row">
+                                                        <span class="fw-detail-label">Deskripsi</span>
+                                                        <span class="fw-detail-value" style="white-space:pre-wrap;"><%= jabatan.description %></span>
+                                                    </div>
+                                                    <% } %>
+                                    </div>
+                                </div>
+                                <% } %>
                         </div>
-                        <div class="fw-form-group" style="margin-bottom:1rem;">
-                            <label class="fw-label">Deskripsi *</label>
-                            <textarea id="edit-tup-desc" name="description" class="fw-input fw-textarea"
-                                required></textarea>
-                        </div>
-                        <div style="display:flex; gap:0.5rem; justify-content:flex-end;">
-                            <button type="button" class="fw-btn fw-btn-ghost fw-btn-sm"
-                                onclick="closeModal()">Batal</button>
-                            <button type="submit" class="fw-btn fw-btn-primary fw-btn-sm">Simpan</button>
-                        </div>
-                    </form>
-                </div>
+
             </div>
 
-            <script>
-                function openEditTupoksi(id, title, desc, type, order) {
-                    document.getElementById('edit-tup-title').value = title;
-                    document.getElementById('edit-tup-desc').value = desc;
-                    document.getElementById('edit-tup-type').value = type;
-                    document.getElementById('edit-tup-order').value = order;
-                    document.getElementById('form-edit-tupoksi').action = '/struktur-jabatan/<%= jabatan.id %>/tupoksi/' + id;
-                    const modal = document.getElementById('modal-tupoksi');
-                    modal.style.display = 'flex';
-                }
-                function closeModal() {
-                    document.getElementById('modal-tupoksi').style.display = 'none';
-                }
-                document.getElementById('modal-tupoksi').addEventListener('click', function (e) {
-                    if (e.target === this) closeModal();
-                });
-            </script>
+            <%# ── Tupoksi ─────────────────────────────────────────────── %>
+                <div class="fw-card">
+                    <div class="fw-card-header">
+                        <div style="display:flex; align-items:center; gap:0.5rem;">
+                            <span style="font-size:1rem;">📋</span>
+                            <span style="font-size:0.875rem; font-weight:600; color:#0f172a;">Tugas Pokok & Fungsi
+                                (Tupoksi)</span>
+                        </div>
+                        <span class="fw-badge fw-badge-dark">
+                            <%= tupoksi.length %> tugas
+                        </span>
+                    </div>
+                    <div class="fw-card-body">
+
+                        <%# Form tambah tupoksi baru %>
+                            <div class="fw-form-section" style="margin-bottom:1.25rem;">
+                                <div class="fw-form-section-header">
+                                    <span class="fw-form-section-title">Tambah Tugas Baru</span>
+                                </div>
+                                <div class="fw-form-section-body">
+                                    <form method="POST" action="/struktur-jabatan/<%= jabatan.id %>/tupoksi"
+                                        style="display:flex; gap:0.75rem; align-items:flex-end; flex-wrap:wrap;">
+                                        <div style="flex:2; min-width:180px;">
+                                            <label class="fw-label fw-label-required">Judul Tugas</label>
+                                            <input type="text" name="title" class="fw-input"
+                                                placeholder="Judul tugas..." required>
+                                        </div>
+                                        <div style="width:140px;">
+                                            <label class="fw-label fw-label-required">Tipe</label>
+                                            <select name="type" class="fw-input" required>
+                                                <option value="main">Main (Pokok)</option>
+                                                <option value="function">Function (Fungsi)</option>
+                                            </select>
+                                        </div>
+                                        <div style="flex:3; min-width:200px;">
+                                            <label class="fw-label fw-label-required">Deskripsi</label>
+                                            <input type="text" name="description" class="fw-input"
+                                                placeholder="Deskripsi tugas..." required>
+                                        </div>
+                                        <div style="width:80px;">
+                                            <label class="fw-label">Urutan</label>
+                                            <input type="number" name="order" class="fw-input" value="0" min="0">
+                                        </div>
+                                        <div>
+                                            <label class="fw-label" style="visibility:hidden;">_</label>
+                                            <button type="submit"
+                                                class="fw-btn fw-btn-primary fw-btn-sm">Tambah</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+
+                            <% if (tupoksi.length===0) { %>
+                                <div class="fw-empty" style="padding:2rem 0;">
+                                    <div class="fw-empty-title" style="font-size:0.9rem;">Belum ada tupoksi</div>
+                                    <div class="fw-empty-desc">Gunakan form di atas untuk menambahkan tugas pokok dan
+                                        fungsi</div>
+                                </div>
+                                <% } else { %>
+                                    <div class="fw-table-wrap">
+                                        <table class="fw-table">
+                                            <thead>
+                                                <tr>
+                                                    <th style="width:48px; text-align:center;">No</th>
+                                                    <th style="width:100px; text-align:center;">Tipe</th>
+                                                    <th>Judul Tugas</th>
+                                                    <th>Deskripsi</th>
+                                                    <th style="width:80px; text-align:center;">Aksi</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <% tupoksi.forEach((t)=> { %>
+                                                    <tr>
+                                                        <td
+                                                            style="text-align:center; color:#c8ccda; font-size:0.75rem;">
+                                                            <%= t.order || 0 %>
+                                                        </td>
+                                                        <td style="text-align:center;">
+                                                            <span
+                                                                class="fw-badge <%= t.type === 'main' ? 'fw-badge-dark' : 'fw-badge-slate' %>">
+                                                                <%= t.type.toUpperCase() %>
+                                                            </span>
+                                                        </td>
+                                                        <td>
+                                                            <div class="fw-cell-name">
+                                                                <%= t.title %>
+                                                            </div>
+                                                        </td>
+                                                        <td class="fw-cell-muted">
+                                                            <%= t.description %>
+                                                        </td>
+                                                        <td>
+                                                            <div class="fw-action-btns">
+                                                                <button type="button"
+                                                                    class="fw-action-btn fw-action-warn" title="Edit"
+                                                                    data-id="<%= t.id %>" data-title="<%= t.title %>"
+                                                                    data-desc="<%= t.description %>"
+                                                                    data-type="<%= t.type %>"
+                                                                    data-order="<%= t.order %>"
+                                                                    onclick="openEditTupoksi(this.dataset.id, this.dataset.title, this.dataset.desc, this.dataset.type, this.dataset.order)">
+                                                                    <svg width="14" height="14" viewBox="0 0 24 24"
+                                                                        fill="none" stroke="currentColor"
+                                                                        stroke-width="2">
+                                                                        <path
+                                                                            d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                                                                        <path
+                                                                            d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                                                                    </svg>
+                                                                </button>
+                                                                <button type="button"
+                                                                    class="fw-action-btn fw-action-danger" title="Hapus"
+                                                                    data-jabatanid="<%= jabatan.id %>"
+                                                                    data-tupoksiid="<%= t.id %>"
+                                                                    data-title="<%= t.title %>"
+                                                                    onclick="fwShowDeleteModal('/struktur-jabatan/' + this.dataset.jabatanid + '/tupoksi/' + this.dataset.tupoksiid, this.dataset.title)">
+                                                                    <svg width="14" height="14" viewBox="0 0 24 24"
+                                                                        fill="none" stroke="currentColor"
+                                                                        stroke-width="2">
+                                                                        <polyline points="3 6 5 6 21 6" />
+                                                                        <path
+                                                                            d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+                                                                    </svg>
+                                                                </button>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                    <% }) %>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <% } %>
+                    </div>
+                </div>
+
+                <%# ── Modal Edit Tupoksi ──────────────────────────────────── %>
+                    <div id="modal-tupoksi"
+                        style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.5); z-index:1000; align-items:center; justify-content:center;">
+                        <div
+                            style="background:#fff; border:1px solid #e2e8f0; border-radius:0.75rem; padding:1.5rem; width:100%; max-width:500px; margin:1rem; box-shadow:0 20px 60px rgba(0,0,0,0.15);">
+                            <div style="font-size:1rem; font-weight:600; color:#0f172a; margin-bottom:1rem;">Edit Tugas
+                                Pokok & Fungsi</div>
+                            <form id="form-edit-tupoksi" method="POST" action="">
+                                <input type="hidden" name="_method" value="PUT">
+                                <div style="margin-bottom:0.75rem;">
+                                    <label class="fw-label fw-label-required">Judul Tugas</label>
+                                    <input type="text" id="edit-tup-title" name="title" class="fw-input" required>
+                                </div>
+                                <div class="fw-grid-2" style="margin-bottom:0.75rem;">
+                                    <div>
+                                        <label class="fw-label fw-label-required">Tipe Tugas</label>
+                                        <select id="edit-tup-type" name="type" class="fw-input" required>
+                                            <option value="main">Main (Pokok)</option>
+                                            <option value="function">Function (Fungsi)</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="fw-label">Urutan</label>
+                                        <input type="number" id="edit-tup-order" name="order" class="fw-input">
+                                    </div>
+                                </div>
+                                <div style="margin-bottom:1rem;">
+                                    <label class="fw-label fw-label-required">Deskripsi</label>
+                                    <textarea id="edit-tup-desc" name="description" class="fw-input fw-textarea"
+                                        required></textarea>
+                                </div>
+                                <div style="display:flex; gap:0.5rem; justify-content:flex-end;">
+                                    <button type="button" class="fw-btn fw-btn-ghost fw-btn-sm"
+                                        onclick="closeModal()">Batal</button>
+                                    <button type="submit" class="fw-btn fw-btn-primary fw-btn-sm">Simpan</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <script>
+                        function openEditTupoksi(id, title, desc, type, order) {
+                            document.getElementById('edit-tup-title').value = title;
+                            document.getElementById('edit-tup-desc').value = desc;
+                            document.getElementById('edit-tup-type').value = type;
+                            document.getElementById('edit-tup-order').value = order;
+                            document.getElementById('form-edit-tupoksi').action = '/struktur-jabatan/<%= jabatan.id %>/tupoksi/' + id;
+                            document.getElementById('modal-tupoksi').style.display = 'flex';
+                        }
+                        function closeModal() {
+                            document.getElementById('modal-tupoksi').style.display = 'none';
+                        }
+                        document.getElementById('modal-tupoksi').addEventListener('click', function (e) {
+                            if (e.target === this) closeModal();
+                        });
+                    </script>
