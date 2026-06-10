@@ -209,16 +209,23 @@ const store = async (req, res, next) => {
       });
     }
 
-    // Auto Increment Manual
-    const [maxResult] = await conn.query('SELECT MAX(id) as maxId FROM students');
-    const newId = (maxResult[0].maxId || 0) + 1;
-
     // Generate campus email automatically (Format: NIM_NAMA DEPAN_@gmail.com)
     let generatedCampusEmail = null;
     if (regno && name) {
       const firstName = name.trim().split(' ')[0].toUpperCase();
       generatedCampusEmail = `${regno.trim()}_${firstName}_@gmail.com`;
     }
+
+    const bcrypt = require('bcryptjs');
+    const defaultPassword = await bcrypt.hash(regno.trim(), 10);
+    const defaultEmail = generatedCampusEmail || `${regno.trim()}@facultyware.com`;
+
+    // 1. Insert ke tabel users terlebih dahulu
+    const [userResult] = await conn.query(
+      `INSERT INTO users (name, email, password, created_at, updated_at) VALUES (?, ?, ?, NOW(), NOW())`,
+      [name.trim(), defaultEmail, defaultPassword]
+    );
+    const newId = userResult.insertId;
 
     await conn.query(
       `INSERT INTO students
@@ -368,6 +375,7 @@ const destroy = async (req, res, next) => {
       return res.status(404).render('errors/404', { title: 'Tidak Ditemukan' });
     }
     await db.query('DELETE FROM students WHERE id = ?', [id]);
+    await db.query('DELETE FROM users WHERE id = ?', [id]);
     req.flash('success', `Data mahasiswa "${rows[0].name}" berhasil dihapus`);
     res.redirect('/mahasiswa');
   } catch (err) {
@@ -525,12 +533,21 @@ const importCsv = async (req, res, next) => {
       const [existing] = await conn.query('SELECT id FROM students WHERE regno = ?', [row.regno]);
       if (existing.length > 0) { skipped++; continue; }
 
-      currentMaxId++;
+      const bcrypt = require('bcryptjs');
+      const defaultPassword = await bcrypt.hash(row.regno, 10);
+      const defaultEmail = `${row.regno}@facultyware.com`;
+
+      const [userResult] = await conn.query(
+        `INSERT INTO users (name, email, password, created_at, updated_at) VALUES (?, ?, ?, NOW(), NOW())`,
+        [row.name, defaultEmail, defaultPassword]
+      );
+      const newId = userResult.insertId;
+
       await conn.query(
         `INSERT INTO students
            (id, regno, name, gender, year, status, created_at, updated_at)
          VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())`,
-        [currentMaxId, row.regno, row.name, row.gender || null, row.year || null, row.status || null]
+        [newId, row.regno, row.name, row.gender || null, row.year || null, row.status || null]
       );
       imported++;
     }

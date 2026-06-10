@@ -206,15 +206,27 @@ const store = async (req, res, next) => {
       });
     }
 
-    // Insert ke tabel employees
+    const bcrypt = require('bcryptjs');
+    const defaultPassword = await bcrypt.hash(employee_number.trim(), 10);
+    const defaultEmail = `${employee_number.trim()}@facultyware.com`;
+
+    // 1. Insert ke tabel users terlebih dahulu
+    const [userResult] = await conn.query(
+      `INSERT INTO users (name, email, password, created_at, updated_at) VALUES (?, ?, ?, NOW(), NOW())`,
+      [name.trim(), defaultEmail, defaultPassword]
+    );
+    const newId = userResult.insertId;
+
+    // 2. Insert ke tabel employees
     const [result] = await conn.query(
       `INSERT INTO employees
-         (employee_number, national_id_number, tax_id_number, name,
+         (id, employee_number, national_id_number, tax_id_number, name,
           birth_place, birth_date, gender, religion,
           address, phone_number, organization_unit_id, hire_date,
           employment_status_id, status, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
       [
+        newId,
         employee_number.trim(),
         national_id_number?.trim() || null,
         tax_id_number?.trim() || null,
@@ -226,7 +238,6 @@ const store = async (req, res, next) => {
       ]
     );
 
-    const newId = result.insertId;
 
     // Jika tipe Dosen, insert ke tabel lecturers juga
     if (employee_type === 'Dosen') {
@@ -427,11 +438,17 @@ const destroy = async (req, res, next) => {
 
     const namaP = rows[0].name;
 
+    // Hapus relasi Dosen Pembimbing di tabel students (SET NULL) agar tidak error Foreign Key
+    await conn.query('UPDATE students SET advisor_id = NULL WHERE advisor_id = ?', [id]);
+
     // Hapus dari lecturers dulu (jika ada) karena FK
     await conn.query('DELETE FROM lecturers WHERE id = ?', [id]);
 
     // Hapus dari employees
     await conn.query('DELETE FROM employees WHERE id = ?', [id]);
+
+    // Hapus dari users (karena pegawai punya akun login)
+    await conn.query('DELETE FROM users WHERE id = ?', [id]);
 
     await conn.commit();
     req.flash('success', `Data pegawai "${namaP}" berhasil dihapus`);
