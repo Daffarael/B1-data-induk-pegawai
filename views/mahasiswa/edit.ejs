@@ -1,10 +1,11 @@
+
 <%# views/mahasiswa/edit.ejs %>
 
 <div class="fw-page-header">
   <div>
     <a href="/mahasiswa" style="font-size:0.8rem; color:#94a3b8; text-decoration:none; display:inline-flex; align-items:center; gap:0.3rem; margin-bottom:0.5rem;" onmouseover="this.style.color='#64748b'" onmouseout="this.style.color='#94a3b8'">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-      Data Mahasiswa
+      Kembali
     </a>
     <h1 class="fw-page-title">Edit Mahasiswa</h1>
     <p class="fw-page-subtitle">Perbarui data induk mahasiswa</p>
@@ -25,11 +26,11 @@
 <% } %>
 
 <% 
-  // Gabungkan form data dari 'input' (jika ada error) atau dari objek 'mahasiswa' asli
-  const formData = (typeof input !== 'undefined' && Object.keys(input).length > 0) ? input : mahasiswa;
+  // Gabungkan form data dari 'input' (jika ada error) atau dari objek 'm' asli
+  const formData = (typeof input !== 'undefined' && Object.keys(input).length > 0) ? input : m;
 %>
 
-<form action="/mahasiswa/<%= mahasiswa.id %>/update" method="POST">
+<form action="/mahasiswa/<%= m.id %>/edit" method="POST">
   
   <%# Biodata Pribadi %>
   <div class="fw-form-section">
@@ -110,8 +111,8 @@
           <label class="fw-label fw-label-required">Program Studi/Departemen</label>
           <select name="department_id" required class="fw-select">
             <option value="">Pilih Departemen...</option>
-            <% if (typeof units !== 'undefined') { %>
-              <% units.forEach(dept => { %>
+            <% if (typeof departments !== 'undefined') { %>
+              <% departments.forEach(dept => { %>
                 <option value="<%= dept.id %>" <%= formData.department_id == dept.id ? 'selected' : '' %>><%= dept.name %></option>
               <% }) %>
             <% } %>
@@ -164,8 +165,7 @@
   <div style="display:flex; align-items:center; gap:0.75rem; padding-top:0.5rem; margin-bottom:2rem;">
     <button type="submit" class="fw-btn fw-btn-primary">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-      Perbarui Data
-    </button>
-    <a href="/mahasiswa/<%= mahasiswa.id %>" class="fw-btn fw-btn-ghost">Batal</a>
+      Kembali
+    </a>
   </div>
 </form>
