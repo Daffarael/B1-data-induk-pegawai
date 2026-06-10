@@ -154,7 +154,7 @@ const create = async (req, res, next) => {
 
     res.render('mahasiswa/create', {
       title: 'Tambah Mahasiswa',
-      units,
+      departments: units, statusMap,
       advisors,
       old: {},
       errors: []
@@ -188,7 +188,7 @@ const store = async (req, res, next) => {
     const [advisors] = await db.query("SELECT e.id, e.name FROM employees e INNER JOIN lecturers l ON e.id = l.id ORDER BY e.name ASC");
     return res.status(422).render('mahasiswa/create', {
       title: 'Tambah Mahasiswa',
-      units, advisors, errors, old: req.body
+      departments: units, statusMap, advisors, errors, old: req.body
     });
   }
 
@@ -203,7 +203,7 @@ const store = async (req, res, next) => {
       const [advisors] = await db.query("SELECT e.id, e.name FROM employees e INNER JOIN lecturers l ON e.id = l.id ORDER BY e.name ASC");
       return res.status(422).render('mahasiswa/create', {
         title: 'Tambah Mahasiswa',
-        units, advisors,
+        departments: units, statusMap, advisors,
         errors: ['NIM sudah terdaftar'],
         old: req.body
       });
@@ -212,6 +212,13 @@ const store = async (req, res, next) => {
     // Auto Increment Manual
     const [maxResult] = await conn.query('SELECT MAX(id) as maxId FROM students');
     const newId = (maxResult[0].maxId || 0) + 1;
+
+    // Generate campus email automatically (Format: NIM_NAMA DEPAN_@gmail.com)
+    let generatedCampusEmail = null;
+    if (regno && name) {
+      const firstName = name.trim().split(' ')[0].toUpperCase();
+      generatedCampusEmail = `${regno.trim()}_${firstName}_@gmail.com`;
+    }
 
     await conn.query(
       `INSERT INTO students
@@ -223,7 +230,7 @@ const store = async (req, res, next) => {
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
       [
         newId, regno.trim(), name.trim(), birth_place?.trim() || null, birth_date, 
-        gender || null, religion || null, email?.trim() || null, campus_email?.trim() || null, 
+        gender || null, religion || null, email?.trim() || null, generatedCampusEmail, 
         phone_no?.trim() || null, home_address?.trim() || null, home_town?.trim() || null, 
         home_province?.trim() || null, home_postalcode?.trim() || null, current_address?.trim() || null, 
         current_town?.trim() || null, current_province?.trim() || null, current_postalcode?.trim() || null,
@@ -262,8 +269,8 @@ const edit = async (req, res, next) => {
 
     res.render('mahasiswa/edit', {
       title: `Edit - ${mahasiswa.name}`,
-      mahasiswa,
-      units,
+      m: mahasiswa,
+      departments: units, statusMap,
       advisors,
       errors: []
     });
@@ -296,7 +303,7 @@ const update = async (req, res, next) => {
     const mahasiswa = { id, ...req.body };
     return res.status(422).render('mahasiswa/edit', {
       title: 'Edit Mahasiswa',
-      mahasiswa, units, advisors, errors
+      m: mahasiswa, departments: units, statusMap, advisors, errors
     });
   }
 
@@ -311,9 +318,16 @@ const update = async (req, res, next) => {
       const [advisors] = await db.query("SELECT e.id, e.name FROM employees e INNER JOIN lecturers l ON e.id = l.id ORDER BY e.name ASC");
       return res.status(422).render('mahasiswa/edit', {
         title: 'Edit Mahasiswa',
-        mahasiswa: { id, ...req.body }, units, advisors,
+        m: { id, ...req.body }, departments: units, statusMap, advisors,
         errors: ['NIM sudah digunakan mahasiswa lain']
       });
+    }
+
+    // Auto-update campus email format in case NIM or name changed
+    let generatedCampusEmail = null;
+    if (regno && name) {
+      const firstName = name.trim().split(' ')[0].toUpperCase();
+      generatedCampusEmail = `${regno.trim()}_${firstName}_@gmail.com`;
     }
 
     await conn.query(
@@ -326,7 +340,7 @@ const update = async (req, res, next) => {
        WHERE id = ?`,
       [
         regno.trim(), name.trim(), birth_place?.trim() || null, birth_date || null, 
-        gender || null, religion || null, email?.trim() || null, campus_email?.trim() || null, 
+        gender || null, religion || null, email?.trim() || null, generatedCampusEmail, 
         phone_no?.trim() || null, home_address?.trim() || null, home_town?.trim() || null, 
         home_province?.trim() || null, home_postalcode?.trim() || null, current_address?.trim() || null, 
         current_town?.trim() || null, current_province?.trim() || null, current_postalcode?.trim() || null,
@@ -356,6 +370,37 @@ const destroy = async (req, res, next) => {
     await db.query('DELETE FROM students WHERE id = ?', [id]);
     req.flash('success', `Data mahasiswa "${rows[0].name}" berhasil dihapus`);
     res.redirect('/mahasiswa');
+  } catch (err) {
+    next(err);
+  }
+};
+
+// GET /mahasiswa/export/json
+const exportJson = async (req, res, next) => {
+  try {
+    const search = req.query.search || '';
+    const statusFilter = req.query.status || '';
+    const { whereClause, params } = buildListQuery(search, statusFilter);
+
+    const [mahasiswa] = await db.query(
+      `SELECT s.id, s.regno, s.name, s.gender, s.status, s.year,
+              ou.name AS department_name
+       FROM students s
+       LEFT JOIN organization_units ou ON s.department_id = ou.id
+       ${whereClause}
+       ORDER BY s.name ASC`,
+      params
+    );
+
+    const output = {
+      exported_at: new Date().toISOString(),
+      total: mahasiswa.length,
+      data: mahasiswa
+    };
+
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Content-Disposition', 'attachment; filename="data-mahasiswa.json"');
+    res.send(JSON.stringify(output, null, 2));
   } catch (err) {
     next(err);
   }
@@ -431,7 +476,7 @@ const exportPdf = async (req, res, next) => {
 // POST /mahasiswa/import
 const importCsv = async (req, res, next) => {
   if (!req.file) {
-    req.flash('error', 'File CSV wajib dipilih');
+    req.flash('error', 'File CSV wajib dipilih. Pastikan format file adalah .csv');
     return res.redirect('/mahasiswa');
   }
 
@@ -439,15 +484,33 @@ const importCsv = async (req, res, next) => {
   const conn = await db.getConnection();
 
   try {
-    const records = await new Promise((resolve, reject) => {
-      parse(csvContent, { columns: true, skip_empty_lines: true, trim: true }, (err, data) => {
-        if (err) reject(err);
-        else resolve(data);
+    let records;
+    try {
+      records = await new Promise((resolve, reject) => {
+        parse(csvContent, { columns: true, skip_empty_lines: true, trim: true }, (err, data) => {
+          if (err) reject(err);
+          else resolve(data);
+        });
       });
-    });
+    } catch (parseErr) {
+      await conn.release();
+      req.flash('error', `File CSV tidak valid atau rusak: ${parseErr.message}`);
+      return res.redirect('/mahasiswa');
+    }
 
     if (records.length === 0) {
-      req.flash('error', 'File CSV kosong');
+      conn.release();
+      req.flash('error', 'File CSV kosong, tidak ada data yang diimport');
+      return res.redirect('/mahasiswa');
+    }
+
+    // Validasi kolom wajib
+    const requiredCols = ['regno', 'name', 'gender', 'year', 'status'];
+    const firstRow = records[0];
+    const missingCols = requiredCols.filter(col => !(col in firstRow));
+    if (missingCols.length > 0) {
+      conn.release();
+      req.flash('error', `Format CSV tidak valid. Kolom wajib tidak ditemukan: ${missingCols.join(', ')}. Kolom yang dibutuhkan: regno, name, gender, year, status`);
       return res.redirect('/mahasiswa');
     }
 
@@ -477,12 +540,13 @@ const importCsv = async (req, res, next) => {
     res.redirect('/mahasiswa');
   } catch (err) {
     await conn.rollback();
-    next(err);
+    req.flash('error', `Gagal import: ${err.message}`);
+    res.redirect('/mahasiswa');
   } finally {
     conn.release();
   }
 };
 
 module.exports = {
-  index, show, create, store, edit, update, destroy, exportPdf, importCsv, upload
+  index, show, create, store, edit, update, destroy, exportPdf, exportJson, importCsv, upload
 };

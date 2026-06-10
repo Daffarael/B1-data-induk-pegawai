@@ -1,4 +1,3 @@
-
 <%# views/mahasiswa/create.ejs %>
 
 <div class="fw-page-header">
@@ -25,7 +24,7 @@
   </div>
 <% } %>
 
-<form action="/mahasiswa/create" method="POST">
+<form action="/mahasiswa" method="POST">
   
   <%# Biodata Pribadi %>
   <div class="fw-form-section">
@@ -79,7 +78,7 @@
 
         <div class="fw-col-span-2">
           <label class="fw-label">Kewarganegaraan</label>
-          <input type="text" name="nationality" value="<%= (typeof input !== 'undefined' && input.nationality) ? input.nationality : 'Indonesia' %>" class="fw-input">
+          <input type="text" name="citizenship" value="<%= (typeof input !== 'undefined' && input.citizenship) ? input.citizenship : 'Indonesia' %>" class="fw-input">
         </div>
       </div>
     </div>
@@ -140,18 +139,64 @@
         </div>
 
         <div>
-          <label class="fw-label">Telepon/HP</label>
-          <input type="text" name="phone" value="<%= (typeof input !== 'undefined' && input.phone) ? input.phone : '' %>" class="fw-input" placeholder="08xxxxxxxx">
+          <label class="fw-label">No. Telepon / WhatsApp</label>
+          <input type="text" name="phone_no" value="<%= (typeof input !== 'undefined' && input.phone_no) ? input.phone_no : '' %>" class="fw-input" placeholder="08xxxxxxxx"
+                 inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%# Data Alamat %>
+  <div class="fw-form-section">
+    <div class="fw-form-section-header">
+      <span style="font-size:1rem;">🏠</span>
+      <span class="fw-form-section-title">Data Alamat</span>
+    </div>
+    <div class="fw-form-section-body">
+      <div class="fw-grid-2">
+        <div class="fw-col-span-2">
+          <label class="fw-label">Alamat Asal</label>
+          <textarea name="home_address" class="fw-textarea" placeholder="Jalan, RT/RW, Kelurahan, Kecamatan"><%= (typeof input !== 'undefined' && input.home_address) ? input.home_address : '' %></textarea>
+        </div>
+        <div>
+          <label class="fw-label">Kota/Kabupaten Asal</label>
+          <input type="text" name="home_town" value="<%= (typeof input !== 'undefined' && input.home_town) ? input.home_town : '' %>" class="fw-input" placeholder="Contoh: Padang">
+        </div>
+        <div>
+          <label class="fw-label">Provinsi Asal</label>
+          <input type="text" name="home_province" value="<%= (typeof input !== 'undefined' && input.home_province) ? input.home_province : '' %>" class="fw-input" placeholder="Contoh: Sumatera Barat">
+        </div>
+        <div>
+          <label class="fw-label">Kode Pos Asal</label>
+          <input type="text" name="home_postalcode" value="<%= (typeof input !== 'undefined' && input.home_postalcode) ? input.home_postalcode : '' %>" class="fw-input" placeholder="Contoh: 25163">
+        </div>
+        <div class="fw-col-span-2" style="margin-top:1rem;">
+          <label class="fw-label">Alamat Domisili (Saat ini)</label>
+          <textarea name="current_address" class="fw-textarea" placeholder="Alamat tinggal/kos saat ini"><%= (typeof input !== 'undefined' && input.current_address) ? input.current_address : '' %></textarea>
+        </div>
+        <div>
+          <label class="fw-label">Kota/Kab. Domisili</label>
+          <input type="text" name="current_town" value="<%= (typeof input !== 'undefined' && input.current_town) ? input.current_town : '' %>" class="fw-input">
+        </div>
+        <div>
+          <label class="fw-label">Provinsi Domisili</label>
+          <input type="text" name="current_province" value="<%= (typeof input !== 'undefined' && input.current_province) ? input.current_province : '' %>" class="fw-input">
+        </div>
+        <div>
+          <label class="fw-label">Kode Pos Domisili</label>
+          <input type="text" name="current_postalcode" value="<%= (typeof input !== 'undefined' && input.current_postalcode) ? input.current_postalcode : '' %>" class="fw-input">
         </div>
       </div>
     </div>
   </div>
 
   <%# Action buttons %>
-  <div style="display:flex; align-items:center; gap:0.75rem; padding-top:0.5rem; margin-bottom:2rem;">
+  <div class="fw-form-actions">
+    <a href="/mahasiswa" class="fw-btn fw-btn-outline">Batal</a>
     <button type="submit" class="fw-btn fw-btn-primary">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-      Kembali
-    </a>
+      Simpan
+    </button>
   </div>
 </form>

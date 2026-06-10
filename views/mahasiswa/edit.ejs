@@ -1,4 +1,3 @@
-
 <%# views/mahasiswa/edit.ejs %>
 
 <div class="fw-page-header">
@@ -30,7 +29,7 @@
   const formData = (typeof input !== 'undefined' && Object.keys(input).length > 0) ? input : m;
 %>
 
-<form action="/mahasiswa/<%= m.id %>/edit" method="POST">
+<form action="/mahasiswa/<%= m.id %>/update" method="POST">
   
   <%# Biodata Pribadi %>
   <div class="fw-form-section">
@@ -93,7 +92,7 @@
 
         <div class="fw-col-span-2">
           <label class="fw-label">Kewarganegaraan</label>
-          <input type="text" name="nationality" value="<%= formData.nationality || 'Indonesia' %>" class="fw-input">
+          <input type="text" name="citizenship" value="<%= formData.citizenship || 'Indonesia' %>" class="fw-input">
         </div>
       </div>
     </div>
@@ -154,18 +153,64 @@
         </div>
 
         <div>
-          <label class="fw-label">Telepon/HP</label>
-          <input type="text" name="phone" value="<%= formData.phone || '' %>" class="fw-input">
+          <label class="fw-label">No. Telepon / WhatsApp</label>
+          <input type="text" name="phone_no" value="<%= formData.phone_no || '' %>" class="fw-input"
+                 inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%# Data Alamat %>
+  <div class="fw-form-section">
+    <div class="fw-form-section-header">
+      <span style="font-size:1rem;">🏠</span>
+      <span class="fw-form-section-title">Data Alamat</span>
+    </div>
+    <div class="fw-form-section-body">
+      <div class="fw-grid-2">
+        <div class="fw-col-span-2">
+          <label class="fw-label">Alamat Asal</label>
+          <textarea name="home_address" class="fw-textarea" placeholder="Jalan, RT/RW, Kelurahan, Kecamatan"><%= formData.home_address || '' %></textarea>
+        </div>
+        <div>
+          <label class="fw-label">Kota/Kabupaten Asal</label>
+          <input type="text" name="home_town" value="<%= formData.home_town || '' %>" class="fw-input">
+        </div>
+        <div>
+          <label class="fw-label">Provinsi Asal</label>
+          <input type="text" name="home_province" value="<%= formData.home_province || '' %>" class="fw-input">
+        </div>
+        <div>
+          <label class="fw-label">Kode Pos Asal</label>
+          <input type="text" name="home_postalcode" value="<%= formData.home_postalcode || '' %>" class="fw-input">
+        </div>
+        <div class="fw-col-span-2" style="margin-top:1rem;">
+          <label class="fw-label">Alamat Domisili (Saat ini)</label>
+          <textarea name="current_address" class="fw-textarea" placeholder="Alamat tinggal/kos saat ini"><%= formData.current_address || '' %></textarea>
+        </div>
+        <div>
+          <label class="fw-label">Kota/Kab. Domisili</label>
+          <input type="text" name="current_town" value="<%= formData.current_town || '' %>" class="fw-input">
+        </div>
+        <div>
+          <label class="fw-label">Provinsi Domisili</label>
+          <input type="text" name="current_province" value="<%= formData.current_province || '' %>" class="fw-input">
+        </div>
+        <div>
+          <label class="fw-label">Kode Pos Domisili</label>
+          <input type="text" name="current_postalcode" value="<%= formData.current_postalcode || '' %>" class="fw-input">
         </div>
       </div>
     </div>
   </div>
 
   <%# Action buttons %>
-  <div style="display:flex; align-items:center; gap:0.75rem; padding-top:0.5rem; margin-bottom:2rem;">
+  <div class="fw-form-actions">
+    <a href="/mahasiswa/<%= m.id %>" class="fw-btn fw-btn-outline">Batal</a>
     <button type="submit" class="fw-btn fw-btn-primary">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-      Kembali
-    </a>
+      Simpan Perubahan
+    </button>
   </div>
 </form>
