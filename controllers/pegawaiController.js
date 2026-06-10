@@ -70,7 +70,7 @@ const index = async (req, res, next) => {
          ou.name AS unit_name,
          es.name AS employment_status_name,
          IF(l.id IS NOT NULL, 'Dosen', 'Staf') AS employee_type,
-         l.academic_rank, l.functional_position, l.expertise
+         l.nidn, l.academic_rank, l.functional_position, l.expertise
        FROM employees e
        LEFT JOIN organization_units ou ON e.organization_unit_id = ou.id
        LEFT JOIN employment_statuses es ON e.employment_status_id = es.id
@@ -108,7 +108,7 @@ const show = async (req, res, next) => {
          ou.name AS unit_name,
          es.name AS employment_status_name,
          IF(l.id IS NOT NULL, 'Dosen', 'Staf') AS employee_type,
-         l.academic_rank, l.functional_position, l.expertise
+         l.nidn, l.academic_rank, l.functional_position, l.expertise
        FROM employees e
        LEFT JOIN organization_units ou ON e.organization_unit_id = ou.id
        LEFT JOIN employment_statuses es ON e.employment_status_id = es.id
@@ -213,7 +213,7 @@ const store = async (req, res, next) => {
           birth_place, birth_date, gender, religion,
           address, phone_number, organization_unit_id, hire_date,
           employment_status_id, status, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
       [
         employee_number.trim(),
         national_id_number?.trim() || null,
@@ -656,12 +656,12 @@ const exportJson = async (req, res, next) => {
       `SELECT
          e.id, e.employee_number, e.national_id_number, e.tax_id_number,
          e.name, e.birth_place, e.birth_date, e.gender, e.religion,
-         e. e.address, e.phone_number,
+         e.address, e.phone_number,
          e.hire_date, e.status,
          ou.name AS unit_name,
          es.name AS employment_status_name,
          IF(l.id IS NOT NULL, 'Dosen', 'Staf') AS employee_type,
-         l.academic_rank, l.functional_position, l.expertise
+         l.nidn, l.academic_rank, l.functional_position, l.expertise
        FROM employees e
        LEFT JOIN organization_units ou ON e.organization_unit_id = ou.id
        LEFT JOIN employment_statuses es ON e.employment_status_id = es.id
@@ -746,11 +746,11 @@ const importCsv = async (req, res, next) => {
             birth_place, birth_date, gender, religion,
             address, phone_number, organization_unit_id, hire_date,
             employment_status_id, status, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
         [
           row.employee_number, row.national_id_number || null, row.tax_id_number || null,
           row.name, row.birth_place, row.birth_date,
-          row.gender, row.religion || null, row.
+          row.gender, row.religion || null,
           row.address, row.phone_number || null,
           row.organization_unit_id, row.hire_date,
           row.employment_status_id, row.status
@@ -772,8 +772,9 @@ const importCsv = async (req, res, next) => {
     req.flash('success', `Import selesai: ${imported} data berhasil diimport, ${skipped} dilewati (NIP sudah ada)`);
     res.redirect('/pegawai');
   } catch (err) {
-    await conn.rollback();
-    next(err);
+    if (conn) await conn.rollback();
+    req.flash('error', `Gagal memproses file CSV: ${err.message}`);
+    res.redirect('/pegawai');
   } finally {
     conn.release();
   }

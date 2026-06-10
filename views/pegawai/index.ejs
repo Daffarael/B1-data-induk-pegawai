@@ -227,7 +227,8 @@
                                       </svg>
                                     </a>
                                     <button type="button" class="fw-action-btn fw-action-danger" title="Hapus"
-                                            onclick="fwShowDeleteModal('/pegawai/<%= p.id %>', '<%= p.name.replace(/'/g, '\\\'') %>')">
+                                            data-name="<%= p.name %>"
+                                            onclick="fwShowDeleteModal('/pegawai/<%= p.id %>', this.dataset.name)">
                                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
                                           stroke="currentColor" stroke-width="2">
                                           <polyline points="3 6 5 6 21 6" />

@@ -181,7 +181,7 @@
   </div>
 
   <%# Data Akademik (Dosen) - kondisional %>
-  <div id="dosen-section" class="fw-form-section" style="<%= old.employee_type === 'Dosen' ? '' : 'display:none;' %> border-left:3px solid #3d4158;">
+  <div id="dosen-section" class="fw-form-section" <%- (!old.employee_type || old.employee_type === 'Staf') ? 'style="border-left:3px solid #3d4158; display:none;"' : 'style="border-left:3px solid #3d4158;"' %>>
     <div class="fw-form-section-header">
       <div style="display:flex; align-items:center; gap:0.5rem;">
         <span style="font-size:1rem;">🎓</span>
@@ -216,12 +216,13 @@
     </div>
   </div>
 
-  <%# Action buttons %>
-  <div style="display:flex; align-items:center; gap:0.75rem; padding-top:0.5rem;">
+  <%# Tombol Aksi %>
+  <div class="fw-form-actions">
+    <a href="/pegawai" class="fw-btn fw-btn-outline">Batal</a>
     <button type="submit" class="fw-btn fw-btn-primary">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-      Kembali
-    </a>
+      Simpan
+    </button>
   </div>
 
 </form>
@@ -245,7 +246,6 @@ function toggleDosenSection(type) {
     labelDosen.style.background  = '#fff';
   }
 }
-// Init highlight on load
 window.addEventListener('DOMContentLoaded', () => {
   const checked = document.querySelector('input[name="employee_type"]:checked');
   if (checked) toggleDosenSection(checked.value);

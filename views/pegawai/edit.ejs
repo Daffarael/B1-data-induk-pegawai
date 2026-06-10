@@ -166,7 +166,7 @@
   </div>
 
   <%# Data Akademik %>
-  <div id="dosen-section" class="fw-form-section" style="<%= pegawai.employee_type === 'Dosen' ? '' : 'display:none;' %> border-left:3px solid #3d4158;">
+  <div id="dosen-section" class="fw-form-section" <%- pegawai.employee_type === 'Dosen' ? 'style="border-left:3px solid #3d4158;"' : 'style="border-left:3px solid #3d4158; display:none;"' %>>
     <div class="fw-form-section-header">
       <div style="display:flex; align-items:center; gap:0.5rem;">
         <span style="font-size:1rem;">🎓</span>
@@ -197,11 +197,12 @@
     </div>
   </div>
 
-  <div style="display:flex; align-items:center; gap:0.75rem; padding-top:0.5rem;">
+  <div class="fw-form-actions">
+    <a href="/pegawai/<%= pegawai.id %>" class="fw-btn fw-btn-outline">Batal</a>
     <button type="submit" class="fw-btn fw-btn-primary">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-      Kembali
-    </a>
+      Simpan Perubahan
+    </button>
   </div>
 </form>
 
