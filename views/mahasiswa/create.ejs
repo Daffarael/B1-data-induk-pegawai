@@ -1,10 +1,11 @@
+
 <%# views/mahasiswa/create.ejs %>
 
 <div class="fw-page-header">
   <div>
     <a href="/mahasiswa" style="font-size:0.8rem; color:#94a3b8; text-decoration:none; display:inline-flex; align-items:center; gap:0.3rem; margin-bottom:0.5rem;" onmouseover="this.style.color='#64748b'" onmouseout="this.style.color='#94a3b8'">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-      Data Mahasiswa
+      Kembali
     </a>
     <h1 class="fw-page-title">Tambah Mahasiswa Baru</h1>
     <p class="fw-page-subtitle">Masukkan data induk mahasiswa baru secara lengkap</p>
@@ -24,7 +25,7 @@
   </div>
 <% } %>
 
-<form action="/mahasiswa" method="POST">
+<form action="/mahasiswa/create" method="POST">
   
   <%# Biodata Pribadi %>
   <div class="fw-form-section">
@@ -96,8 +97,8 @@
           <label class="fw-label fw-label-required">Program Studi/Departemen</label>
           <select name="department_id" required class="fw-select">
             <option value="">Pilih Departemen...</option>
-            <% if (typeof units !== 'undefined') { %>
-              <% units.forEach(dept => { %>
+            <% if (typeof departments !== 'undefined') { %>
+              <% departments.forEach(dept => { %>
                 <option value="<%= dept.id %>" <%= (typeof input !== 'undefined' && input.department_id == dept.id) ? 'selected' : '' %>><%= dept.name %></option>
               <% }) %>
             <% } %>
@@ -150,8 +151,7 @@
   <div style="display:flex; align-items:center; gap:0.75rem; padding-top:0.5rem; margin-bottom:2rem;">
     <button type="submit" class="fw-btn fw-btn-primary">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-      Simpan Data
-    </button>
-    <a href="/mahasiswa" class="fw-btn fw-btn-ghost">Batal</a>
+      Kembali
+    </a>
   </div>
 </form>
