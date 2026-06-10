@@ -27,7 +27,7 @@
 <%# ── Main card ────────────────────────────────────────────── %>
 <div class="fw-card">
 
-  <%# Toolbar: search + filter + actions — semua sejajar satu baris %>
+  <%# Toolbar: search + filter + actions - semua sejajar satu baris %>
   <div class="fw-toolbar">
     <form method="GET" action="/mahasiswa" class="fw-toolbar-form">
 
@@ -53,7 +53,7 @@
         </select>
       </div>
 
-      <%# Action buttons — sejajar dengan input %>
+      <%# Action buttons - sejajar dengan input %>
       <div class="fw-toolbar-actions">
         <button type="submit" class="fw-btn fw-btn-primary fw-btn-sm">Cari</button>
         <a href="/mahasiswa" class="fw-btn fw-btn-ghost fw-btn-sm">Reset</a>
@@ -74,7 +74,8 @@
       <a href="/mahasiswa/export/json?search=<%= encodeURIComponent(search) %>&status=<%= statusFilter %>"
          class="fw-btn fw-btn-outline fw-btn-sm">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+          <polyline points="16 18 22 12 16 6"/>
+          <polyline points="8 6 2 12 8 18"/>
         </svg>
         Export JSON
       </a>
@@ -85,10 +86,9 @@
         Tambah
       </a>
     </div>
-
   </div>
 
-  <%# Import CSV — row tersendiri di bawah toolbar %>
+  <%# Import CSV - row tersendiri di bawah toolbar %>
   <div class="fw-import-row">
     <details>
       <summary class="fw-import-toggle">
@@ -158,9 +158,9 @@
               <td>
                 <div class="fw-cell-name"><%= m.name %></div>
               </td>
-              <td class="fw-cell-muted"><%= m.department_name || '—' %></td>
+              <td class="fw-cell-muted"><%= m.department_name || '-' %></td>
               <td class="fw-cell-muted"><%= m.gender_text %></td>
-              <td class="fw-cell-muted"><%= m.year || '—' %></td>
+              <td class="fw-cell-muted"><%= m.year || '-' %></td>
               <td>
                 <% if (m.status === 1) { %>
                   <span class="fw-badge fw-badge-green">● Aktif</span>
@@ -183,7 +183,8 @@
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                   </a>
                   <button type="button" class="fw-action-btn fw-action-danger" title="Hapus"
-                          onclick="fwShowDeleteModal('/mahasiswa/<%= m.id %>/delete', 'mahasiswa <%= m.name %>')">
+                          data-name="<%= m.name %>"
+                          onclick="fwShowDeleteModal('/mahasiswa/<%= m.id %>', this.dataset.name)">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
                   </button>
                 </div>

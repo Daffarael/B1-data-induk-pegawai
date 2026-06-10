@@ -14,8 +14,19 @@ router.get('/', mahasiswaController.index);
 // GET /mahasiswa/export/pdf
 router.get('/export/pdf', mahasiswaController.exportPdf);
 
+// GET /mahasiswa/export/json
+router.get('/export/json', mahasiswaController.exportJson);
+
 // POST /mahasiswa/import
-router.post('/import', mahasiswaController.upload.single('file'), mahasiswaController.importCsv);
+router.post('/import', (req, res, next) => {
+  mahasiswaController.upload.single('file')(req, res, (err) => {
+    if (err) {
+      req.flash('error', `File ditolak: ${err.message}`);
+      return res.redirect('/mahasiswa');
+    }
+    next();
+  });
+}, mahasiswaController.importCsv);
 
 // GET /mahasiswa/create
 router.get('/create', mahasiswaController.create);
@@ -31,8 +42,8 @@ router.get('/:id/edit', mahasiswaController.edit);
 // Tapi lebih baik tetap POST /mahasiswa/:id untuk update kalau tidak pakai method-override
 router.post('/:id/update', mahasiswaController.update);
 
-// POST /mahasiswa/:id/delete untuk delete
-router.post('/:id/delete', mahasiswaController.destroy);
+// DELETE /mahasiswa/:id untuk delete
+router.delete('/:id', mahasiswaController.destroy);
 
 // GET /mahasiswa/:id
 router.get('/:id', mahasiswaController.show);
