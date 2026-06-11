@@ -398,7 +398,55 @@ const exportJson = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
+// ────────────────────────────────────────────────────────────────────
+// GET /sbm/api       - Public API: daftar SBM (JSON)
+// GET /sbm/api/:id   - Public API: detail SBM (JSON)
+// ────────────────────────────────────────────────────────────────────
+const apiIndex = async (req, res, next) => {
+  try {
+    const search = req.query.search || '';
+    const where = search
+      ? `WHERE ci.name LIKE ? OR tc.name LIKE ? OR tc.code LIKE ?`
+      : '';
+    const params = search ? [`%${search}%`, `%${search}%`, `%${search}%`] : [];
+
+    const [rows] = await db.query(
+      `SELECT tcs.id, ci.name AS kota, tc.name AS komponen, tc.code AS kode_komponen,
+              sp.name AS jabatan, eg.name AS golongan, tcs.amount
+       FROM travel_cost_standards tcs
+       JOIN cities ci ON ci.id = tcs.city_id
+       JOIN travel_cost_components tc ON tc.id = tcs.travel_cost_component_id
+       LEFT JOIN structural_positions sp ON sp.id = tcs.structural_position_id
+       LEFT JOIN employee_grades eg ON eg.id = tcs.employee_grade_id
+       ${where}
+       ORDER BY ci.name ASC, tc.name ASC`,
+      params
+    );
+    res.json({ success: true, total: rows.length, data: rows });
+  } catch (err) { next(err); }
+};
+
+const apiShow = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const [[sbm]] = await db.query(
+      `SELECT tcs.*, ci.name AS kota, tc.name AS komponen, tc.code AS kode_komponen,
+              tc.description AS komponen_desc,
+              sp.name AS jabatan, eg.name AS golongan
+       FROM travel_cost_standards tcs
+       JOIN cities ci ON ci.id = tcs.city_id
+       JOIN travel_cost_components tc ON tc.id = tcs.travel_cost_component_id
+       LEFT JOIN structural_positions sp ON sp.id = tcs.structural_position_id
+       LEFT JOIN employee_grades eg ON eg.id = tcs.employee_grade_id
+       WHERE tcs.id = ?`, [id]
+    );
+    if (!sbm) return res.status(404).json({ success: false, message: 'Data SBM tidak ditemukan' });
+    res.json({ success: true, data: sbm });
+  } catch (err) { next(err); }
+};
+
 module.exports = {
   index, create, store, show, edit, update, destroy,
-  exportPdf, exportJson, importCsv, upload
+  exportPdf, exportJson, importCsv, upload,
+  apiIndex, apiShow
 };
