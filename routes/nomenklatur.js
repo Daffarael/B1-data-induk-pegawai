@@ -16,6 +16,12 @@ router.get('/export/pdf',  guard, c.exportPdf);
 router.get('/export/json', guard, c.exportJson);
 router.post('/import',     guard, c.upload.single('csv_file'), c.importCsv);
 
+// GET  /nomenklatur/api          — Public API: daftar nomenklatur (JSON, tanpa login)
+router.get('/api', c.apiIndex);
+
+// GET  /nomenklatur/api/:id      — Public API: detail nomenklatur (JSON, tanpa login)
+router.get('/api/:id', c.apiShow);
+
 // ── Detail, Edit, Hapus Nomenklatur ──
 router.get('/:id',        guard, c.show);
 router.get('/:id/edit',   guard, c.edit);
