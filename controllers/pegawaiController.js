@@ -70,7 +70,7 @@ const index = async (req, res, next) => {
          ou.name AS unit_name,
          es.name AS employment_status_name,
          IF(l.id IS NOT NULL, 'Dosen', 'Staf') AS employee_type,
-         l.nidn, l.academic_rank, l.functional_position, l.expertise
+         l.academic_rank, l.functional_position, l.expertise
        FROM employees e
        LEFT JOIN organization_units ou ON e.organization_unit_id = ou.id
        LEFT JOIN employment_statuses es ON e.employment_status_id = es.id
@@ -108,7 +108,7 @@ const show = async (req, res, next) => {
          ou.name AS unit_name,
          es.name AS employment_status_name,
          IF(l.id IS NOT NULL, 'Dosen', 'Staf') AS employee_type,
-         l.nidn, l.academic_rank, l.functional_position, l.expertise
+         l.academic_rank, l.functional_position, l.expertise
        FROM employees e
        LEFT JOIN organization_units ou ON e.organization_unit_id = ou.id
        LEFT JOIN employment_statuses es ON e.employment_status_id = es.id
@@ -243,11 +243,10 @@ const store = async (req, res, next) => {
     if (employee_type === 'Dosen') {
       await conn.query(
         `INSERT INTO lecturers
-             (id, nidn, academic_rank, functional_position, expertise, created_at, updated_at)
-           VALUES (?, ?, ?, ?, ?, NOW(), NOW())`,
+             (id, academic_rank, functional_position, expertise, created_at, updated_at)
+           VALUES (?, ?, ?, ?, NOW(), NOW())`,
           [
             newId,
-            nidn?.trim() || null,
             academic_rank?.trim() || null,
             functional_position?.trim() || null,
             expertise?.trim() || null
@@ -276,7 +275,7 @@ const edit = async (req, res, next) => {
     const [rows] = await db.query(
       `SELECT e.*,
          IF(l.id IS NOT NULL, 'Dosen', 'Staf') AS employee_type,
-         l.nidn, l.academic_rank, l.functional_position, l.expertise
+         l.academic_rank, l.functional_position, l.expertise
        FROM employees e
        LEFT JOIN lecturers l ON e.id = l.id
        WHERE e.id = ?`,
@@ -312,7 +311,7 @@ const update = async (req, res, next) => {
     name, birth_place, birth_date, gender, religion,
     address, phone_number, organization_unit_id, hire_date,
     employment_status_id, status, employee_type,
-    nidn, academic_rank, functional_position, expertise
+    academic_rank, functional_position, expertise
   } = req.body;
 
   // ── Validasi server-side ──
@@ -390,16 +389,16 @@ const update = async (req, res, next) => {
         // Update lecturers
         await conn.query(
           `UPDATE lecturers SET
-               nidn = ?, academic_rank = ?, functional_position = ?, expertise = ?, updated_at = NOW()
+               academic_rank = ?, functional_position = ?, expertise = ?, updated_at = NOW()
              WHERE id = ?`,
-            [nidn?.trim() || null, academic_rank?.trim() || null, functional_position?.trim() || null, expertise?.trim() || null, id]
+            [academic_rank?.trim() || null, functional_position?.trim() || null, expertise?.trim() || null, id]
         );
       } else {
         // Insert ke lecturers (baru dijadikan Dosen)
         await conn.query(
-          `INSERT INTO lecturers (id, nidn, academic_rank, functional_position, expertise, created_at, updated_at)
-             VALUES (?, ?, ?, ?, ?, NOW(), NOW())`,
-            [id, nidn?.trim() || null, academic_rank?.trim() || null, functional_position?.trim() || null, expertise?.trim() || null]
+          `INSERT INTO lecturers (id, academic_rank, functional_position, expertise, created_at, updated_at)
+             VALUES (?, ?, ?, ?, NOW(), NOW())`,
+            [id, academic_rank?.trim() || null, functional_position?.trim() || null, expertise?.trim() || null]
         );
       }
     } else {
@@ -678,7 +677,7 @@ const exportJson = async (req, res, next) => {
          ou.name AS unit_name,
          es.name AS employment_status_name,
          IF(l.id IS NOT NULL, 'Dosen', 'Staf') AS employee_type,
-         l.nidn, l.academic_rank, l.functional_position, l.expertise
+         l.academic_rank, l.functional_position, l.expertise
        FROM employees e
        LEFT JOIN organization_units ou ON e.organization_unit_id = ou.id
        LEFT JOIN employment_statuses es ON e.employment_status_id = es.id

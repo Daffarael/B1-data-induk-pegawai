@@ -192,12 +192,6 @@
     <div class="fw-form-section-body">
       <div class="fw-grid-2">
         <div>
-          <label class="fw-label">NIDN</label>
-          <input type="text" name="nidn" value="<%= old.nidn || '' %>"
-                 class="fw-input" placeholder="Nomor Induk Dosen Nasional"
-                 inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
-        </div>
-        <div>
           <label class="fw-label fw-label-required">Pangkat Akademik</label>
           <input type="text" name="academic_rank" value="<%= old.academic_rank || '' %>"
                  class="fw-input" placeholder="Contoh: Lektor Kepala">
