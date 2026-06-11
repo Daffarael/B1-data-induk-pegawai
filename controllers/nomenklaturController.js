@@ -422,8 +422,45 @@ const exportJson = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
+// ────────────────────────────────────────────────────────────────────
+// GET /nomenklatur/api       - Public API: daftar nomenklatur (JSON)
+// GET /nomenklatur/api/:id   - Public API: detail nomenklatur + klasifikasi
+// ────────────────────────────────────────────────────────────────────
+const apiIndex = async (req, res, next) => {
+  try {
+    const search = req.query.search || '';
+    const where = search ? 'WHERE n.name LIKE ? OR n.grade LIKE ?' : '';
+    const params = search ? [`%${search}%`, `%${search}%`] : [];
+
+    const [rows] = await db.query(
+      `SELECT n.id, n.name, n.qualification, n.duties, n.grade,
+              COUNT(nc.id) AS jumlah_klasifikasi
+       FROM nomenclatures n
+       LEFT JOIN nomenclature_classifications nc ON nc.nomenclature_id = n.id
+       ${where}
+       GROUP BY n.id ORDER BY n.name ASC`,
+      params
+    );
+    res.json({ success: true, total: rows.length, data: rows });
+  } catch (err) { next(err); }
+};
+
+const apiShow = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const [[nom]] = await db.query('SELECT * FROM nomenclatures WHERE id = ?', [id]);
+    if (!nom) return res.status(404).json({ success: false, message: 'Nomenklatur tidak ditemukan' });
+
+    const [klasifikasi] = await db.query(
+      'SELECT id, name, description FROM nomenclature_classifications WHERE nomenclature_id = ? ORDER BY name ASC', [id]
+    );
+    res.json({ success: true, data: { ...nom, klasifikasi } });
+  } catch (err) { next(err); }
+};
+
 module.exports = {
   index, show, create, store, edit, update, destroy,
   storeKlasifikasi, updateKlasifikasi, destroyKlasifikasi,
-  exportPdf, exportJson, importCsv, upload
+  exportPdf, exportJson, importCsv, upload,
+  apiIndex, apiShow
 };
