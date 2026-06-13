@@ -4,6 +4,9 @@ const mahasiswaController = require('../controllers/mahasiswaController');
 const { isAuthenticated } = require('../middlewares/auth');
 const { hasRole } = require('../middlewares/acl');
 
+// GET  /mahasiswa/api  — Public read-only JSON API (no login required)
+router.get('/api', mahasiswaController.apiIndex);
+
 // Hanya admin kemahasiswaan yang boleh mengakses modul ini
 router.use(isAuthenticated);
 router.use(hasRole('Admin Kemahasiswaan'));
@@ -11,8 +14,14 @@ router.use(hasRole('Admin Kemahasiswaan'));
 // GET /mahasiswa
 router.get('/', mahasiswaController.index);
 
+// GET /mahasiswa/export/pdf/preview
+router.get('/export/pdf/preview', mahasiswaController.exportPdfPreview);
+
 // GET /mahasiswa/export/pdf
 router.get('/export/pdf', mahasiswaController.exportPdf);
+
+// GET /mahasiswa/export/json/preview
+router.get('/export/json/preview', mahasiswaController.exportJsonPreview);
 
 // GET /mahasiswa/export/json
 router.get('/export/json', mahasiswaController.exportJson);

@@ -209,16 +209,23 @@ const store = async (req, res, next) => {
       });
     }
 
-    // Auto Increment Manual
-    const [maxResult] = await conn.query('SELECT MAX(id) as maxId FROM students');
-    const newId = (maxResult[0].maxId || 0) + 1;
-
     // Generate campus email automatically (Format: NIM_NAMA DEPAN_@gmail.com)
     let generatedCampusEmail = null;
     if (regno && name) {
       const firstName = name.trim().split(' ')[0].toUpperCase();
       generatedCampusEmail = `${regno.trim()}_${firstName}_@gmail.com`;
     }
+
+    const bcrypt = require('bcryptjs');
+    const defaultPassword = await bcrypt.hash(regno.trim(), 10);
+    const defaultEmail = generatedCampusEmail || `${regno.trim()}@facultyware.com`;
+
+    // 1. Insert ke tabel users terlebih dahulu
+    const [userResult] = await conn.query(
+      `INSERT INTO users (name, email, password, created_at, updated_at) VALUES (?, ?, ?, NOW(), NOW())`,
+      [name.trim(), defaultEmail, defaultPassword]
+    );
+    const newId = userResult.insertId;
 
     await conn.query(
       `INSERT INTO students
@@ -368,6 +375,7 @@ const destroy = async (req, res, next) => {
       return res.status(404).render('errors/404', { title: 'Tidak Ditemukan' });
     }
     await db.query('DELETE FROM students WHERE id = ?', [id]);
+    await db.query('DELETE FROM users WHERE id = ?', [id]);
     req.flash('success', `Data mahasiswa "${rows[0].name}" berhasil dihapus`);
     res.redirect('/mahasiswa');
   } catch (err) {
@@ -525,12 +533,21 @@ const importCsv = async (req, res, next) => {
       const [existing] = await conn.query('SELECT id FROM students WHERE regno = ?', [row.regno]);
       if (existing.length > 0) { skipped++; continue; }
 
-      currentMaxId++;
+      const bcrypt = require('bcryptjs');
+      const defaultPassword = await bcrypt.hash(row.regno, 10);
+      const defaultEmail = `${row.regno}@facultyware.com`;
+
+      const [userResult] = await conn.query(
+        `INSERT INTO users (name, email, password, created_at, updated_at) VALUES (?, ?, ?, NOW(), NOW())`,
+        [row.name, defaultEmail, defaultPassword]
+      );
+      const newId = userResult.insertId;
+
       await conn.query(
         `INSERT INTO students
            (id, regno, name, gender, year, status, created_at, updated_at)
          VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())`,
-        [currentMaxId, row.regno, row.name, row.gender || null, row.year || null, row.status || null]
+        [newId, row.regno, row.name, row.gender || null, row.year || null, row.status || null]
       );
       imported++;
     }
@@ -547,6 +564,115 @@ const importCsv = async (req, res, next) => {
   }
 };
 
+// GET /mahasiswa/export/pdf/preview
+const exportPdfPreview = async (req, res, next) => {
+  try {
+    const search = req.query.search || '';
+    const statusFilter = req.query.status || '';
+    const { whereClause, params } = buildListQuery(search, statusFilter);
+    const [mahasiswa] = await db.query(
+      `SELECT s.regno, s.name, s.gender, s.year, s.status,
+              ou.name AS department_name
+       FROM students s
+       LEFT JOIN organization_units ou ON s.department_id = ou.id
+       ${whereClause}
+       ORDER BY s.regno ASC`,
+      params
+    );
+    mahasiswa.forEach(m => {
+      m.gender_text = genderMap[m.gender] || '-';
+      m.status_text = statusMap[m.status] || '-';
+    });
+    const downloadUrl = `/mahasiswa/export/pdf?search=${encodeURIComponent(search)}&status=${statusFilter}`;
+    res.render('mahasiswa/preview-pdf', {
+      title: 'Preview Ekspor PDF - Mahasiswa',
+      mahasiswa, search, statusFilter, downloadUrl,
+      layout: 'layouts/preview'
+    });
+  } catch (err) { next(err); }
+};
+
+// GET /mahasiswa/export/json/preview
+const exportJsonPreview = async (req, res, next) => {
+  try {
+    const search = req.query.search || '';
+    const statusFilter = req.query.status || '';
+    const { whereClause, params } = buildListQuery(search, statusFilter);
+    const [mahasiswa] = await db.query(
+      `SELECT s.id, s.regno, s.name, s.gender, s.status, s.year,
+              ou.name AS department_name
+       FROM students s
+       LEFT JOIN organization_units ou ON s.department_id = ou.id
+       ${whereClause}
+       ORDER BY s.name ASC`,
+      params
+    );
+    mahasiswa.forEach(m => {
+      m.gender_text = genderMap[m.gender] || '-';
+      m.status_text = statusMap[m.status] || '-';
+    });
+    const output = { exported_at: new Date().toISOString(), total: mahasiswa.length, data: mahasiswa };
+    const downloadUrl = `/mahasiswa/export/json?search=${encodeURIComponent(search)}&status=${statusFilter}`;
+    res.render('mahasiswa/preview-json', {
+      title: 'Preview Ekspor JSON - Mahasiswa',
+      jsonData: JSON.stringify(output, null, 2), downloadUrl,
+      layout: 'layouts/preview'
+    });
+  } catch (err) { next(err); }
+};
+
+// ────────────────────────────────────────────────────────────────────
+// GET /mahasiswa/api  — Public read-only JSON API (GET only)
+// ────────────────────────────────────────────────────────────────────
+const apiIndex = async (req, res, next) => {
+  try {
+    const search       = req.query.search || '';
+    const statusFilter = req.query.status || '';
+    const page         = parseInt(req.query.page)  || 1;
+    const limit        = parseInt(req.query.limit) || 20;
+    const offset       = (page - 1) * limit;
+
+    const { whereClause, params } = buildListQuery(search, statusFilter);
+
+    const [countResult] = await db.query(
+      `SELECT COUNT(*) AS total FROM students s ${whereClause}`, params
+    );
+    const total      = countResult[0].total;
+    const totalPages = Math.ceil(total / limit);
+
+    const [mahasiswa] = await db.query(
+      `SELECT s.id, s.regno, s.name, s.gender, s.status, s.year,
+              ou.name AS department_name
+       FROM students s
+       LEFT JOIN organization_units ou ON s.department_id = ou.id
+       ${whereClause}
+       ORDER BY s.name ASC
+       LIMIT ? OFFSET ?`,
+      [...params, limit, offset]
+    );
+
+    mahasiswa.forEach(m => {
+      m.gender_label = genderMap[m.gender] || '-';
+      m.status_label = statusMap[m.status] || '-';
+    });
+
+    res.json({
+      success: true,
+      meta: {
+        resource:    'mahasiswa',
+        description: 'Data Mahasiswa — FTI Universitas Andalas',
+        accessed_at: new Date().toISOString(),
+        query: { search, status: statusFilter },
+        pagination: { page, limit, total, totalPages }
+      },
+      data: mahasiswa
+    });
+  } catch (err) { next(err); }
+};
+
 module.exports = {
-  index, show, create, store, edit, update, destroy, exportPdf, exportJson, importCsv, upload
+  index, show, create, store, edit, update, destroy,
+  exportPdf, exportJson, exportPdfPreview, exportJsonPreview,
+  importCsv, upload,
+  apiIndex
 };
