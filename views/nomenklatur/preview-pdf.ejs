@@ -1,0 +1,192 @@
+<style>
+  .pdf-toolbar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: #18181b; color: #fff;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 1.5rem; height: 52px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.35); gap: 1rem;
+  }
+  .pdf-toolbar-left  { display: flex; align-items: center; gap: 0.75rem; }
+  .pdf-toolbar-title { font-size: 0.875rem; font-weight: 600; letter-spacing: -0.01em; }
+  .pdf-toolbar-actions { display: flex; align-items: center; gap: 0.5rem; }
+  .pdf-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    height: 34px; padding: 0 1rem; border-radius: 6px;
+    font-size: 0.8125rem; font-weight: 500; border: none;
+    cursor: pointer; text-decoration: none; transition: all 0.12s;
+    white-space: nowrap; font-family: inherit;
+  }
+  .pdf-btn-ghost        { background: rgba(255,255,255,0.08); color: #d4d4d8; }
+  .pdf-btn-ghost:hover  { background: rgba(255,255,255,0.14); color: #fff; }
+  .pdf-btn-primary      { background: #2563eb; color: #fff; }
+  .pdf-btn-primary:hover{ background: #1d4ed8; }
+
+  body { background: #52525b; margin: 0; padding: 0; font-family: 'Inter', -apple-system, sans-serif; }
+  *, *::before, *::after { box-sizing: border-box; }
+
+  .pdf-wrapper {
+    padding: 68px 24px 48px;
+    display: flex; flex-direction: column; align-items: center; gap: 24px; min-height: 100vh;
+  }
+  .pdf-page {
+    background: #fff; width: 210mm; min-height: 297mm;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.4); border-radius: 2px;
+    padding: 14mm 14mm 12mm; position: relative; box-sizing: border-box;
+  }
+  .kop { display: flex; align-items: flex-start; gap: 14px; padding-bottom: 5px; }
+  .kop-logo { width: 56px; height: 56px; object-fit: contain; flex-shrink: 0; }
+  .kop-logo-fallback {
+    width: 56px; height: 56px; background: #374151; border-radius: 4px;
+    display: none; align-items: center; justify-content: center;
+    color: #fff; font-weight: 700; font-size: 11px; flex-shrink: 0;
+  }
+  .kop-text  { flex: 1; }
+  .kop-ministry { font-size: 6.5px; color: #6b7280; letter-spacing: 0.05em; margin: 0 0 2px; }
+  .kop-univ { font-size: 9px; font-weight: 800; color: #111827; margin: 0; }
+  .kop-fak  { font-size: 9px; font-weight: 800; color: #111827; margin: 0 0 3px; }
+  .kop-addr { font-size: 6.5px; color: #6b7280; margin: 0 0 1px; }
+  .kop-meta { text-align: right; flex-shrink: 0; }
+  .kop-meta p { font-size: 6.5px; color: #6b7280; margin: 0 0 2px; }
+  .kop-divider      { border: none; border-top: 2px solid #1f2937; margin: 5px 0 1px; }
+  .kop-divider-thin { border: none; border-top: 0.5px solid #1f2937; margin: 0 0 6px; }
+
+  .doc-title-block { text-align: center; margin: 4px 0 10px; }
+  .doc-title { font-size: 11px; font-weight: 800; color: #1f2937; letter-spacing: 0.05em; margin: 0 0 2px; text-transform: uppercase; }
+  .doc-sub   { font-size: 7.5px; color: #6b7280; margin: 0; }
+
+  .pdf-table { width: 100%; border-collapse: collapse; font-size: 7.5px; table-layout: fixed; }
+  .pdf-table thead tr th {
+    background: #374151; color: #fff; padding: 6px 7px; font-weight: 700;
+    text-align: left; font-size: 7px; border: none; letter-spacing: 0.04em;
+  }
+  .pdf-table thead tr th.center { text-align: center; }
+  .pdf-table tbody tr:nth-child(even) td { background: #f9fafb; }
+  .pdf-table tbody tr td {
+    padding: 5px 7px; color: #1f2937; border-bottom: 0.3px solid #e5e7eb;
+    vertical-align: top; word-wrap: break-word;
+  }
+  .pdf-table tbody tr:last-child td { border-bottom: none; }
+  .td-no    { text-align: center; color: #9ca3af; font-size: 7px; }
+  .td-grade { font-family: 'Courier New', monospace; font-weight: 700; color: #374151; }
+  .td-count { text-align: center; color: #374151; font-weight: 600; }
+  .td-name  { font-weight: 600; color: #111827; }
+  .td-desc  { color: #6b7280; font-size: 6.8px; line-height: 1.45; }
+  .table-wrap { border: 0.5px solid #d1d5db; border-radius: 2px; overflow: hidden; }
+
+  .pdf-footer {
+    display: flex; align-items: center; justify-content: space-between;
+    border-top: 0.5px solid #d1d5db; margin-top: 10px; padding-top: 5px;
+    font-size: 6.5px; color: #6b7280;
+  }
+  .pdf-watermark {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%) rotate(-30deg);
+    font-size: 64px; font-weight: 900; color: rgba(0,0,0,0.04);
+    pointer-events: none; letter-spacing: 8px; user-select: none; white-space: nowrap;
+  }
+  .pdf-empty { padding: 40px 0; text-align: center; color: #9ca3af; font-size: 9px; }
+
+  @media print {
+    .pdf-toolbar { display: none !important; }
+    body { background: #fff; }
+    .pdf-wrapper { padding: 0; background: #fff; }
+    .pdf-page { box-shadow: none; border-radius: 0; width: 100%; min-height: auto; }
+    .pdf-watermark { display: none; }
+  }
+</style>
+
+<%# ── Toolbar atas ── %>
+<div class="pdf-toolbar">
+  <div class="pdf-toolbar-left">
+    <a href="/nomenklatur" class="pdf-btn pdf-btn-ghost">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
+      </svg>
+      Kembali
+    </a>
+    <div style="display:flex;align-items:center;gap:0.5rem;">
+      <div class="pdf-toolbar-title">Nomenklatur Jabatan</div>
+      <span style="background:rgba(255,255,255,0.1);color:#a1a1aa;font-size:0.65rem;font-weight:500;padding:2px 8px;border-radius:99px;letter-spacing:0.04em;">PREVIEW</span>
+    </div>
+  </div>
+  <div class="pdf-toolbar-actions">
+    <span style="font-size:0.7rem;color:#71717a;margin-right:0.25rem;"><%= nomenklatur.length %> data &nbsp;·&nbsp; <%= tanggal %></span>
+    <a href="<%= downloadUrl %>" class="pdf-btn pdf-btn-primary">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="7 10 12 15 17 10"/>
+        <line x1="12" y1="15" x2="12" y2="3"/>
+      </svg>
+      Unduh PDF
+    </a>
+  </div>
+</div>
+
+<%# ── Kertas A4 ── %>
+<div class="pdf-wrapper">
+  <div class="pdf-page">
+    <div class="pdf-watermark">PREVIEW</div>
+
+    <div class="kop">
+      <img src="/assets/images/logo-fti.png" alt="Logo FTI" class="kop-logo"
+        onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+      <div class="kop-logo-fallback">FTI</div>
+      <div class="kop-text">
+        <p class="kop-ministry">KEMENTERIAN PENDIDIKAN, KEBUDAYAAN, RISET, DAN TEKNOLOGI</p>
+        <p class="kop-univ">UNIVERSITAS ANDALAS</p>
+        <p class="kop-fak">FAKULTAS TEKNOLOGI INFORMASI</p>
+        <p class="kop-addr">Kampus Unand Limau Manis, Padang 25163, Telp. (0751) 72586</p>
+        <p class="kop-addr">Website: fti.unand.ac.id &nbsp;|&nbsp; Email: fti@unand.ac.id</p>
+      </div>
+      <div class="kop-meta">
+        <p>Dicetak: <%= tanggal %></p>
+        <p>Total Data: <%= nomenklatur.length %> nomenklatur</p>
+      </div>
+    </div>
+    <hr class="kop-divider">
+    <hr class="kop-divider-thin">
+
+    <div class="doc-title-block">
+      <p class="doc-title">Daftar Nomenklatur Jabatan</p>
+      <p class="doc-sub">Fakultas Teknologi Informasi, Universitas Andalas</p>
+    </div>
+
+    <div class="table-wrap">
+      <table class="pdf-table">
+        <thead>
+          <tr>
+            <th style="width:5%;" class="center">#</th>
+            <th style="width:33%;">Nama Nomenklatur</th>
+            <th style="width:10%;">Golongan</th>
+            <th style="width:7%;" class="center">Klas.</th>
+            <th style="width:45%;">Kualifikasi</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (nomenklatur.length === 0) { %>
+            <tr><td colspan="5" class="pdf-empty">Tidak ada data nomenklatur</td></tr>
+          <% } %>
+          <% nomenklatur.forEach(function(n, i) { %>
+            <tr>
+              <td class="td-no"><%= i + 1 %></td>
+              <td>
+                <div class="td-name"><%= n.name %></div>
+                <% if (n.duties) { %>
+                  <div class="td-desc" style="margin-top:2px;"><%= n.duties.substring(0, 80) %><%= n.duties.length > 80 ? '…' : '' %></div>
+                <% } %>
+              </td>
+              <td class="td-grade"><%= n.grade || '—' %></td>
+              <td class="td-count"><%= n.jumlah_klasifikasi %></td>
+              <td class="td-desc"><%= n.qualification ? (n.qualification.substring(0, 130) + (n.qualification.length > 130 ? '…' : '')) : '—' %></td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pdf-footer">
+      <span>FacultyWare | Sistem Informasi Kepegawaian FTI Universitas Andalas</span>
+      <span>Halaman 1 &nbsp;|&nbsp; <%= tanggal %></span>
+    </div>
+  </div>
+</div>

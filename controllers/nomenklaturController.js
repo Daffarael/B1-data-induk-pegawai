@@ -247,6 +247,38 @@ const destroyKlasifikasi = async (req, res, next) => {
 };
 
 // ────────────────────────────────────────────────────────────────────
+// GET /nomenklatur/export/pdf/preview  — Preview halaman PDF
+// ────────────────────────────────────────────────────────────────────
+const previewPdf = async (req, res, next) => {
+  try {
+    const search = req.query.search || '';
+    const where = search ? 'WHERE n.name LIKE ? OR n.grade LIKE ?' : '';
+    const params = search ? [`%${search}%`, `%${search}%`] : [];
+
+    const [nomenklatur] = await db.query(
+      `SELECT n.id, n.name, n.grade, n.qualification, n.duties,
+              COUNT(nc.id) AS jumlah_klasifikasi
+       FROM nomenclatures n
+       LEFT JOIN nomenclature_classifications nc ON nc.nomenclature_id = n.id
+       ${where}
+       GROUP BY n.id ORDER BY n.name ASC`, params
+    );
+
+    const tanggal = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+    const downloadUrl = `/nomenklatur/export/pdf?search=${encodeURIComponent(search)}`;
+
+    res.locals.layout = 'layouts/preview';
+    res.render('nomenklatur/preview-pdf', {
+      title: 'Preview PDF — Nomenklatur Jabatan',
+      nomenklatur,
+      search,
+      tanggal,
+      downloadUrl
+    });
+  } catch (err) { next(err); }
+};
+
+// ────────────────────────────────────────────────────────────────────
 // GET /nomenklatur/export/pdf
 // ────────────────────────────────────────────────────────────────────
 const exportPdf = async (req, res, next) => {
@@ -398,6 +430,43 @@ const importCsv = async (req, res, next) => {
 };
 
 // ────────────────────────────────────────────────────────────────────
+// GET /nomenklatur/export/json/preview  — Preview JSON
+// ────────────────────────────────────────────────────────────────────
+const previewJson = async (req, res, next) => {
+  try {
+    const search = req.query.search || '';
+    const where = search ? 'WHERE n.name LIKE ? OR n.grade LIKE ?' : '';
+    const params = search ? [`%${search}%`, `%${search}%`] : [];
+
+    const [rows] = await db.query(
+      `SELECT n.id, n.name, n.qualification, n.duties, n.grade,
+              COUNT(nc.id) AS jumlah_klasifikasi
+       FROM nomenclatures n
+       LEFT JOIN nomenclature_classifications nc ON nc.nomenclature_id = n.id
+       ${where}
+       GROUP BY n.id ORDER BY n.name ASC`, params
+    );
+
+    const output = {
+      exported_at: new Date().toISOString(),
+      total: rows.length,
+      data: rows
+    };
+
+    const jsonString = JSON.stringify(output, null, 2);
+    const downloadUrl = `/nomenklatur/export/json?search=${encodeURIComponent(search)}`;
+
+    res.locals.layout = 'layouts/preview';
+    res.render('nomenklatur/preview-json', {
+      title: 'Preview JSON — Nomenklatur Jabatan',
+      jsonString,
+      total: rows.length,
+      downloadUrl
+    });
+  } catch (err) { next(err); }
+};
+
+// ────────────────────────────────────────────────────────────────────
 // GET /nomenklatur/export/json - Export daftar ke JSON
 // ────────────────────────────────────────────────────────────────────
 const exportJson = async (req, res, next) => {
@@ -461,6 +530,6 @@ const apiShow = async (req, res, next) => {
 module.exports = {
   index, show, create, store, edit, update, destroy,
   storeKlasifikasi, updateKlasifikasi, destroyKlasifikasi,
-  exportPdf, exportJson, importCsv, upload,
+  exportPdf, previewPdf, exportJson, previewJson, importCsv, upload,
   apiIndex, apiShow
 };
