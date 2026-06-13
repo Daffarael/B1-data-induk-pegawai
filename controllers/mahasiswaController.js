@@ -564,6 +564,115 @@ const importCsv = async (req, res, next) => {
   }
 };
 
+// GET /mahasiswa/export/pdf/preview
+const exportPdfPreview = async (req, res, next) => {
+  try {
+    const search = req.query.search || '';
+    const statusFilter = req.query.status || '';
+    const { whereClause, params } = buildListQuery(search, statusFilter);
+    const [mahasiswa] = await db.query(
+      `SELECT s.regno, s.name, s.gender, s.year, s.status,
+              ou.name AS department_name
+       FROM students s
+       LEFT JOIN organization_units ou ON s.department_id = ou.id
+       ${whereClause}
+       ORDER BY s.regno ASC`,
+      params
+    );
+    mahasiswa.forEach(m => {
+      m.gender_text = genderMap[m.gender] || '-';
+      m.status_text = statusMap[m.status] || '-';
+    });
+    const downloadUrl = `/mahasiswa/export/pdf?search=${encodeURIComponent(search)}&status=${statusFilter}`;
+    res.render('mahasiswa/preview-pdf', {
+      title: 'Preview Ekspor PDF - Mahasiswa',
+      mahasiswa, search, statusFilter, downloadUrl,
+      layout: 'layouts/preview'
+    });
+  } catch (err) { next(err); }
+};
+
+// GET /mahasiswa/export/json/preview
+const exportJsonPreview = async (req, res, next) => {
+  try {
+    const search = req.query.search || '';
+    const statusFilter = req.query.status || '';
+    const { whereClause, params } = buildListQuery(search, statusFilter);
+    const [mahasiswa] = await db.query(
+      `SELECT s.id, s.regno, s.name, s.gender, s.status, s.year,
+              ou.name AS department_name
+       FROM students s
+       LEFT JOIN organization_units ou ON s.department_id = ou.id
+       ${whereClause}
+       ORDER BY s.name ASC`,
+      params
+    );
+    mahasiswa.forEach(m => {
+      m.gender_text = genderMap[m.gender] || '-';
+      m.status_text = statusMap[m.status] || '-';
+    });
+    const output = { exported_at: new Date().toISOString(), total: mahasiswa.length, data: mahasiswa };
+    const downloadUrl = `/mahasiswa/export/json?search=${encodeURIComponent(search)}&status=${statusFilter}`;
+    res.render('mahasiswa/preview-json', {
+      title: 'Preview Ekspor JSON - Mahasiswa',
+      jsonData: JSON.stringify(output, null, 2), downloadUrl,
+      layout: 'layouts/preview'
+    });
+  } catch (err) { next(err); }
+};
+
+// ────────────────────────────────────────────────────────────────────
+// GET /mahasiswa/api  — Public read-only JSON API (GET only)
+// ────────────────────────────────────────────────────────────────────
+const apiIndex = async (req, res, next) => {
+  try {
+    const search       = req.query.search || '';
+    const statusFilter = req.query.status || '';
+    const page         = parseInt(req.query.page)  || 1;
+    const limit        = parseInt(req.query.limit) || 20;
+    const offset       = (page - 1) * limit;
+
+    const { whereClause, params } = buildListQuery(search, statusFilter);
+
+    const [countResult] = await db.query(
+      `SELECT COUNT(*) AS total FROM students s ${whereClause}`, params
+    );
+    const total      = countResult[0].total;
+    const totalPages = Math.ceil(total / limit);
+
+    const [mahasiswa] = await db.query(
+      `SELECT s.id, s.regno, s.name, s.gender, s.status, s.year,
+              ou.name AS department_name
+       FROM students s
+       LEFT JOIN organization_units ou ON s.department_id = ou.id
+       ${whereClause}
+       ORDER BY s.name ASC
+       LIMIT ? OFFSET ?`,
+      [...params, limit, offset]
+    );
+
+    mahasiswa.forEach(m => {
+      m.gender_label = genderMap[m.gender] || '-';
+      m.status_label = statusMap[m.status] || '-';
+    });
+
+    res.json({
+      success: true,
+      meta: {
+        resource:    'mahasiswa',
+        description: 'Data Mahasiswa — FTI Universitas Andalas',
+        accessed_at: new Date().toISOString(),
+        query: { search, status: statusFilter },
+        pagination: { page, limit, total, totalPages }
+      },
+      data: mahasiswa
+    });
+  } catch (err) { next(err); }
+};
+
 module.exports = {
-  index, show, create, store, edit, update, destroy, exportPdf, exportJson, importCsv, upload
+  index, show, create, store, edit, update, destroy,
+  exportPdf, exportJson, exportPdfPreview, exportJsonPreview,
+  importCsv, upload,
+  apiIndex
 };
