@@ -1,235 +1,429 @@
 <%# views/struktur_jabatan/index.ejs %>
 
-    <div class="fw-stats-grid">
-        <div class="fw-stat">
-            <div class="fw-stat-label">Total Jabatan</div>
-            <div class="fw-stat-value">
-                <%= totalJabatan %>
-            </div>
-            <div class="fw-stat-sub">terdaftar</div>
-        </div>
-        <div class="fw-stat">
-            <div class="fw-stat-label">Total Tupoksi</div>
-            <div class="fw-stat-value">
-                <%= totalTupoksi %>
-            </div>
-            <div class="fw-stat-sub">dari semua jabatan</div>
-        </div>
-        <div class="fw-stat">
-            <div class="fw-stat-label">Hasil Pencarian</div>
-            <div class="fw-stat-value">
-                <%= total %>
-            </div>
-            <div class="fw-stat-sub">data ditemukan</div>
-        </div>
-    </div>
+    <style>
+        .pg-stat-card {
+            display: flex;
+            flex-direction: column;
+            gap: 0.375rem;
+            padding: 1.125rem 1.25rem;
+            border-radius: 12px;
+            border: 1px solid #e4e4e7;
+            background: #fff;
+            min-width: 0;
+        }
 
-    <div class="fw-card">
-        <%# Toolbar %>
-            <div class="fw-toolbar">
-                <form method="GET" action="/struktur-jabatan" class="fw-toolbar-form">
-                    <div class="fw-toolbar-field fw-toolbar-search">
-                        <div class="fw-input-icon-wrap">
-                            <svg class="fw-input-icon" width="14" height="14" viewBox="0 0 24 24" fill="none"
-                                stroke="currentColor" stroke-width="2">
-                                <circle cx="11" cy="11" r="8" />
-                                <path d="m21 21-4.35-4.35" />
-                            </svg>
-                            <input type="text" name="search" value="<%= search %>" placeholder="Cari nama jabatan..."
-                                class="fw-input fw-input-with-icon">
-                        </div>
-                    </div>
-                    <div class="fw-toolbar-actions">
-                        <button type="submit" class="fw-btn fw-btn-primary fw-btn-sm">Cari</button>
-                        <a href="/struktur-jabatan" class="fw-btn fw-btn-ghost fw-btn-sm">Reset</a>
-                    </div>
-                </form>
+        .pg-stat-label {
+            font-size: 0.6875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: #71717a;
+        }
 
-                <div class="fw-toolbar-right">
-                    <a href="/struktur-jabatan/export/pdf?search=<%= encodeURIComponent(search) %>"
-                        class="fw-btn fw-btn-outline fw-btn-sm" target="_blank">
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                            <polyline points="14 2 14 8 20 8" />
-                            <line x1="16" y1="13" x2="8" y2="13" />
-                            <line x1="16" y1="17" x2="8" y2="17" />
+        .pg-stat-number {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #18181b;
+            line-height: 1;
+        }
+
+        .pg-stat-sub {
+            font-size: 0.75rem;
+            color: #a1a1aa;
+        }
+
+        .pg-stat-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .pg-table th {
+            height: 36px;
+            padding: 0 1rem;
+            text-align: left;
+            font-size: 0.65rem;
+            font-weight: 600;
+            color: #a1a1aa;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            white-space: nowrap;
+        }
+
+        .pg-table th.center {
+            text-align: center;
+        }
+
+        .pg-table td {
+            padding: 0.75rem 1rem;
+            font-size: 0.8125rem;
+            vertical-align: middle;
+        }
+
+        .pg-table tr {
+            border-bottom: 1px solid #f4f4f5;
+            transition: background 0.1s;
+        }
+
+        .pg-table tr:last-child {
+            border-bottom: none;
+        }
+
+        .pg-table tr:hover {
+            background: #fafafa;
+        }
+
+        .action-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 7px;
+            color: #a1a1aa;
+            transition: all 0.1s;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .action-btn:hover {
+            background: #f4f4f5;
+            color: #18181b;
+        }
+
+        .action-btn.view:hover {
+            background: #eef2ff;
+            color: #6366f1;
+        }
+
+        .action-btn.edit:hover {
+            background: #fffbeb;
+            color: #d97706;
+        }
+
+        .action-btn.del:hover {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+
+        .pg-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+            border-radius: 7px;
+            border: 1px solid #e4e4e7;
+            font-size: 0.75rem;
+            color: #52525b;
+            text-decoration: none;
+            background: #fff;
+            transition: all 0.1s;
+        }
+
+        .pg-num:hover {
+            background: #f4f4f5;
+        }
+
+        .pg-num.active {
+            background: #18181b;
+            border-color: #18181b;
+            color: #fff;
+            font-weight: 600;
+        }
+    </style>
+
+    <%# ── Stats ── %>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.25rem;">
+
+            <div class="pg-stat-card">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.375rem;">
+                    <span class="pg-stat-label">Total Jabatan</span>
+                    <div class="pg-stat-icon" style="background:#eef2ff;">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#6366f1"
+                            stroke-width="1.75">
+                            <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+                            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
                         </svg>
-                        Export PDF
-                    </a>
-                    <a href="/struktur-jabatan/export/json?search=<%= encodeURIComponent(search) %>"
-                        class="fw-btn fw-btn-outline fw-btn-sm">
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2">
-                            <polyline points="16 18 22 12 16 6" />
-                            <polyline points="8 6 2 12 8 18" />
-                        </svg>
-                        Export JSON
-                    </a>
-                    <a href="/struktur-jabatan/create" class="fw-btn fw-btn-primary fw-btn-sm">
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2.5">
-                            <line x1="12" y1="5" x2="12" y2="19" />
-                            <line x1="5" y1="12" x2="19" y2="12" />
-                        </svg>
-                        Tambah
-                    </a>
+                    </div>
                 </div>
-
+                <div class="pg-stat-number">
+                    <%= totalJabatan %>
+                </div>
+                <div class="pg-stat-sub">jabatan terdaftar</div>
             </div>
 
-            <%# Import CSV %>
-                <div class="fw-import-row">
-                    <details>
-                        <summary class="fw-import-toggle">
-                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2">
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                                <polyline points="17 8 12 3 7 8" />
-                                <line x1="12" y1="3" x2="12" y2="15" />
-                            </svg>
-                            Import dari CSV
-                        </summary>
-                        <div class="fw-import-body">
-                            <form method="POST" action="/struktur-jabatan/import" enctype="multipart/form-data"
-                                class="fw-import-form">
-                                <input type="file" name="csv_file" accept=".csv" class="fw-import-file" required>
-                                <button type="submit" class="fw-btn fw-btn-sm"
-                                    style="background:#10b981; color:#fff; border-color:#10b981;">
-                                    Upload & Import
-                                </button>
-                            </form>
-                            <p class="fw-import-hint">
-                                Kolom wajib CSV: <code>name, grade</code>. Kolom opsional:
-                                <code>qualification, description</code>
-                            </p>
-                        </div>
-                    </details>
-                </div>
-
-                <div class="fw-divider"></div>
-
-                <% if (jabatan.length===0) { %>
-                    <div class="fw-empty">
-                        <div class="fw-empty-title">Belum ada data struktur jabatan</div>
-                        <div class="fw-empty-desc">Klik "Tambah" untuk menambahkan data baru</div>
-                        <a href="/struktur-jabatan/create" class="fw-btn fw-btn-primary fw-btn-sm"
-                            style="margin-top:1rem;">
-                            Tambah Jabatan
-                        </a>
+            <div class="pg-stat-card">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.375rem;">
+                    <span class="pg-stat-label">Total Tupoksi</span>
+                    <div class="pg-stat-icon" style="background:#f0fdf4;">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#22c55e"
+                            stroke-width="1.75">
+                            <path d="M9 11l3 3L22 4" />
+                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+                        </svg>
                     </div>
-                    <% } else { %>
-                        <div class="fw-table-wrap">
-                            <table class="fw-table">
-                                <thead>
-                                    <tr>
-                                        <th style="width:36px; text-align:center;">#</th>
-                                        <th>Nama Jabatan</th>
-                                        <th>Atasan Langsung</th>
-                                        <th>Golongan</th>
-                                        <th style="text-align:center;">Jml Tupoksi</th>
-                                        <th style="width:96px; text-align:center;">Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <% jabatan.forEach((j, i)=> { %>
-                                        <tr>
-                                            <td style="text-align:center; color:#c8ccda; font-size:0.75rem;">
-                                                <%= (currentPage - 1) * 10 + i + 1 %>
-                                            </td>
-                                            <td>
-                                                <div class="fw-cell-name">
-                                                    <%= j.name %>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <% if (j.parent_name) { %>
-                                                    <div
-                                                        style="font-size:0.8rem; color:#94a3b8; display:flex; align-items:center; gap:4px;">
-                                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
-                                                            stroke="currentColor" stroke-width="2">
-                                                            <polyline points="9 18 15 12 9 6" />
-                                                        </svg>
-                                                        <%= j.parent_name %>
-                                                    </div>
-                                                    <% } else { %>
-                                                        <span
-                                                            style="color:#475569; font-style:italic; font-size:0.8rem;">-
-                                                            Pucuk Pimpinan -</span>
-                                                        <% } %>
-                                            </td>
-                                            <td><span class="fw-mono-chip">
-                                                    <%= j.grade %>
-                                                </span></td>
-                                            <td style="text-align:center;">
-                                                <span class="fw-badge fw-badge-dark">
-                                                    <%= j.count_tupoksi %> tugas
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <div class="fw-action-btns">
-                                                    <a href="/struktur-jabatan/<%= j.id %>" class="fw-action-btn"
-                                                        title="Detail">
-                                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-                                                            stroke="currentColor" stroke-width="2">
-                                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                                                            <circle cx="12" cy="12" r="3" />
-                                                        </svg>
-                                                    </a>
-                                                    <a href="/struktur-jabatan/<%= j.id %>/edit"
-                                                        class="fw-action-btn fw-action-warn" title="Edit">
-                                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-                                                            stroke="currentColor" stroke-width="2">
-                                                            <path
-                                                                d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                                                            <path
-                                                                d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                                                        </svg>
-                                                    </a>
-                                                    <button type="button" class="fw-action-btn fw-action-danger"
-                                                        title="Hapus" data-id="<%= j.id %>" data-name="<%= j.name %>"
-                                                        onclick="fwShowDeleteModal('/struktur-jabatan/' + this.dataset.id, this.dataset.name)">
-                                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-                                                            stroke="currentColor" stroke-width="2">
-                                                            <polyline points="3 6 5 6 21 6" />
-                                                            <path
-                                                                d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
-                                                        </svg>
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <% }) %>
-                                </tbody>
-                            </table>
-                        </div>
+                </div>
+                <div class="pg-stat-number">
+                    <%= totalTupoksi %>
+                </div>
+                <div class="pg-stat-sub">dari semua jabatan</div>
+            </div>
 
-                        <div class="fw-table-footer">
-                            <span class="fw-table-info">
-                                Menampilkan <%= (currentPage - 1) * 10 + 1 %>–<%= Math.min(currentPage * 10, total) %>
-                                        dari <strong>
-                                            <%= total %>
-                                        </strong> data
-                            </span>
-                            <% if (totalPages> 1) { %>
-                                <div class="fw-pagination">
-                                    <% if (currentPage> 1) { %>
-                                        <a href="/struktur-jabatan?page=<%= currentPage-1 %>&search=<%= encodeURIComponent(search) %>"
-                                            class="fw-page-btn">‹</a>
-                                        <% } %>
-                                            <% for(let pg=Math.max(1, currentPage-2); pg <=Math.min(totalPages,
-                                                currentPage+2); pg++) { %>
-                                                <a href="/struktur-jabatan?page=<%= pg %>&search=<%= encodeURIComponent(search) %>"
-                                                    class="fw-page-btn <%= pg === currentPage ? 'active' : '' %>">
-                                                    <%= pg %>
-                                                </a>
-                                                <% } %>
-                                                    <% if (currentPage < totalPages) { %>
-                                                        <a href="/struktur-jabatan?page=<%= currentPage+1 %>&search=<%= encodeURIComponent(search) %>"
-                                                            class="fw-page-btn">›</a>
-                                                        <% } %>
+            <div class="pg-stat-card">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.375rem;">
+                    <span class="pg-stat-label">Hasil Pencarian</span>
+                    <div class="pg-stat-icon" style="background:#fff7ed;">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#f97316"
+                            stroke-width="1.75">
+                            <circle cx="11" cy="11" r="8" />
+                            <path d="m21 21-4.35-4.35" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="pg-stat-number">
+                    <%= total %>
+                </div>
+                <div class="pg-stat-sub">data ditemukan</div>
+            </div>
+
+        </div>
+
+        <%# ── Main Card ── %>
+            <div data-slot="card" class="rounded-xl border bg-card text-card-foreground shadow-sm">
+
+                <%# Toolbar %>
+                    <div
+                        style="display:flex;flex-wrap:wrap;align-items:center;gap:0.625rem;padding:0.875rem 1.25rem;border-bottom:1px solid #f4f4f5;">
+                        <form method="GET" action="/struktur-jabatan"
+                            style="display:flex;flex-wrap:wrap;align-items:center;gap:0.5rem;flex:1;">
+                            <div style="position:relative;flex:1;min-width:180px;max-width:260px;">
+                                <svg style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#a1a1aa;"
+                                    width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <circle cx="11" cy="11" r="8" />
+                                    <path d="m21 21-4.35-4.35" />
+                                </svg>
+                                <input type="text" name="search" value="<%= search %>"
+                                    placeholder="Cari nama jabatan..." data-slot="input"
+                                    style="height:32px;padding-left:30px;padding-right:10px;font-size:0.8125rem;"
+                                    class="w-full min-w-0 rounded-md border border-input bg-transparent text-sm shadow-xs outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 transition-[color,box-shadow]">
+                            </div>
+                            <button type="submit" class="btn-sm"
+                                style="height:32px;padding:0 14px;font-size:0.8125rem;">Cari</button>
+                            <a href="/struktur-jabatan" class="btn-sm-outline"
+                                style="height:32px;padding:0 14px;font-size:0.8125rem;">Reset</a>
+                        </form>
+                        <div style="display:flex;align-items:center;gap:0.5rem;margin-left:auto;">
+                            <a href="/struktur-jabatan/export/pdf/preview?search=<%= encodeURIComponent(search) %>"
+                                class="btn-sm-outline"
+                                style="height:32px;padding:0 14px;font-size:0.8125rem;display:inline-flex;align-items:center;gap:6px;">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                    <polyline points="14 2 14 8 20 8" />
+                                </svg>
+                                Ekspor PDF
+                            </a>
+                            <a href="/struktur-jabatan/export/json/preview?search=<%= encodeURIComponent(search) %>"
+                                class="btn-sm-outline"
+                                style="height:32px;padding:0 14px;font-size:0.8125rem;display:inline-flex;align-items:center;gap:6px;">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <polyline points="16 18 22 12 16 6" />
+                                    <polyline points="8 6 2 12 8 18" />
+                                </svg>
+                                Ekspor JSON
+                            </a>
+                            <a href="/struktur-jabatan/create" class="btn"
+                                style="height:32px;padding:0 14px;font-size:0.8125rem;display:inline-flex;align-items:center;gap:6px;">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2.5">
+                                    <line x1="12" y1="5" x2="12" y2="19" />
+                                    <line x1="5" y1="12" x2="19" y2="12" />
+                                </svg>
+                                Tambah
+                            </a>
+                        </div>
+                    </div>
+
+                    <%# Import CSV %>
+                        <details style="border-bottom:1px solid #f4f4f5;">
+                            <summary
+                                style="display:flex;align-items:center;gap:6px;padding:0.625rem 1.25rem;font-size:0.75rem;color:#a1a1aa;cursor:pointer;list-style:none;user-select:none;transition:color 0.1s;"
+                                onmouseover="this.style.color='#52525b'" onmouseout="this.style.color='#a1a1aa'">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                    <polyline points="17 8 12 3 7 8" />
+                                    <line x1="12" y1="3" x2="12" y2="15" />
+                                </svg>
+                                Import dari CSV
+                            </summary>
+                            <div style="padding:0.75rem 1.25rem 0.875rem;">
+                                <form method="POST" action="/struktur-jabatan/import" enctype="multipart/form-data"
+                                    style="display:flex;align-items:center;gap:0.625rem;">
+                                    <input type="file" name="csv_file" accept=".csv" required
+                                        style="font-size:0.75rem;color:#71717a;">
+                                    <button type="submit" class="btn"
+                                        style="height:30px;padding:0 12px;font-size:0.75rem;background:#16a34a;">Upload
+                                        & Import</button>
+                                </form>
+                                <p style="font-size:0.7rem;color:#a1a1aa;margin:6px 0 0;">Kolom wajib: <code
+                                        style="background:#f4f4f5;border-radius:3px;padding:1px 5px;">name, grade</code>.
+                                    Opsional: <code
+                                        style="background:#f4f4f5;border-radius:3px;padding:1px 5px;">qualification, description</code>
+                                </p>
+                            </div>
+                        </details>
+
+                        <%# Empty State %>
+                            <% if (jabatan.length===0) { %>
+                                <div
+                                    style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4rem 1.5rem;text-align:center;">
+                                    <div
+                                        style="width:48px;height:48px;border-radius:12px;background:#f4f4f5;display:flex;align-items:center;justify-content:center;margin-bottom:1rem;">
+                                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#a1a1aa"
+                                            stroke-width="1.5">
+                                            <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+                                            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+                                        </svg>
+                                    </div>
+                                    <p style="font-size:0.875rem;font-weight:600;color:#18181b;margin:0 0 0.375rem;">
+                                        Belum ada data struktur jabatan</p>
+                                    <p style="font-size:0.75rem;color:#a1a1aa;margin:0 0 1.25rem;">Klik "Tambah" untuk
+                                        menambahkan data baru</p>
+                                    <a href="/struktur-jabatan/create" class="btn"
+                                        style="height:36px;padding:0 1.25rem;font-size:0.875rem;display:inline-flex;align-items:center;gap:6px;">
+                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2.5">
+                                            <line x1="12" y1="5" x2="12" y2="19" />
+                                            <line x1="5" y1="12" x2="19" y2="12" />
+                                        </svg>
+                                        Tambah Jabatan
+                                    </a>
                                 </div>
-                                <% } %>
-                        </div>
-                        <% } %>
-    </div>
+                                <% } else { %>
+
+                                    <%# Table %>
+                                        <div style="overflow-x:auto;">
+                                            <table class="pg-table" style="width:100%;border-collapse:collapse;">
+                                                <thead style="background:#fafafa;border-bottom:1px solid #f4f4f5;">
+                                                    <tr>
+                                                        <th class="center" style="width:36px;">#</th>
+                                                        <th>Nama Jabatan</th>
+                                                        <th>Atasan Langsung</th>
+                                                        <th>Golongan</th>
+                                                        <th class="center">Jml Tupoksi</th>
+                                                        <th class="center" style="width:90px;">Aksi</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <% jabatan.forEach((j, i)=> { %>
+                                                        <tr>
+                                                            <td
+                                                                style="text-align:center;color:#a1a1aa;font-size:0.7rem;">
+                                                                <%= (currentPage - 1) * 10 + i + 1 %>
+                                                            </td>
+                                                            <td style="font-weight:500;color:#18181b;">
+                                                                <%= j.name %>
+                                                            </td>
+                                                            <td>
+                                                                <% if (j.parent_name) { %>
+                                                                    <div
+                                                                        style="display:flex;align-items:center;gap:4px;font-size:0.75rem;color:#71717a;">
+                                                                        <svg width="10" height="10" viewBox="0 0 24 24"
+                                                                            fill="none" stroke="currentColor"
+                                                                            stroke-width="2">
+                                                                            <polyline points="9 18 15 12 9 6" />
+                                                                        </svg>
+                                                                        <%= j.parent_name %>
+                                                                    </div>
+                                                                    <% } else { %>
+                                                                        <span
+                                                                            style="font-size:0.75rem;color:#a1a1aa;font-style:italic;">-
+                                                                            Pucuk Pimpinan -</span>
+                                                                        <% } %>
+                                                            </td>
+                                                            <td><code
+                                                                    style="background:#f4f4f5;border-radius:4px;padding:2px 7px;font-family:monospace;font-size:0.75rem;font-weight:600;"><%= j.grade %></code>
+                                                            </td>
+                                                            <td style="text-align:center;">
+                                                                <span
+                                                                    style="display:inline-flex;align-items:center;justify-content:center;background:#f4f4f5;border-radius:99px;padding:2px 10px;font-size:0.7rem;font-weight:500;color:#52525b;">
+                                                                    <%= j.count_tupoksi %> tugas
+                                                                </span>
+                                                            </td>
+                                                            <td>
+                                                                <div
+                                                                    style="display:flex;align-items:center;justify-content:center;gap:2px;">
+                                                                    <a href="/struktur-jabatan/<%= j.id %>"
+                                                                        class="action-btn view" title="Detail">
+                                                                        <svg width="13" height="13" viewBox="0 0 24 24"
+                                                                            fill="none" stroke="currentColor"
+                                                                            stroke-width="2">
+                                                                            <path
+                                                                                d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                                                                            <circle cx="12" cy="12" r="3" />
+                                                                        </svg>
+                                                                    </a>
+                                                                    <a href="/struktur-jabatan/<%= j.id %>/edit"
+                                                                        class="action-btn edit" title="Edit">
+                                                                        <svg width="13" height="13" viewBox="0 0 24 24"
+                                                                            fill="none" stroke="currentColor"
+                                                                            stroke-width="2">
+                                                                            <path
+                                                                                d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                                                                            <path
+                                                                                d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                                                                        </svg>
+                                                                    </a>
+                                                                    <button type="button" class="action-btn del"
+                                                                        title="Hapus" data-name="<%= j.name %>"
+                                                                        onclick="fwShowDeleteModal('/struktur-jabatan/<%= j.id %>', this.dataset.name)">
+                                                                        <svg width="13" height="13" viewBox="0 0 24 24"
+                                                                            fill="none" stroke="currentColor"
+                                                                            stroke-width="2">
+                                                                            <polyline points="3 6 5 6 21 6" />
+                                                                            <path
+                                                                                d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+                                                                        </svg>
+                                                                    </button>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                        <% }) %>
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                        <%# Pagination %>
+                                            <% if (totalPages> 1) { %>
+                                                <div
+                                                    style="display:flex;justify-content:center;gap:4px;padding:0.875rem 1.25rem;border-top:1px solid #f4f4f5;">
+                                                    <% if (currentPage> 1) { %>
+                                                        <a href="/struktur-jabatan?page=<%= currentPage-1 %>&search=<%= encodeURIComponent(search) %>"
+                                                            class="pg-num">‹</a>
+                                                        <% } %>
+                                                            <% for(let pg=Math.max(1, currentPage-2); pg
+                                                                <=Math.min(totalPages, currentPage+2); pg++) { %>
+                                                                <a href="/struktur-jabatan?page=<%= pg %>&search=<%= encodeURIComponent(search) %>"
+                                                                    class="pg-num<%= pg === currentPage ? ' active' : '' %>">
+                                                                    <%= pg %>
+                                                                </a>
+                                                                <% } %>
+                                                                    <% if (currentPage < totalPages) { %>
+                                                                        <a href="/struktur-jabatan?page=<%= currentPage+1 %>&search=<%= encodeURIComponent(search) %>"
+                                                                            class="pg-num">›</a>
+                                                                        <% } %>
+                                                </div>
+                                                <% } %>
+
+                                                    <% } %>
+            </div>

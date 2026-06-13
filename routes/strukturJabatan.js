@@ -4,13 +4,7 @@ const c = require('../controllers/strukturJabatanController');
 const { isAuthenticated } = require('../middlewares/auth');
 const { hasRole } = require('../middlewares/acl');
 
-// GET  /struktur-jabatan/api        — Public API: daftar jabatan (JSON, tanpa login)
-router.get('/api', c.apiIndex);
-
-// GET  /struktur-jabatan/api/:id    — Public API: detail jabatan + tupoksi (JSON, tanpa login)
-router.get('/api/:id', c.apiShow);
-
-// Semua route di bawah ini dilindungi auth dan acl
+// Semua route di sini dilindungi auth dan acl
 router.use(isAuthenticated, hasRole('Admin Kepegawaian'));
 
 router.get('/', c.index);
@@ -18,7 +12,9 @@ router.get('/create', c.create);
 router.post('/', c.store);
 
 // Export & Import
+router.get('/export/pdf/preview', c.previewPdf);
 router.get('/export/pdf', c.exportPdf);
+router.get('/export/json/preview', c.previewJson);
 router.get('/export/json', c.exportJson);
 router.post('/import', (req, res, next) => {
     c.upload.single('csv_file')(req, res, (err) => {
@@ -29,7 +25,6 @@ router.post('/import', (req, res, next) => {
         next();
     });
 }, c.importCsv);
-
 
 router.get('/:id', c.show);
 router.get('/:id/edit', c.edit);

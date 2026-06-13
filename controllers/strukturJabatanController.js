@@ -439,6 +439,62 @@ module.exports = {
         }
     },
 
+    // GET /struktur-jabatan/export/pdf/preview
+    previewPdf: async (req, res, next) => {
+        try {
+            const search = req.query.search || '';
+            let query = `SELECT s.id, s.name, s.grade, s.qualification,
+                                p.name AS parent_name,
+                                COUNT(jr.id) AS jumlah_tupoksi
+                         FROM structural_positions s
+                         LEFT JOIN structural_positions p ON s.parent_id = p.id
+                         LEFT JOIN job_responsibilities jr ON jr.structural_position_id = s.id`;
+            const params = [];
+            if (search) {
+                query += ` WHERE s.name LIKE ? OR s.grade LIKE ? OR p.name LIKE ?`;
+                params.push(`%${search}%`, `%${search}%`, `%${search}%`);
+            }
+            query += ` GROUP BY s.id ORDER BY s.name ASC`;
+            const [rows] = await db.query(query, params);
+            const tanggal = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+            const downloadUrl = `/struktur-jabatan/export/pdf?search=${encodeURIComponent(search)}`;
+            res.render('struktur_jabatan/preview-pdf', {
+                title: 'Preview Ekspor PDF - Struktur Jabatan',
+                jabatan: rows,
+                tanggal,
+                downloadUrl,
+                layout: 'layouts/preview'
+            });
+        } catch (err) { next(err); }
+    },
+
+    // GET /struktur-jabatan/export/json/preview
+    previewJson: async (req, res, next) => {
+        try {
+            const search = req.query.search || '';
+            const [rows] = await db.query(
+                `SELECT s.id, s.name, s.grade, s.qualification, s.description,
+                        p.name AS parent_name,
+                        COUNT(jr.id) AS jumlah_tupoksi
+                 FROM structural_positions s
+                 LEFT JOIN structural_positions p ON s.parent_id = p.id
+                 LEFT JOIN job_responsibilities jr ON jr.structural_position_id = s.id
+                 GROUP BY s.id ORDER BY s.name ASC`,
+                []
+            );
+            const output = { exported_at: new Date().toISOString(), total: rows.length, data: rows };
+            const downloadUrl = `/struktur-jabatan/export/json?search=${encodeURIComponent(search)}`;
+            res.render('struktur_jabatan/preview-json', {
+                title: 'Preview Ekspor JSON - Struktur Jabatan',
+                jabatan: rows,
+                total: rows.length,
+                jsonData: JSON.stringify(output, null, 2),
+                downloadUrl,
+                layout: 'layouts/preview'
+            });
+        } catch (err) { next(err); }
+    },
+
     // GET /struktur-jabatan/export/json
     exportJson: async (req, res, next) => {
         try {
@@ -466,45 +522,5 @@ module.exports = {
             if (next) next(err);
             else { req.flash('error', 'Gagal export JSON: ' + err.message); res.redirect('/struktur-jabatan'); }
         }
-    },
-
-    // ──────────────────────────────────────────────────────────────────
-    // GET /struktur-jabatan/api       - Public API: daftar jabatan (JSON)
-    // GET /struktur-jabatan/api/:id   - Public API: detail + tupoksi (JSON)
-    // ──────────────────────────────────────────────────────────────────
-    apiIndex: async (req, res, next) => {
-        try {
-            const search = req.query.search || '';
-            let query = `SELECT s.id, s.name, s.grade, s.qualification, s.description,
-                                p.name AS parent_name,
-                                COUNT(jr.id) AS jumlah_tupoksi
-                         FROM structural_positions s
-                         LEFT JOIN structural_positions p ON s.parent_id = p.id
-                         LEFT JOIN job_responsibilities jr ON jr.structural_position_id = s.id`;
-            const params = [];
-            if (search) {
-                query += ' WHERE s.name LIKE ? OR s.grade LIKE ?';
-                params.push(`%${search}%`, `%${search}%`);
-            }
-            query += ' GROUP BY s.id ORDER BY s.name ASC';
-            const [rows] = await db.query(query, params);
-            res.json({ success: true, total: rows.length, data: rows });
-        } catch (err) { next(err); }
-    },
-
-    apiShow: async (req, res, next) => {
-        try {
-            const [jabatan] = await db.query(
-                `SELECT s.*, p.name AS parent_name
-                 FROM structural_positions s
-                 LEFT JOIN structural_positions p ON s.parent_id = p.id
-                 WHERE s.id = ?`, [req.params.id]
-            );
-            if (jabatan.length === 0) return res.status(404).json({ success: false, message: 'Jabatan tidak ditemukan' });
-            const [tupoksi] = await db.query(
-                'SELECT id, title, description, type FROM job_responsibilities WHERE structural_position_id = ? ORDER BY `order` ASC', [req.params.id]
-            );
-            res.json({ success: true, data: { ...jabatan[0], tupoksi } });
-        } catch (err) { next(err); }
     }
 };
