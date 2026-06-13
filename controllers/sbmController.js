@@ -54,7 +54,7 @@ const index = async (req, res, next) => {
     const [[stats]] = await db.query(`
       SELECT
         (SELECT COUNT(*) FROM travel_cost_standards) AS totalSbm,
-        (SELECT COUNT(*) FROM travel_cost_components) AS totalKomponen,
+        (SELECT COUNT(DISTINCT travel_cost_component_id) FROM travel_cost_standards) AS totalKomponen,
         (SELECT COUNT(DISTINCT city_id) FROM travel_cost_standards) AS totalKota
     `);
 
@@ -372,6 +372,66 @@ const importCsv = async (req, res, next) => {
   finally { conn.release(); }
 };
 
+
+// ────────────────────────────────────────────────────────────────────
+// GET /sbm/export/pdf/preview
+// ────────────────────────────────────────────────────────────────────
+const previewPdf = async (req, res, next) => {
+  try {
+    const search = req.query.search || '';
+    const where = search ? `WHERE ci.name LIKE ? OR tc.name LIKE ? OR tc.code LIKE ? OR sp.name LIKE ? OR eg.name LIKE ?` : '';
+    const params = search ? [`%${search}%`, `%${search}%`, `%${search}%`, `%${search}%`, `%${search}%`] : [];
+
+    const [sbm] = await db.query(
+      `SELECT tcs.id, ci.name AS kota, tc.name AS komponen, tc.code AS kode_komponen,
+              sp.name AS jabatan, eg.name AS golongan, tcs.amount
+       FROM travel_cost_standards tcs
+       JOIN cities ci ON ci.id = tcs.city_id
+       JOIN travel_cost_components tc ON tc.id = tcs.travel_cost_component_id
+       LEFT JOIN structural_positions sp ON sp.id = tcs.structural_position_id
+       LEFT JOIN employee_grades eg ON eg.id = tcs.employee_grade_id
+       ${where}
+       ORDER BY ci.name ASC, tc.name ASC`, params
+    );
+
+    const tanggal = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+    const downloadUrl = `/sbm/export/pdf?search=${encodeURIComponent(search)}`;
+
+    res.locals.layout = 'layouts/preview';
+    res.render('sbm/preview-pdf', { title: 'Preview PDF – SBM Perjadin', sbm, tanggal, downloadUrl });
+  } catch (err) { next(err); }
+};
+
+// ────────────────────────────────────────────────────────────────────
+// GET /sbm/export/json/preview
+// ────────────────────────────────────────────────────────────────────
+const previewJson = async (req, res, next) => {
+  try {
+    const search = req.query.search || '';
+    const where = search ? `WHERE ci.name LIKE ? OR tc.name LIKE ? OR tc.code LIKE ?` : '';
+    const params = search ? [`%${search}%`, `%${search}%`, `%${search}%`] : [];
+
+    const [rows] = await db.query(
+      `SELECT tcs.id, ci.name AS kota, tc.name AS komponen, tc.code AS kode_komponen,
+              sp.name AS jabatan, eg.name AS golongan, tcs.amount
+       FROM travel_cost_standards tcs
+       JOIN cities ci ON ci.id = tcs.city_id
+       JOIN travel_cost_components tc ON tc.id = tcs.travel_cost_component_id
+       LEFT JOIN structural_positions sp ON sp.id = tcs.structural_position_id
+       LEFT JOIN employee_grades eg ON eg.id = tcs.employee_grade_id
+       ${where}
+       ORDER BY ci.name ASC, tc.name ASC`, params
+    );
+
+    const output = { exported_at: new Date().toISOString(), total: rows.length, data: rows };
+    const jsonString = JSON.stringify(output, null, 2);
+    const downloadUrl = `/sbm/export/json?search=${encodeURIComponent(search)}`;
+
+    res.locals.layout = 'layouts/preview';
+    res.render('sbm/preview-json', { title: 'Preview JSON – SBM Perjadin', jsonString, total: rows.length, downloadUrl });
+  } catch (err) { next(err); }
+};
+
 // GET /sbm/export/json
 const exportJson = async (req, res, next) => {
   try {
@@ -386,12 +446,7 @@ const exportJson = async (req, res, next) => {
        ORDER BY ci.name ASC, tc.name ASC`
     );
 
-    const output = {
-      exported_at: new Date().toISOString(),
-      total: rows.length,
-      data: rows
-    };
-
+    const output = { exported_at: new Date().toISOString(), total: rows.length, data: rows };
     res.setHeader('Content-Type', 'application/json');
     res.setHeader('Content-Disposition', 'attachment; filename="data-sbm.json"');
     res.send(JSON.stringify(output, null, 2));
@@ -447,6 +502,6 @@ const apiShow = async (req, res, next) => {
 
 module.exports = {
   index, create, store, show, edit, update, destroy,
-  exportPdf, exportJson, importCsv, upload,
+  exportPdf, exportJson, previewPdf, previewJson, importCsv, upload,
   apiIndex, apiShow
 };
