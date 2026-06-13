@@ -62,7 +62,22 @@ const index = async (req, res, next) => {
     const total = countResult[0].total;
     const totalPages = Math.ceil(total / limit);
 
-    // Query data pegawai
+    // Query stats total (selalu dari seluruh data, bukan hanya halaman ini)
+    const [statsResult] = await db.query(
+      `SELECT
+         SUM(IF(l.id IS NOT NULL, 1, 0))                        AS totalDosen,
+         SUM(IF(l.id IS NULL, 1, 0))                            AS totalStaf,
+         SUM(IF(e.status = 'active', 1, 0))                     AS totalAktif
+       FROM employees e
+       LEFT JOIN lecturers l ON e.id = l.id
+       ${whereClause}`,
+      params
+    );
+    const totalDosen = parseInt(statsResult[0].totalDosen) || 0;
+    const totalStaf  = parseInt(statsResult[0].totalStaf)  || 0;
+    const totalAktif = parseInt(statsResult[0].totalAktif) || 0;
+
+    // Query data pegawai (halaman saat ini)
     const [pegawai] = await db.query(
       `SELECT
          e.id, e.employee_number, e.name, e.gender, e.phone_number,
@@ -88,7 +103,10 @@ const index = async (req, res, next) => {
       statusFilter,
       currentPage: page,
       totalPages,
-      total
+      total,
+      totalDosen,
+      totalStaf,
+      totalAktif
     });
   } catch (err) {
     next(err);
@@ -796,6 +814,150 @@ const importCsv = async (req, res, next) => {
   }
 };
 
+// ────────────────────────────────────────────────────────────────────
+// GET /pegawai/export/pdf/preview - Preview dokumen PDF sebelum unduh
+// ────────────────────────────────────────────────────────────────────
+const previewPdf = async (req, res, next) => {
+  try {
+    const search = req.query.search || '';
+    const statusFilter = req.query.status || '';
+    const { whereClause, params } = buildListQuery(search, statusFilter);
+
+    const [pegawai] = await db.query(
+      `SELECT
+         e.employee_number, e.name, e.gender, e.phone_number,
+         e.hire_date, e.status,
+         ou.name AS unit_name,
+         es.name AS employment_status_name,
+         IF(l.id IS NOT NULL, 'Dosen', 'Staf') AS employee_type
+       FROM employees e
+       LEFT JOIN organization_units ou ON e.organization_unit_id = ou.id
+       LEFT JOIN employment_statuses es ON e.employment_status_id = es.id
+       LEFT JOIN lecturers l ON e.id = l.id
+       ${whereClause}
+       ORDER BY e.name ASC`,
+      params
+    );
+
+    const tanggal = new Date().toLocaleDateString('id-ID', {
+      day: 'numeric', month: 'long', year: 'numeric'
+    });
+
+    res.locals.layout = 'layouts/preview';
+    res.render('pegawai/preview-pdf', {
+      title: 'Preview — Daftar Pegawai & Dosen',
+      pegawai,
+      tanggal,
+      search,
+      statusFilter,
+      downloadUrl: `/pegawai/export/pdf?search=${encodeURIComponent(search)}&status=${encodeURIComponent(statusFilter)}`
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// ────────────────────────────────────────────────────────────────────
+// GET /pegawai/export/json/preview - Preview data JSON sebelum unduh
+// ────────────────────────────────────────────────────────────────────
+const previewJson = async (req, res, next) => {
+  try {
+    const search = req.query.search || '';
+    const statusFilter = req.query.status || '';
+    const { whereClause, params } = buildListQuery(search, statusFilter);
+
+    const [pegawai] = await db.query(
+      `SELECT
+         e.id, e.employee_number, e.national_id_number, e.tax_id_number,
+         e.name, e.birth_place, e.birth_date, e.gender, e.religion,
+         e.address, e.phone_number,
+         e.hire_date, e.status,
+         ou.name AS unit_name,
+         es.name AS employment_status_name,
+         IF(l.id IS NOT NULL, 'Dosen', 'Staf') AS employee_type,
+         l.academic_rank, l.functional_position, l.expertise
+       FROM employees e
+       LEFT JOIN organization_units ou ON e.organization_unit_id = ou.id
+       LEFT JOIN employment_statuses es ON e.employment_status_id = es.id
+       LEFT JOIN lecturers l ON e.id = l.id
+       ${whereClause}
+       ORDER BY e.name ASC`,
+      params
+    );
+
+    const output = {
+      exported_at: new Date().toISOString(),
+      total: pegawai.length,
+      data: pegawai
+    };
+
+    res.locals.layout = 'layouts/preview';
+    res.render('pegawai/preview-json', {
+      title: 'Preview — Export JSON Pegawai',
+      jsonString: JSON.stringify(output, null, 2),
+      total: pegawai.length,
+      search,
+      statusFilter,
+      downloadUrl: `/pegawai/export/json?search=${encodeURIComponent(search)}&status=${encodeURIComponent(statusFilter)}`
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// ────────────────────────────────────────────────────────────────────
+// GET /pegawai/api  — Read-only JSON API (no auth edit, GET only)
+// ────────────────────────────────────────────────────────────────────
+const apiIndex = async (req, res, next) => {
+  try {
+    const search       = req.query.search  || '';
+    const statusFilter = req.query.status  || '';
+    const page         = parseInt(req.query.page) || 1;
+    const limit        = parseInt(req.query.limit) || 20;
+    const offset       = (page - 1) * limit;
+
+    const { whereClause, params } = buildListQuery(search, statusFilter);
+
+    const [countResult] = await db.query(
+      `SELECT COUNT(*) AS total FROM employees e LEFT JOIN lecturers l ON e.id = l.id ${whereClause}`,
+      params
+    );
+    const total      = countResult[0].total;
+    const totalPages = Math.ceil(total / limit);
+
+    const [pegawai] = await db.query(
+      `SELECT
+         e.id, e.employee_number, e.name, e.gender, e.phone_number,
+         e.hire_date, e.status,
+         ou.name AS unit_name,
+         es.name AS employment_status_name,
+         IF(l.id IS NOT NULL, 'Dosen', 'Staf') AS employee_type,
+         l.academic_rank, l.functional_position, l.expertise
+       FROM employees e
+       LEFT JOIN organization_units ou ON e.organization_unit_id = ou.id
+       LEFT JOIN employment_statuses es ON e.employment_status_id = es.id
+       LEFT JOIN lecturers l ON e.id = l.id
+       ${whereClause}
+       ORDER BY e.name ASC
+       LIMIT ? OFFSET ?`,
+      [...params, limit, offset]
+    );
+
+    res.setHeader('Content-Type', 'application/json; charset=utf-8');
+    res.json({
+      success: true,
+      meta: {
+        resource:    'pegawai',
+        description: 'Data Pegawai & Dosen — FTI Universitas Andalas',
+        accessed_at: new Date().toISOString(),
+        query: { search, status: statusFilter },
+        pagination: { page, limit, total, totalPages }
+      },
+      data: pegawai
+    });
+  } catch (err) { next(err); }
+};
+
 module.exports = {
   index,
   show,
@@ -806,6 +968,10 @@ module.exports = {
   destroy,
   exportPdf,
   exportJson,
+  previewPdf,
+  previewJson,
   importCsv,
+  apiIndex,
   upload  // expose multer middleware
 };
+

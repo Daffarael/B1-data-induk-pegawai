@@ -1,223 +1,280 @@
 <%# views/pegawai/edit.ejs %>
 
-<div class="fw-page-header">
-  <div>
-    <a href="/pegawai/<%= pegawai.id %>" style="font-size:0.8rem; color:#94a3b8; text-decoration:none; display:inline-flex; align-items:center; gap:0.3rem; margin-bottom:0.5rem;" onmouseover="this.style.color='#64748b'" onmouseout="this.style.color='#94a3b8'">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-      Kembali
-    </a>
-    <h1 class="fw-page-title">Edit Pegawai</h1>
-    <p class="fw-page-subtitle">Memperbarui data: <strong><%= pegawai.name %></strong></p>
-  </div>
+<style>
+  .fw-form-grid  { display:grid; grid-template-columns:1fr 1fr; gap:1.125rem; }
+  .fw-form-full  { grid-column:1 / -1; }
+  .fw-field-label{ display:block; font-size:0.6875rem; font-weight:600; text-transform:uppercase; letter-spacing:0.06em; color:#71717a; margin-bottom:8px; }
+  .fw-field-req  { color:#ef4444; }
+  .fw-section-hdr{ display:flex; align-items:center; gap:10px; padding:1rem 1.5rem; border-bottom:1px solid #f4f4f5; }
+  .fw-section-icon{ width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .fw-section-body{ padding:1.5rem; }
+  .fw-type-option { flex:1; min-width:180px; display:flex; align-items:center; gap:14px; padding:1rem 1.25rem; border:1px solid #e4e4e7; border-radius:10px; cursor:pointer; transition:all 0.12s; }
+  .fw-type-option:hover{ background:#fafafa; }
+  .fw-input      { height:44px !important; padding:0 14px !important; font-size:0.9375rem !important; border-radius:8px !important; }
+  .fw-select     { height:44px !important; padding:0 2.5rem 0 14px !important; font-size:0.9375rem !important; border-radius:8px !important; appearance:none !important; -webkit-appearance:none !important; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E") !important; background-repeat:no-repeat !important; background-position:right 14px center !important; background-size:16px 16px !important; cursor:pointer !important; }
+  .fw-textarea   { padding:12px 14px !important; font-size:0.9375rem !important; border-radius:8px !important; line-height:1.6 !important; }
+  @media(max-width:640px){ .fw-form-grid{ grid-template-columns:1fr; } }
+</style>
+
+<%# ── Page Header ── %>
+<div style="margin-bottom:1.5rem;">
+  <a href="/pegawai/<%= pegawai.id %>" style="display:inline-flex;align-items:center;gap:5px;font-size:0.75rem;color:#a1a1aa;text-decoration:none;margin-bottom:0.75rem;" class="hover:text-foreground transition-colors">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+    Kembali ke Detail
+  </a>
+  <h1 style="font-size:1.125rem;font-weight:600;color:#18181b;margin:0 0 0.25rem;letter-spacing:-0.01em;">Edit Pegawai</h1>
+  <p style="font-size:0.8125rem;color:#a1a1aa;margin:0;">Memperbarui data: <strong style="color:#18181b;"><%= pegawai.name %></strong></p>
 </div>
 
+<%# Error alert %>
 <% if (errors && errors.length > 0) { %>
-  <div class="fw-alert fw-alert-error">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0; margin-top:1px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+  <div style="display:flex;gap:12px;padding:0.875rem 1rem;background:#fef2f2;border:1px solid #fecaca;border-radius:10px;margin-bottom:1.25rem;">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" style="flex-shrink:0;margin-top:1px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
     <div>
-      <div style="font-weight:600; margin-bottom:0.25rem;">Terdapat <%= errors.length %> kesalahan</div>
-      <ul style="margin:0; padding-left:1rem; font-size:0.8rem;">
+      <p style="font-size:0.8125rem;font-weight:600;color:#b91c1c;margin:0 0 0.375rem;">Terdapat <%= errors.length %> kesalahan</p>
+      <ul style="margin:0;padding-left:1rem;font-size:0.75rem;color:#dc2626;">
         <% errors.forEach(e => { %><li><%= e %></li><% }) %>
       </ul>
     </div>
   </div>
 <% } %>
 
-<form method="POST" action="/pegawai/<%= pegawai.id %>">
+<form method="POST" action="/pegawai/<%= pegawai.id %>" style="display:flex;flex-direction:column;gap:0.875rem;">
   <input type="hidden" name="_method" value="PUT">
 
-  <%# Tipe Pegawai %>
-  <div class="fw-form-section">
-    <div class="fw-form-section-header">
-      <span style="font-size:1rem;">👤</span>
-      <span class="fw-form-section-title">Tipe Pegawai</span>
+  <%# 1. Tipe Pegawai %>
+  <div data-slot="card" class="rounded-xl border bg-card shadow-sm">
+    <div class="fw-section-hdr">
+      <div class="fw-section-icon" style="background:#f4f4f5;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#71717a" stroke-width="1.75"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </div>
+      <span style="font-size:0.875rem;font-weight:600;color:#18181b;">Tipe Pegawai</span>
     </div>
-    <div class="fw-form-section-body">
-      <div style="display:flex; gap:1.5rem;">
-        <label style="display:flex; align-items:center; gap:0.625rem; cursor:pointer; padding:0.75rem 1.25rem; border:1px solid; border-radius:8px; transition:all 0.15s;" id="type-staf-label">
+    <div class="fw-section-body">
+      <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+        <label class="fw-type-option" id="type-staf-label">
           <input type="radio" name="employee_type" value="Staf" id="type-staf"
-                 <%= pegawai.employee_type !== 'Dosen' ? 'checked' : '' %>
-                 onchange="toggleDosenSection(this.value)" style="accent-color:#3d4158;">
+                 <%= pegawai.employee_type!=='Dosen' ? 'checked':'' %>
+                 onchange="toggleDosenSection(this.value)" style="accent-color:#18181b;width:15px;height:15px;flex-shrink:0;">
           <div>
-            <div style="font-size:0.875rem; font-weight:500;">Staf / Pegawai</div>
-            <div style="font-size:0.72rem; color:#94a3b8; margin-top:1px;">Tenaga kependidikan</div>
+            <div style="font-size:0.8125rem;font-weight:500;color:#18181b;">Staf / Pegawai</div>
+            <div style="font-size:0.7rem;color:#a1a1aa;">Tenaga kependidikan</div>
           </div>
         </label>
-        <label style="display:flex; align-items:center; gap:0.625rem; cursor:pointer; padding:0.75rem 1.25rem; border:1px solid; border-radius:8px; transition:all 0.15s;" id="type-dosen-label">
+        <label class="fw-type-option" id="type-dosen-label">
           <input type="radio" name="employee_type" value="Dosen" id="type-dosen"
-                 <%= pegawai.employee_type === 'Dosen' ? 'checked' : '' %>
-                 onchange="toggleDosenSection(this.value)" style="accent-color:#3d4158;">
+                 <%= pegawai.employee_type==='Dosen' ? 'checked':'' %>
+                 onchange="toggleDosenSection(this.value)" style="accent-color:#18181b;width:15px;height:15px;flex-shrink:0;">
           <div>
-            <div style="font-size:0.875rem; font-weight:500;">Dosen</div>
-            <div style="font-size:0.72rem; color:#94a3b8; margin-top:1px;">Tenaga pengajar/peneliti</div>
+            <div style="font-size:0.8125rem;font-weight:500;color:#18181b;">Dosen</div>
+            <div style="font-size:0.7rem;color:#a1a1aa;">Tenaga pengajar / peneliti</div>
           </div>
         </label>
       </div>
     </div>
   </div>
 
-  <%# Data Pribadi %>
-  <div class="fw-form-section">
-    <div class="fw-form-section-header">
-      <span style="font-size:1rem;">🪪</span>
-      <span class="fw-form-section-title">Data Pribadi</span>
+  <%# 2. Data Pribadi %>
+  <div data-slot="card" class="rounded-xl border bg-card shadow-sm">
+    <div class="fw-section-hdr">
+      <div class="fw-section-icon" style="background:#eef2ff;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="1.75"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+      </div>
+      <span style="font-size:0.875rem;font-weight:600;color:#18181b;">Data Pribadi</span>
     </div>
-    <div class="fw-form-section-body">
-      <div class="fw-grid-2">
-        <div class="fw-col-span-2">
-          <label class="fw-label fw-label-required">NIP / Nomor Pegawai</label>
-          <input type="text" name="employee_number" value="<%= pegawai.employee_number %>" class="fw-input" required
-                 inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+    <div class="fw-section-body">
+      <div class="fw-form-grid">
+
+        <div class="fw-form-full">
+          <label class="fw-field-label">NIP / Nomor Pegawai <span class="fw-field-req">*</span></label>
+          <input type="text" name="employee_number" value="<%= pegawai.employee_number %>" data-slot="input" required inputmode="numeric"
+                 oninput="this.value=this.value.replace(/[^0-9]/g,'')"
+                 class="fw-input w-full min-w-0 rounded-md border border-input bg-transparent text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 transition-[color,box-shadow]">
         </div>
+
         <div>
-          <label class="fw-label fw-label-required">Nama Lengkap</label>
-          <input type="text" name="name" value="<%= pegawai.name %>" class="fw-input" required>
+          <label class="fw-field-label">Nama Lengkap <span class="fw-field-req">*</span></label>
+          <input type="text" name="name" value="<%= pegawai.name %>" data-slot="input" required
+                 class="fw-input w-full min-w-0 rounded-md border border-input bg-transparent text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 transition-[color,box-shadow]">
         </div>
+
         <div>
-          <label class="fw-label">No. Telepon</label>
-          <input type="text" name="phone_number" value="<%= pegawai.phone_number || '' %>" class="fw-input"
-                 inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+          <label class="fw-field-label">No. Telepon</label>
+          <input type="text" name="phone_number" value="<%= pegawai.phone_number||'' %>" data-slot="input" inputmode="numeric"
+                 oninput="this.value=this.value.replace(/[^0-9]/g,'')"
+                 class="fw-input w-full min-w-0 rounded-md border border-input bg-transparent text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 transition-[color,box-shadow]">
         </div>
+
         <div>
-          <label class="fw-label">NIK (No. KTP)</label>
-          <input type="text" name="national_id_number" value="<%= pegawai.national_id_number || '' %>" class="fw-input"
-                 inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+          <label class="fw-field-label">NIK (No. KTP)</label>
+          <input type="text" name="national_id_number" value="<%= pegawai.national_id_number||'' %>" data-slot="input" inputmode="numeric"
+                 oninput="this.value=this.value.replace(/[^0-9]/g,'')"
+                 class="fw-input w-full min-w-0 rounded-md border border-input bg-transparent text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 transition-[color,box-shadow]">
         </div>
+
         <div>
-          <label class="fw-label">NPWP</label>
-          <input type="text" name="tax_id_number" value="<%= pegawai.tax_id_number || '' %>" class="fw-input"
-                 inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+          <label class="fw-field-label">NPWP</label>
+          <input type="text" name="tax_id_number" value="<%= pegawai.tax_id_number||'' %>" data-slot="input" inputmode="numeric"
+                 oninput="this.value=this.value.replace(/[^0-9]/g,'')"
+                 class="fw-input w-full min-w-0 rounded-md border border-input bg-transparent text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 transition-[color,box-shadow]">
         </div>
+
         <div>
-          <label class="fw-label fw-label-required">Tempat Lahir</label>
-          <input type="text" name="birth_place" value="<%= pegawai.birth_place %>" class="fw-input" required>
+          <label class="fw-field-label">Tempat Lahir <span class="fw-field-req">*</span></label>
+          <input type="text" name="birth_place" value="<%= pegawai.birth_place %>" data-slot="input" required
+                 class="fw-input w-full min-w-0 rounded-md border border-input bg-transparent text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 transition-[color,box-shadow]">
         </div>
+
         <div>
-          <label class="fw-label fw-label-required">Tanggal Lahir</label>
-          <input type="date" name="birth_date"
-                 value="<%= pegawai.birth_date ? new Date(pegawai.birth_date).toISOString().split('T')[0] : '' %>"
-                 class="fw-input" required>
+          <label class="fw-field-label">Tanggal Lahir <span class="fw-field-req">*</span></label>
+          <input type="date" name="birth_date" value="<%= pegawai.birth_date ? new Date(pegawai.birth_date).toISOString().split('T')[0]:'' %>" data-slot="input" required
+                 class="fw-input w-full min-w-0 rounded-md border border-input bg-transparent text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 transition-[color,box-shadow]">
         </div>
+
         <div>
-          <label class="fw-label fw-label-required">Jenis Kelamin</label>
-          <select name="gender" class="fw-select" required>
-            <option value="male"   <%= pegawai.gender === 'male'   ? 'selected' : '' %>>Laki-laki</option>
-            <option value="female" <%= pegawai.gender === 'female' ? 'selected' : '' %>>Perempuan</option>
+          <label class="fw-field-label">Jenis Kelamin <span class="fw-field-req">*</span></label>
+          <select name="gender" required class="fw-select w-full rounded-md border border-input bg-background text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 transition-[color,box-shadow]">
+            <option value="male"   <%= pegawai.gender==='male'   ?'selected':'' %>>Laki-laki</option>
+            <option value="female" <%= pegawai.gender==='female' ?'selected':'' %>>Perempuan</option>
           </select>
         </div>
+
         <div>
-          <label class="fw-label">Agama</label>
-          <select name="religion" class="fw-select">
-            <option value="">- Pilih -</option>
+          <label class="fw-field-label">Agama</label>
+          <select name="religion" class="fw-select w-full rounded-md border border-input bg-background text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 transition-[color,box-shadow]">
+            <option value="">— Pilih —</option>
             <% ['Islam','Kristen','Katolik','Hindu','Budha','Konghucu'].forEach(r => { %>
-              <option value="<%= r %>" <%= pegawai.religion === r ? 'selected' : '' %>><%= r %></option>
+              <option value="<%= r %>" <%= pegawai.religion===r ?'selected':'' %>><%= r %></option>
             <% }) %>
           </select>
         </div>
-        <div class="fw-col-span-2">
-          <label class="fw-label fw-label-required">Alamat Lengkap</label>
-          <textarea name="address" class="fw-textarea" required><%= pegawai.address %></textarea>
+
+        <div class="fw-form-full">
+          <label class="fw-field-label">Alamat Lengkap <span class="fw-field-req">*</span></label>
+          <textarea name="address" data-slot="textarea" required rows="4"
+                    class="fw-textarea w-full min-w-0 rounded-md border border-input bg-transparent text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 resize-none transition-[color,box-shadow]"><%= pegawai.address %></textarea>
         </div>
+
       </div>
     </div>
   </div>
 
-  <%# Data Kepegawaian %>
-  <div class="fw-form-section">
-    <div class="fw-form-section-header">
-      <span style="font-size:1rem;">🏢</span>
-      <span class="fw-form-section-title">Data Kepegawaian</span>
+  <%# 3. Data Kepegawaian %>
+  <div data-slot="card" class="rounded-xl border bg-card shadow-sm">
+    <div class="fw-section-hdr">
+      <div class="fw-section-icon" style="background:#f0fdf4;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="1.75"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+      </div>
+      <span style="font-size:0.875rem;font-weight:600;color:#18181b;">Data Kepegawaian</span>
     </div>
-    <div class="fw-form-section-body">
-      <div class="fw-grid-2">
+    <div class="fw-section-body">
+      <div class="fw-form-grid">
+
         <div>
-          <label class="fw-label fw-label-required">Unit Organisasi</label>
-          <select name="organization_unit_id" class="fw-select" required>
-            <option value="">- Pilih -</option>
+          <label class="fw-field-label">Unit Organisasi <span class="fw-field-req">*</span></label>
+          <select name="organization_unit_id" required class="fw-select w-full rounded-md border border-input bg-background text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 transition-[color,box-shadow]">
+            <option value="">— Pilih Unit —</option>
             <% units.forEach(u => { %>
-              <option value="<%= u.id %>" <%= String(pegawai.organization_unit_id) === String(u.id) ? 'selected' : '' %>><%= u.name %></option>
+              <option value="<%= u.id %>" <%= String(pegawai.organization_unit_id)===String(u.id)?'selected':'' %>><%= u.name %></option>
             <% }) %>
           </select>
         </div>
+
         <div>
-          <label class="fw-label fw-label-required">Status Kepegawaian</label>
-          <select name="employment_status_id" class="fw-select" required>
-            <option value="">- Pilih -</option>
+          <label class="fw-field-label">Status Kepegawaian <span class="fw-field-req">*</span></label>
+          <select name="employment_status_id" required class="fw-select w-full rounded-md border border-input bg-background text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 transition-[color,box-shadow]">
+            <option value="">— Pilih —</option>
             <% statuses.forEach(s => { %>
-              <option value="<%= s.id %>" <%= String(pegawai.employment_status_id) === String(s.id) ? 'selected' : '' %>><%= s.name %></option>
+              <option value="<%= s.id %>" <%= String(pegawai.employment_status_id)===String(s.id)?'selected':'' %>><%= s.name %></option>
             <% }) %>
           </select>
         </div>
+
         <div>
-          <label class="fw-label fw-label-required">Tanggal Masuk</label>
-          <input type="date" name="hire_date"
-                 value="<%= pegawai.hire_date ? new Date(pegawai.hire_date).toISOString().split('T')[0] : '' %>"
-                 class="fw-input" required>
+          <label class="fw-field-label">Tanggal Masuk <span class="fw-field-req">*</span></label>
+          <input type="date" name="hire_date" value="<%= pegawai.hire_date ? new Date(pegawai.hire_date).toISOString().split('T')[0]:'' %>" data-slot="input" required
+                 class="fw-input w-full min-w-0 rounded-md border border-input bg-transparent text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 transition-[color,box-shadow]">
         </div>
+
         <div>
-          <label class="fw-label fw-label-required">Status Aktif</label>
-          <select name="status" class="fw-select" required>
-            <option value="active"   <%= pegawai.status === 'active'   ? 'selected' : '' %>>Aktif</option>
-            <option value="inactive" <%= pegawai.status === 'inactive' ? 'selected' : '' %>>Tidak Aktif</option>
+          <label class="fw-field-label">Status Aktif <span class="fw-field-req">*</span></label>
+          <select name="status" required class="fw-select w-full rounded-md border border-input bg-background text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 transition-[color,box-shadow]">
+            <option value="active"   <%= pegawai.status==='active'   ?'selected':'' %>>Aktif</option>
+            <option value="inactive" <%= pegawai.status==='inactive' ?'selected':'' %>>Tidak Aktif</option>
           </select>
         </div>
+
       </div>
     </div>
   </div>
 
-  <%# Data Akademik %>
-  <div id="dosen-section" class="fw-form-section" <%- pegawai.employee_type === 'Dosen' ? 'style="border-left:3px solid #3d4158;"' : 'style="border-left:3px solid #3d4158; display:none;"' %>>
-    <div class="fw-form-section-header">
-      <div style="display:flex; align-items:center; gap:0.5rem;">
-        <span style="font-size:1rem;">🎓</span>
-        <span class="fw-form-section-title">Data Akademik</span>
+  <%# 4. Data Akademik (Dosen) %>
+  <div id="dosen-section" data-slot="card" class="rounded-xl border bg-card shadow-sm" style="border-left:3px solid #6366f1;"
+       <%- pegawai.employee_type==='Dosen' ? '' : 'hidden' %>>
+    <div class="fw-section-hdr">
+      <div class="fw-section-icon" style="background:#eef2ff;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="1.75"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
       </div>
-      <span class="fw-badge fw-badge-indigo" style="font-size:0.65rem;">Khusus Dosen</span>
+      <span style="font-size:0.875rem;font-weight:600;color:#18181b;">Data Akademik</span>
+      <span data-slot="badge" data-variant="default" class="ml-auto inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium border-transparent bg-primary text-primary-foreground">Khusus Dosen</span>
     </div>
-    <div class="fw-form-section-body">
-      <div class="fw-grid-2">
+    <div class="fw-section-body">
+      <div class="fw-form-grid">
         <div>
-          <label class="fw-label fw-label-required">Pangkat Akademik</label>
-          <input type="text" name="academic_rank" value="<%= pegawai.academic_rank || '' %>" class="fw-input" placeholder="Lektor Kepala">
+          <label class="fw-field-label">Pangkat Akademik</label>
+          <input type="text" name="academic_rank" value="<%= pegawai.academic_rank||'' %>" data-slot="input" placeholder="Lektor Kepala"
+                 class="fw-input w-full min-w-0 rounded-md border border-input bg-transparent text-sm shadow-xs outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 transition-[color,box-shadow]">
         </div>
         <div>
-          <label class="fw-label">Jabatan Fungsional</label>
-          <input type="text" name="functional_position" value="<%= pegawai.functional_position || '' %>" class="fw-input" placeholder="Asisten Ahli">
+          <label class="fw-field-label">Jabatan Fungsional</label>
+          <input type="text" name="functional_position" value="<%= pegawai.functional_position||'' %>" data-slot="input" placeholder="Asisten Ahli"
+                 class="fw-input w-full min-w-0 rounded-md border border-input bg-transparent text-sm shadow-xs outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 transition-[color,box-shadow]">
         </div>
         <div>
-          <label class="fw-label">Bidang Keahlian</label>
-          <input type="text" name="expertise" value="<%= pegawai.expertise || '' %>" class="fw-input" placeholder="Kecerdasan Buatan">
+          <label class="fw-field-label">Bidang Keahlian</label>
+          <input type="text" name="expertise" value="<%= pegawai.expertise||'' %>" data-slot="input" placeholder="Kecerdasan Buatan"
+                 class="fw-input w-full min-w-0 rounded-md border border-input bg-transparent text-sm shadow-xs outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 transition-[color,box-shadow]">
         </div>
       </div>
     </div>
   </div>
 
-  <div class="fw-form-actions">
-    <a href="/pegawai/<%= pegawai.id %>" class="fw-btn fw-btn-outline">Batal</a>
-    <button type="submit" class="fw-btn fw-btn-primary">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-      Simpan Perubahan
-    </button>
+  <%# Action Buttons %>
+  <div style="display:flex;align-items:center;justify-content:space-between;padding-top:0.25rem;">
+    <a href="/pegawai/<%= pegawai.id %>" style="display:inline-flex;align-items:center;gap:5px;font-size:0.8125rem;color:#a1a1aa;text-decoration:none;" class="hover:text-foreground transition-colors">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      Lihat Detail
+    </a>
+    <div style="display:flex;align-items:center;gap:0.625rem;">
+      <a href="/pegawai/<%= pegawai.id %>" data-slot="button" data-variant="outline"
+        style="height:44px;padding:0 1.5rem;font-size:0.9375rem;"
+        class="inline-flex shrink-0 items-center justify-center gap-2 rounded-md font-medium border border-input bg-background shadow-xs hover:bg-accent hover:text-accent-foreground transition-all outline-none whitespace-nowrap">
+        Batal
+      </a>
+      <button type="submit" data-slot="button" data-variant="default"
+        style="height:44px;padding:0 1.5rem;font-size:0.9375rem;"
+        class="inline-flex shrink-0 items-center justify-center gap-2 rounded-md font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-all outline-none whitespace-nowrap">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        Simpan Perubahan
+      </button>
+    </div>
   </div>
+
 </form>
 
 <script>
 function toggleDosenSection(type) {
   const s = document.getElementById('dosen-section');
-  const labelStaf  = document.getElementById('type-staf-label');
-  const labelDosen = document.getElementById('type-dosen-label');
+  const lStaf  = document.getElementById('type-staf-label');
+  const lDosen = document.getElementById('type-dosen-label');
   if (type === 'Dosen') {
-    s.style.display = '';
-    labelDosen.style.borderColor = '#3d4158';
-    labelDosen.style.background  = '#eaebf0';
-    labelStaf.style.borderColor  = '#e2e8f0';
-    labelStaf.style.background   = '#fff';
+    s.removeAttribute('hidden');
+    lDosen.style.borderColor = '#18181b'; lDosen.style.background = '#fafafa';
+    lStaf.style.borderColor  = '#e4e4e7'; lStaf.style.background  = '';
   } else {
-    s.style.display = 'none';
-    labelStaf.style.borderColor  = '#4f46e5';
-    labelStaf.style.background   = '#eef2ff';
-    labelDosen.style.borderColor = '#e2e8f0';
-    labelDosen.style.background  = '#fff';
+    s.setAttribute('hidden','');
+    lStaf.style.borderColor  = '#18181b'; lStaf.style.background  = '#fafafa';
+    lDosen.style.borderColor = '#e4e4e7'; lDosen.style.background = '';
   }
 }
 window.addEventListener('DOMContentLoaded', () => {

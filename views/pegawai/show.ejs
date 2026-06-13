@@ -1,127 +1,253 @@
 <%# views/pegawai/show.ejs %>
 
-<%# ── Breadcrumb + aksi ──────────────────────────────────── %>
-<div class="fw-page-header">
+<style>
+  .fw-info-row {
+    display: grid;
+    grid-template-columns: 155px 1fr;
+    gap: 0.375rem 1rem;
+    align-items: start;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #f4f4f5;
+  }
+  .fw-info-row:last-child { border-bottom: none; padding-bottom: 0; }
+  .fw-info-row:first-child { padding-top: 0; }
+  .fw-info-label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #a1a1aa;
+    padding-top: 3px;
+    flex-shrink: 0;
+  }
+  .fw-info-value {
+    font-size: 0.875rem;
+    color: #18181b;
+    font-weight: 500;
+    word-break: break-word;
+  }
+  .fw-info-value.empty {
+    color: #d4d4d8;
+    font-weight: 400;
+    font-style: italic;
+    font-size: 0.8125rem;
+  }
+  .fw-card-hdr {
+    display: flex; align-items: center; gap: 10px;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid #f4f4f5;
+  }
+  .fw-card-icon {
+    width: 30px; height: 30px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .fw-card-body { padding: 1.25rem; }
+</style>
+
+<%# ── Page Header ────────────────────────────────────────── %>
+<div style="display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.5rem;">
+
   <div>
-    <a href="/pegawai" style="font-size:0.8rem; color:#94a3b8; text-decoration:none; display:inline-flex; align-items:center; gap:0.3rem; margin-bottom:0.5rem; transition:color 0.15s;" onmouseover="this.style.color='#64748b'" onmouseout="this.style.color='#94a3b8'">
+    <a href="/pegawai" style="display:inline-flex;align-items:center;gap:5px;font-size:0.75rem;color:#a1a1aa;text-decoration:none;margin-bottom:0.875rem;" class="hover:text-foreground transition-colors">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-      Kembali
+      Kembali ke Daftar
     </a>
-    <h1 class="fw-page-title"><%= pegawai.name %></h1>
-    <div style="display:flex; align-items:center; gap:0.5rem; margin-top:0.5rem; flex-wrap:wrap;">
-      <span style="font-family:monospace; font-size:0.8rem; color:#64748b; background:#f1f5f9; padding:2px 8px; border-radius:4px; border:1px solid #e2e8f0;"><%= pegawai.employee_number %></span>
-      <% if (pegawai.employee_type === 'Dosen') { %>
-        <span class="fw-badge fw-badge-indigo">Dosen</span>
-      <% } else { %>
-        <span class="fw-badge fw-badge-slate">Staf</span>
-      <% } %>
-      <% if (pegawai.status === 'active') { %>
-        <span class="fw-badge fw-badge-green">● Aktif</span>
-      <% } else { %>
-        <span class="fw-badge fw-badge-red">● Nonaktif</span>
-      <% } %>
+    <div style="display:flex;align-items:center;gap:0.875rem;">
+      <div style="width:48px;height:48px;border-radius:14px;background:#18181b;color:#fff;font-size:1.125rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;letter-spacing:-0.01em;">
+        <%= pegawai.name.charAt(0).toUpperCase() %>
+      </div>
+      <div>
+        <h1 style="font-size:1.125rem;font-weight:700;color:#18181b;margin:0 0 0.375rem;letter-spacing:-0.02em;"><%= pegawai.name %></h1>
+        <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+          <code style="background:#f4f4f5;border-radius:5px;padding:2px 8px;font-size:0.75rem;font-family:monospace;color:#52525b;"><%= pegawai.employee_number %></code>
+          <% if (pegawai.employee_type==='Dosen') { %>
+            <span data-slot="badge" data-variant="default" class="inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium border-transparent bg-primary text-primary-foreground">Dosen</span>
+          <% } else { %>
+            <span data-slot="badge" data-variant="secondary" class="inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium border-transparent bg-secondary text-secondary-foreground">Staf</span>
+          <% } %>
+          <% if (pegawai.status==='active') { %>
+            <span style="display:inline-flex;align-items:center;gap:4px;background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;border-radius:99px;padding:2px 10px;font-size:0.7rem;font-weight:600;">
+              <span style="width:5px;height:5px;border-radius:50%;background:#22c55e;display:inline-block;"></span>Aktif
+            </span>
+          <% } else { %>
+            <span style="display:inline-flex;align-items:center;gap:4px;background:#fef2f2;color:#dc2626;border:1px solid #fecaca;border-radius:99px;padding:2px 10px;font-size:0.7rem;font-weight:600;">
+              <span style="width:5px;height:5px;border-radius:50%;background:#ef4444;display:inline-block;"></span>Nonaktif
+            </span>
+          <% } %>
+        </div>
+      </div>
     </div>
   </div>
-  <div style="display:flex; gap:0.5rem; flex-shrink:0;">
-    <a href="/pegawai/<%= pegawai.id %>/edit" class="fw-btn fw-btn-outline fw-btn-sm">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+
+  <div style="display:flex;align-items:center;gap:0.5rem;">
+    <a href="/pegawai/<%= pegawai.id %>/edit" class="btn-sm-outline">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
       Edit
     </a>
-    <button type="button" class="fw-btn fw-btn-danger fw-btn-sm"
-            data-name="<%= pegawai.name %>"
-            onclick="fwShowDeleteModal('/pegawai/<%= pegawai.id %>', this.dataset.name)">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+    <button type="button" class="btn-sm-destructive"
+      data-name="<%= pegawai.name %>"
+      onclick="fwShowDeleteModal('/pegawai/<%= pegawai.id %>', this.dataset.name)">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
       Hapus
     </button>
   </div>
 </div>
 
-<%# ── Detail grid ────────────────────────────────────────── %>
-<div class="fw-detail-grid">
+<%# ── Detail Grid ─────────────────────────────────────────── %>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;align-items:start;">
 
-  <%# Data Pribadi %>
-  <div class="fw-card">
-    <div class="fw-card-header">
-      <div style="display:flex; align-items:center; gap:0.5rem;">
-        <span style="font-size:1rem;">🪪</span>
-        <span style="font-size:0.875rem; font-weight:600; color:#0f172a;">Data Pribadi</span>
+  <%# ── Kiri: Data Pribadi ── %>
+  <div data-slot="card" class="rounded-xl border bg-card text-card-foreground shadow-sm">
+    <div class="fw-card-hdr">
+      <div class="fw-card-icon" style="background:#eef2ff;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="1.75"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
       </div>
+      <span style="font-size:0.875rem;font-weight:600;color:#18181b;">Data Pribadi</span>
     </div>
     <div class="fw-card-body">
-      <%
-        const rows = [
-          ['NIK', pegawai.national_id_number],
-          ['NPWP', pegawai.tax_id_number],
-          ['Tempat Lahir', pegawai.birth_place],
-          ['Tanggal Lahir', pegawai.birth_date ? new Date(pegawai.birth_date).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'}) : null],
-          ['Jenis Kelamin', pegawai.gender === 'male' ? 'Laki-laki' : 'Perempuan'],
-          ['Agama', pegawai.religion],
-          ['No. Telepon', pegawai.phone_number],
-          ['Alamat', pegawai.address],
-        ];
-      %>
-      <% rows.forEach(([label, val]) => { %>
-        <div class="fw-detail-row">
-          <span class="fw-detail-label"><%= label %></span>
-          <span class="fw-detail-value"><%= val || '-' %></span>
-        </div>
-      <% }) %>
+
+      <div class="fw-info-row">
+        <span class="fw-info-label">NIP / Nomor Pegawai</span>
+        <span class="fw-info-value"><code style="background:#f4f4f5;border-radius:4px;padding:1px 6px;font-size:0.8125rem;font-family:monospace;color:#18181b;"><%= pegawai.employee_number %></code></span>
+      </div>
+
+      <div class="fw-info-row">
+        <span class="fw-info-label">Nama Lengkap</span>
+        <span class="fw-info-value"><%= pegawai.name %></span>
+      </div>
+
+      <div class="fw-info-row">
+        <span class="fw-info-label">NIK (No. KTP)</span>
+        <span class="fw-info-value <%= pegawai.national_id_number ? '' : 'empty' %>"><%= pegawai.national_id_number || 'Belum diisi' %></span>
+      </div>
+
+      <div class="fw-info-row">
+        <span class="fw-info-label">NPWP</span>
+        <span class="fw-info-value <%= pegawai.tax_id_number ? '' : 'empty' %>"><%= pegawai.tax_id_number || 'Belum diisi' %></span>
+      </div>
+
+      <div class="fw-info-row">
+        <span class="fw-info-label">Tempat Lahir</span>
+        <span class="fw-info-value <%= pegawai.birth_place ? '' : 'empty' %>"><%= pegawai.birth_place || 'Belum diisi' %></span>
+      </div>
+
+      <div class="fw-info-row">
+        <span class="fw-info-label">Tanggal Lahir</span>
+        <span class="fw-info-value <%= pegawai.birth_date ? '' : 'empty' %>">
+          <%= pegawai.birth_date ? new Date(pegawai.birth_date).toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'}) : 'Belum diisi' %>
+        </span>
+      </div>
+
+      <div class="fw-info-row">
+        <span class="fw-info-label">Jenis Kelamin</span>
+        <span class="fw-info-value"><%= pegawai.gender==='male' ? 'Laki-laki' : pegawai.gender==='female' ? 'Perempuan' : '<span class="empty">Belum diisi</span>' %></span>
+      </div>
+
+      <div class="fw-info-row">
+        <span class="fw-info-label">Agama</span>
+        <span class="fw-info-value <%= pegawai.religion ? '' : 'empty' %>"><%= pegawai.religion || 'Belum diisi' %></span>
+      </div>
+
+      <div class="fw-info-row">
+        <span class="fw-info-label">No. Telepon</span>
+        <span class="fw-info-value <%= pegawai.phone_number ? '' : 'empty' %>"><%= pegawai.phone_number || 'Belum diisi' %></span>
+      </div>
+
+      <div class="fw-info-row">
+        <span class="fw-info-label">Alamat Lengkap</span>
+        <span class="fw-info-value <%= pegawai.address ? '' : 'empty' %>" style="white-space:pre-line;"><%= pegawai.address || 'Belum diisi' %></span>
+      </div>
+
     </div>
   </div>
 
-  <%# Data Kepegawaian %>
-  <div style="display:flex; flex-direction:column; gap:1rem;">
-    <div class="fw-card">
-      <div class="fw-card-header">
-        <div style="display:flex; align-items:center; gap:0.5rem;">
-          <span style="font-size:1rem;">🏢</span>
-          <span style="font-size:0.875rem; font-weight:600; color:#0f172a;">Data Kepegawaian</span>
+  <%# ── Kanan: Kepegawaian + Akademik ── %>
+  <div style="display:flex;flex-direction:column;gap:1rem;">
+
+    <%# Data Kepegawaian %>
+    <div data-slot="card" class="rounded-xl border bg-card text-card-foreground shadow-sm">
+      <div class="fw-card-hdr">
+        <div class="fw-card-icon" style="background:#f0fdf4;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="1.75"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
         </div>
+        <span style="font-size:0.875rem;font-weight:600;color:#18181b;">Data Kepegawaian</span>
       </div>
       <div class="fw-card-body">
-        <%
-          const kepRows = [
-            ['Unit Organisasi', pegawai.unit_name],
-            ['Status Kepegawaian', pegawai.employment_status_name],
-            ['Tanggal Masuk', pegawai.hire_date ? new Date(pegawai.hire_date).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'}) : null],
-            ['Status', pegawai.status === 'active' ? 'Aktif' : 'Tidak Aktif'],
-          ];
-        %>
-        <% kepRows.forEach(([label, val]) => { %>
-          <div class="fw-detail-row">
-            <span class="fw-detail-label"><%= label %></span>
-            <span class="fw-detail-value"><%= val || '-' %></span>
-          </div>
-        <% }) %>
+
+        <div class="fw-info-row">
+          <span class="fw-info-label">Tipe Pegawai</span>
+          <span>
+            <% if (pegawai.employee_type==='Dosen') { %>
+              <span data-slot="badge" data-variant="default" class="inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium border-transparent bg-primary text-primary-foreground">Dosen</span>
+            <% } else { %>
+              <span data-slot="badge" data-variant="secondary" class="inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium border-transparent bg-secondary text-secondary-foreground">Staf / Pegawai</span>
+            <% } %>
+          </span>
+        </div>
+
+        <div class="fw-info-row">
+          <span class="fw-info-label">Unit Organisasi</span>
+          <span class="fw-info-value <%= pegawai.unit_name ? '' : 'empty' %>"><%= pegawai.unit_name || 'Belum diisi' %></span>
+        </div>
+
+        <div class="fw-info-row">
+          <span class="fw-info-label">Status Kepegawaian</span>
+          <span class="fw-info-value <%= pegawai.employment_status_name ? '' : 'empty' %>"><%= pegawai.employment_status_name || 'Belum diisi' %></span>
+        </div>
+
+        <div class="fw-info-row">
+          <span class="fw-info-label">Tanggal Masuk</span>
+          <span class="fw-info-value <%= pegawai.hire_date ? '' : 'empty' %>">
+            <%= pegawai.hire_date ? new Date(pegawai.hire_date).toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'}) : 'Belum diisi' %>
+          </span>
+        </div>
+
+        <div class="fw-info-row">
+          <span class="fw-info-label">Status Aktif</span>
+          <span>
+            <% if (pegawai.status==='active') { %>
+              <span style="display:inline-flex;align-items:center;gap:4px;background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;border-radius:99px;padding:2px 10px;font-size:0.75rem;font-weight:600;">
+                <span style="width:5px;height:5px;border-radius:50%;background:#22c55e;display:inline-block;"></span>Aktif
+              </span>
+            <% } else { %>
+              <span style="display:inline-flex;align-items:center;gap:4px;background:#fef2f2;color:#dc2626;border:1px solid #fecaca;border-radius:99px;padding:2px 10px;font-size:0.75rem;font-weight:600;">
+                <span style="width:5px;height:5px;border-radius:50%;background:#ef4444;display:inline-block;"></span>Tidak Aktif
+              </span>
+            <% } %>
+          </span>
+        </div>
+
       </div>
     </div>
 
-    <%# Data Dosen (hanya jika Dosen) %>
-    <% if (pegawai.employee_type === 'Dosen') { %>
-      <div class="fw-card" style="border-left: 3px solid #3d4158;">
-        <div class="fw-card-header">
-          <div style="display:flex; align-items:center; gap:0.5rem;">
-            <span style="font-size:1rem;">🎓</span>
-            <span style="font-size:0.875rem; font-weight:600; color:#0f172a;">Data Akademik</span>
+    <%# Data Akademik — hanya Dosen %>
+    <% if (pegawai.employee_type==='Dosen') { %>
+      <div data-slot="card" class="rounded-xl border bg-card text-card-foreground shadow-sm" style="border-left:3px solid #6366f1;">
+        <div class="fw-card-hdr" style="justify-content:space-between;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div class="fw-card-icon" style="background:#eef2ff;">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="1.75"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+            </div>
+            <span style="font-size:0.875rem;font-weight:600;color:#18181b;">Data Akademik</span>
           </div>
-          <span class="fw-badge fw-badge-indigo">Dosen</span>
+          <span data-slot="badge" data-variant="default" class="inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium border-transparent bg-primary text-primary-foreground">Dosen</span>
         </div>
         <div class="fw-card-body">
-          <div class="fw-detail-row">
-            <span class="fw-detail-label">Pangkat Akademik</span>
-            <span class="fw-detail-value"><%= pegawai.academic_rank || '-' %></span>
+          <div class="fw-info-row">
+            <span class="fw-info-label">Pangkat Akademik</span>
+            <span class="fw-info-value <%= pegawai.academic_rank ? '' : 'empty' %>"><%= pegawai.academic_rank || 'Belum diisi' %></span>
           </div>
-          <div class="fw-detail-row">
-            <span class="fw-detail-label">Jabatan Fungsional</span>
-            <span class="fw-detail-value"><%= pegawai.functional_position || '-' %></span>
+          <div class="fw-info-row">
+            <span class="fw-info-label">Jabatan Fungsional</span>
+            <span class="fw-info-value <%= pegawai.functional_position ? '' : 'empty' %>"><%= pegawai.functional_position || 'Belum diisi' %></span>
           </div>
-          <div class="fw-detail-row">
-            <span class="fw-detail-label">Bidang Keahlian</span>
-            <span class="fw-detail-value"><%= pegawai.expertise || '-' %></span>
+          <div class="fw-info-row">
+            <span class="fw-info-label">Bidang Keahlian</span>
+            <span class="fw-info-value <%= pegawai.expertise ? '' : 'empty' %>"><%= pegawai.expertise || 'Belum diisi' %></span>
           </div>
         </div>
       </div>
     <% } %>
-  </div>
 
+  </div>
 </div>
