@@ -45,6 +45,16 @@ app.use(ejsLayouts);
 app.set('layout', 'layouts/main');
 
 app.use(logger('dev'));
+// Disable HTTP caching in development so EJS changes always take effect
+if (app.get('env') === 'development') {
+  app.use((req, res, next) => {
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
+    next();
+  });
+}
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(methodOverride(function (req, res) {
