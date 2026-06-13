@@ -1,23 +1,55 @@
 <%# Header — FacultyWare %>
-<header class="app-header">
-  <div class="fw-header-inner">
-    <h2 class="fw-header-title"><%= typeof title !== 'undefined' ? title : 'FacultyWare' %></h2>
+  <header class="app-header">
+    <div style="display:flex; align-items:center; justify-content:space-between; width:100%; gap:1rem;">
 
-    <% if (user) { %>
-      <div class="fw-header-user">
-        <div class="fw-avatar"><%= user.name.charAt(0).toUpperCase() %></div>
-        <div class="fw-header-user-info">
-          <div class="fw-header-user-name"><%= user.name %></div>
-          <div class="fw-header-user-role"><%= user.role_name %></div>
-        </div>
-        <a href="/logout" class="fw-header-logout" title="Logout">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-            <polyline points="16 17 21 12 16 7"/>
-            <line x1="21" y1="12" x2="9" y2="12"/>
+      <%# Breadcrumb %>
+        <div style="display:flex; align-items:center; gap:0.375rem; min-width:0;">
+          <span style="font-size:0.75rem; color:#a1a1aa; font-weight:400; white-space:nowrap;">FacultyWare</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#d4d4d8" stroke-width="2">
+            <polyline points="9 18 15 12 9 6" />
           </svg>
-        </a>
-      </div>
-    <% } %>
-  </div>
-</header>
+          <span
+            style="font-size:0.8125rem; font-weight:500; color:#18181b; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:240px;">
+            <%= typeof title !=='undefined' ? title : 'Dashboard' %>
+          </span>
+        </div>
+
+        <% if (user) { %>
+          <div style="display:flex; align-items:center; gap:0.5rem;">
+
+            <%# User info — hidden on mobile %>
+              <div style="display:flex; align-items:center; gap:0.5rem;">
+                <div style="text-align:right; line-height:1.2;">
+                  <div style="font-size:0.775rem; font-weight:500; color:#18181b;">
+                    <%= user.name %>
+                  </div>
+                  <div style="font-size:0.675rem; color:#a1a1aa;">
+                    <%= user.role_name %>
+                  </div>
+                </div>
+                <%# Avatar %>
+                  <div
+                    style="width:32px; height:32px; border-radius:50%; background:#18181b; color:#fff; font-size:0.75rem; font-weight:600; display:flex; align-items:center; justify-content:center; flex-shrink:0; letter-spacing:0.02em; cursor:default;">
+                    <%= user.name.charAt(0).toUpperCase() %>
+                  </div>
+              </div>
+
+              <%# Separator %>
+                <div style="width:1px; height:18px; background:#e4e4e7; margin:0 0.125rem;"></div>
+
+                <%# Logout button %>
+                  <a href="/logout" title="Keluar"
+                    style="width:30px; height:30px; border-radius:7px; display:flex; align-items:center; justify-content:center; color:#71717a; text-decoration:none; transition:all 0.12s; border:1px solid transparent;"
+                    onmouseover="this.style.background='#fee2e2'; this.style.color='#dc2626'; this.style.borderColor='rgba(220,38,38,0.15)';"
+                    onmouseout="this.style.background='transparent'; this.style.color='#71717a'; this.style.borderColor='transparent';">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                      stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                      <polyline points="16 17 21 12 16 7" />
+                      <line x1="21" y1="12" x2="9" y2="12" />
+                    </svg>
+                  </a>
+          </div>
+          <% } %>
+    </div>
+  </header>

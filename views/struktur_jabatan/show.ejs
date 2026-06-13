@@ -1,42 +1,120 @@
 <%# views/struktur_jabatan/show.ejs %>
 
-    <%# ── Breadcrumb + aksi ──────────────────────────────────── %>
-        <div class="fw-page-header">
+    <style>
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #f4f4f5;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .pg-table th {
+            height: 36px;
+            padding: 0 0.875rem;
+            text-align: left;
+            font-size: 0.65rem;
+            font-weight: 600;
+            color: #a1a1aa;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            white-space: nowrap;
+        }
+
+        .pg-table th.center {
+            text-align: center;
+        }
+
+        .pg-table td {
+            padding: 0.625rem 0.875rem;
+            font-size: 0.8125rem;
+            vertical-align: middle;
+        }
+
+        .pg-table tr {
+            border-bottom: 1px solid #f4f4f5;
+            transition: background 0.1s;
+        }
+
+        .pg-table tr:last-child {
+            border-bottom: none;
+        }
+
+        .pg-table tr:hover {
+            background: #fafafa;
+        }
+
+        .action-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 7px;
+            color: #a1a1aa;
+            transition: all 0.1s;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+        }
+
+        .action-btn.edit:hover {
+            background: #fffbeb;
+            color: #d97706;
+        }
+
+        .action-btn.del:hover {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+    </style>
+
+    <%# ── Page Header ── %>
+        <div
+            style="display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;">
             <div>
                 <a href="/struktur-jabatan"
-                    style="font-size:0.8rem; color:#94a3b8; text-decoration:none; display:inline-flex; align-items:center; gap:0.3rem; margin-bottom:0.5rem; transition:color 0.15s;"
-                    onmouseover="this.style.color='#64748b'" onmouseout="this.style.color='#94a3b8'">
+                    style="display:inline-flex;align-items:center;gap:4px;font-size:0.75rem;color:#a1a1aa;text-decoration:none;margin-bottom:0.375rem;"
+                    onmouseover="this.style.color='#18181b'" onmouseout="this.style.color='#a1a1aa'">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                         stroke-width="2.5">
                         <polyline points="15 18 9 12 15 6" />
                     </svg>
-                    Struktur Jabatan
+                    Kembali ke Daftar
                 </a>
-                <h1 class="fw-page-title">
+                <h1 style="font-size:1.25rem;font-weight:600;color:#18181b;margin:0 0 0.375rem;">
                     <%= jabatan.name %>
                 </h1>
-                <div style="display:flex; align-items:center; gap:0.5rem; margin-top:0.5rem; flex-wrap:wrap;">
-                    <span class="fw-mono-chip">
-                        <%= jabatan.grade %>
-                    </span>
+                <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+                    <code
+                        style="background:#f4f4f5;border-radius:5px;padding:2px 8px;font-size:0.75rem;font-family:monospace;font-weight:600;color:#374151;"><%= jabatan.grade %></code>
                     <% if (jabatan.parent_name) { %>
-                        <span class="fw-badge fw-badge-slate">Atasan: <%= jabatan.parent_name %></span>
+                        <span
+                            style="display:inline-flex;align-items:center;gap:4px;background:#eef2ff;color:#6366f1;border:1px solid #c7d2fe;border-radius:99px;padding:2px 10px;font-size:0.7rem;font-weight:500;">
+                            Atasan: <%= jabatan.parent_name %>
+                        </span>
                         <% } else { %>
-                            <span class="fw-badge fw-badge-dark">Pucuk Pimpinan</span>
+                            <span
+                                style="display:inline-flex;align-items:center;background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;border-radius:99px;padding:2px 10px;font-size:0.7rem;font-weight:500;">
+                                Pucuk Pimpinan
+                            </span>
                             <% } %>
                 </div>
             </div>
-            <div style="display:flex; gap:0.5rem; flex-shrink:0;">
-                <a href="/struktur-jabatan/<%= jabatan.id %>/edit" class="fw-btn fw-btn-outline fw-btn-sm">
+            <div style="display:flex;align-items:center;gap:0.5rem;">
+                <a href="/struktur-jabatan/<%= jabatan.id %>/edit" class="btn-sm-outline">
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
                         <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
                     </svg>
                     Edit
                 </a>
-                <button type="button" class="fw-btn fw-btn-danger fw-btn-sm" data-id="<%= jabatan.id %>"
-                    data-name="<%= jabatan.name %>"
-                    onclick="fwShowDeleteModal('/struktur-jabatan/' + this.dataset.id, this.dataset.name)">
+                <button type="button" class="btn-sm-destructive" data-name="<%= jabatan.name %>"
+                    onclick="fwShowDeleteModal('/struktur-jabatan/<%= jabatan.id %>', this.dataset.name)">
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <polyline points="3 6 5 6 21 6" />
                         <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
@@ -46,218 +124,283 @@
             </div>
         </div>
 
-        <%# ── Detail Jabatan ─────────────────────────────────────── %>
-            <div class="fw-detail-grid" style="margin-bottom:1.25rem;">
+        <%# ── Top Info Grid ── %>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
 
-                <%# Kartu kiri: Info Jabatan %>
-                    <div class="fw-card">
-                        <div class="fw-card-header">
-                            <div style="display:flex; align-items:center; gap:0.5rem;">
-                                <span style="font-size:1rem;">🏢</span>
-                                <span style="font-size:0.875rem; font-weight:600; color:#0f172a;">Informasi
-                                    Jabatan</span>
+                <%# Info Jabatan %>
+                    <div data-slot="card" class="rounded-xl border bg-card shadow-sm">
+                        <div
+                            style="display:flex;align-items:center;gap:0.625rem;padding:0.875rem 1.25rem;border-bottom:1px solid #f4f4f5;">
+                            <div
+                                style="width:28px;height:28px;border-radius:7px;background:#eef2ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6366f1"
+                                    stroke-width="1.75">
+                                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+                                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+                                </svg>
                             </div>
+                            <h2 style="font-size:0.8125rem;font-weight:600;color:#18181b;margin:0;">Informasi Jabatan
+                            </h2>
                         </div>
-                        <div class="fw-card-body">
-                            <div class="fw-detail-row">
-                                <span class="fw-detail-label">Nama Jabatan</span>
-                                <span class="fw-detail-value">
+                        <div style="padding:0 1.25rem;">
+                            <div class="detail-row">
+                                <span style="font-size:0.75rem;color:#a1a1aa;flex-shrink:0;width:130px;">Nama
+                                    Jabatan</span>
+                                <span style="font-size:0.75rem;color:#18181b;font-weight:500;text-align:right;">
                                     <%= jabatan.name %>
                                 </span>
                             </div>
-                            <div class="fw-detail-row">
-                                <span class="fw-detail-label">Golongan / Grade</span>
-                                <span class="fw-detail-value"><span class="fw-mono-chip">
-                                        <%= jabatan.grade %>
-                                    </span></span>
+                            <div class="detail-row">
+                                <span style="font-size:0.75rem;color:#a1a1aa;flex-shrink:0;width:130px;">Golongan /
+                                    Grade</span>
+                                <span style="font-size:0.75rem;color:#18181b;text-align:right;"><code
+                                        style="background:#f4f4f5;border-radius:4px;padding:2px 7px;font-family:monospace;font-weight:600;"><%= jabatan.grade %></code></span>
                             </div>
-                            <div class="fw-detail-row">
-                                <span class="fw-detail-label">Atasan Langsung</span>
-                                <span class="fw-detail-value">
+                            <div class="detail-row">
+                                <span style="font-size:0.75rem;color:#a1a1aa;flex-shrink:0;width:130px;">Atasan
+                                    Langsung</span>
+                                <span style="font-size:0.75rem;text-align:right;">
                                     <% if (jabatan.parent_name) { %>
                                         <a href="/struktur-jabatan/<%= jabatan.parent_id %>"
-                                            style="color:#4f46e5; text-decoration:none;">
+                                            style="color:#6366f1;text-decoration:none;"
+                                            onmouseover="this.style.textDecoration='underline'"
+                                            onmouseout="this.style.textDecoration='none'">
                                             <%= jabatan.parent_name %>
                                         </a>
                                         <% } else { %>
-                                            <span style="color:#94a3b8; font-style:italic;">Pucuk Pimpinan</span>
+                                            <span style="color:#a1a1aa;font-style:italic;">Pucuk Pimpinan</span>
                                             <% } %>
                                 </span>
                             </div>
                         </div>
                     </div>
 
-                    <%# Kartu kanan: Bawahan + Kualifikasi %>
-                        <div style="display:flex; flex-direction:column; gap:1rem;">
-                            <div class="fw-card">
-                                <div class="fw-card-header">
-                                    <div style="display:flex; align-items:center; gap:0.5rem;">
-                                        <span style="font-size:1rem;">👥</span>
-                                        <span style="font-size:0.875rem; font-weight:600; color:#0f172a;">Bawahan
-                                            Langsung</span>
+                    <div style="display:flex;flex-direction:column;gap:1rem;">
+
+                        <%# Bawahan Langsung %>
+                            <div data-slot="card" class="rounded-xl border bg-card shadow-sm">
+                                <div
+                                    style="display:flex;align-items:center;justify-content:space-between;padding:0.875rem 1.25rem;border-bottom:1px solid #f4f4f5;">
+                                    <div style="display:flex;align-items:center;gap:0.625rem;">
+                                        <div
+                                            style="width:28px;height:28px;border-radius:7px;background:#f0fdf4;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#22c55e"
+                                                stroke-width="1.75">
+                                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                                                <circle cx="9" cy="7" r="4" />
+                                                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                                                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                                            </svg>
+                                        </div>
+                                        <h2 style="font-size:0.8125rem;font-weight:600;color:#18181b;margin:0;">Bawahan
+                                            Langsung</h2>
                                     </div>
-                                    <span class="fw-badge fw-badge-dark">
+                                    <span
+                                        style="background:#f4f4f5;color:#52525b;border-radius:99px;padding:2px 9px;font-size:0.7rem;font-weight:600;">
                                         <%= bawahan ? bawahan.length : 0 %>
                                     </span>
                                 </div>
-                                <div class="fw-card-body">
+                                <div style="padding:0.875rem 1.25rem;">
                                     <% if (bawahan && bawahan.length> 0) { %>
-                                        <% bawahan.forEach(b=> { %>
-                                            <div class="fw-detail-row">
-                                                <span class="fw-detail-label" style="width:auto; flex:none;">
+                                        <div style="display:flex;flex-direction:column;gap:6px;">
+                                            <% bawahan.forEach(b=> { %>
+                                                <div style="display:flex;align-items:center;gap:6px;">
                                                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none"
-                                                        stroke="currentColor" stroke-width="2.5"
-                                                        style="margin-right:4px; vertical-align:middle;">
+                                                        stroke="#a1a1aa" stroke-width="2">
                                                         <polyline points="9 18 15 12 9 6" />
                                                     </svg>
-                                                </span>
-                                                <span class="fw-detail-value">
                                                     <a href="/struktur-jabatan/<%= b.id %>"
-                                                        style="color:#4f46e5; text-decoration:none; font-size:0.875rem;">
+                                                        style="font-size:0.75rem;color:#6366f1;text-decoration:none;"
+                                                        onmouseover="this.style.textDecoration='underline'"
+                                                        onmouseout="this.style.textDecoration='none'">
                                                         <%= b.name %>
                                                     </a>
-                                                </span>
-                                            </div>
-                                            <% }) %>
-                                                <% } else { %>
-                                                    <div
-                                                        style="color:#94a3b8; font-style:italic; font-size:0.85rem; padding:0.25rem 0;">
-                                                        Tidak ada bawahan langsung</div>
-                                                    <% } %>
+                                                </div>
+                                                <% }) %>
+                                        </div>
+                                        <% } else { %>
+                                            <p style="font-size:0.75rem;color:#a1a1aa;font-style:italic;margin:0;">Tidak
+                                                ada bawahan langsung</p>
+                                            <% } %>
                                 </div>
                             </div>
 
-                            <% if (jabatan.qualification || jabatan.description) { %>
-                                <div class="fw-card">
-                                    <div class="fw-card-header">
-                                        <div style="display:flex; align-items:center; gap:0.5rem;">
-                                            <span style="font-size:1rem;">📋</span>
-                                            <span
-                                                style="font-size:0.875rem; font-weight:600; color:#0f172a;">Kualifikasi
-                                                & Deskripsi</span>
+                            <%# Kualifikasi & Deskripsi %>
+                                <% if (jabatan.qualification || jabatan.description) { %>
+                                    <div data-slot="card" class="rounded-xl border bg-card shadow-sm">
+                                        <div
+                                            style="display:flex;align-items:center;gap:0.625rem;padding:0.875rem 1.25rem;border-bottom:1px solid #f4f4f5;">
+                                            <div
+                                                style="width:28px;height:28px;border-radius:7px;background:#fff7ed;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+                                                    stroke="#f97316" stroke-width="1.75">
+                                                    <path
+                                                        d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                                    <polyline points="14 2 14 8 20 8" />
+                                                    <line x1="16" y1="13" x2="8" y2="13" />
+                                                    <line x1="16" y1="17" x2="8" y2="17" />
+                                                </svg>
+                                            </div>
+                                            <h2 style="font-size:0.8125rem;font-weight:600;color:#18181b;margin:0;">
+                                                Kualifikasi & Deskripsi</h2>
+                                        </div>
+                                        <div
+                                            style="padding:0.875rem 1.25rem;display:flex;flex-direction:column;gap:0.75rem;">
+                                            <% if (jabatan.qualification) { %>
+                                                <div>
+                                                    <p
+                                                        style="font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:#a1a1aa;margin:0 0 4px;">
+                                                        Kualifikasi</p>
+                                                    <p
+                                                        style="font-size:0.75rem;color:#18181b;white-space:pre-wrap;margin:0;">
+                                                        <%= jabatan.qualification %>
+                                                    </p>
+                                                </div>
+                                                <% } %>
+                                                    <% if (jabatan.description) { %>
+                                                        <div>
+                                                            <p
+                                                                style="font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:#a1a1aa;margin:0 0 4px;">
+                                                                Deskripsi</p>
+                                                            <p
+                                                                style="font-size:0.75rem;color:#18181b;white-space:pre-wrap;margin:0;">
+                                                                <%= jabatan.description %>
+                                                            </p>
+                                                        </div>
+                                                        <% } %>
                                         </div>
                                     </div>
-                                    <div class="fw-card-body">
-                                        <% if (jabatan.qualification) { %>
-                                            <div class="fw-detail-row">
-                                                <span class="fw-detail-label">Kualifikasi</span>
-                                                <span class="fw-detail-value" style="white-space:pre-wrap;"><%= jabatan.qualification %></span>
-                                            </div>
-                                            <% } %>
-                                                <% if (jabatan.description) { %>
-                                                    <div class="fw-detail-row">
-                                                        <span class="fw-detail-label">Deskripsi</span>
-                                                        <span class="fw-detail-value" style="white-space:pre-wrap;"><%= jabatan.description %></span>
-                                                    </div>
-                                                    <% } %>
-                                    </div>
-                                </div>
-                                <% } %>
-                        </div>
+                                    <% } %>
 
+                    </div>
             </div>
 
-            <%# ── Tupoksi ─────────────────────────────────────────────── %>
-                <div class="fw-card">
-                    <div class="fw-card-header">
-                        <div style="display:flex; align-items:center; gap:0.5rem;">
-                            <span style="font-size:1rem;">📋</span>
-                            <span style="font-size:0.875rem; font-weight:600; color:#0f172a;">Tugas Pokok & Fungsi
-                                (Tupoksi)</span>
+            <%# ── Tupoksi Card ── %>
+                <div data-slot="card" class="rounded-xl border bg-card shadow-sm">
+                    <div
+                        style="display:flex;align-items:center;justify-content:space-between;padding:0.875rem 1.25rem;border-bottom:1px solid #f4f4f5;">
+                        <div style="display:flex;align-items:center;gap:0.625rem;">
+                            <div
+                                style="width:28px;height:28px;border-radius:7px;background:#fdf4ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#a855f7"
+                                    stroke-width="1.75">
+                                    <path d="M9 11l3 3L22 4" />
+                                    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+                                </svg>
+                            </div>
+                            <h2 style="font-size:0.8125rem;font-weight:600;color:#18181b;margin:0;">Tugas Pokok & Fungsi
+                                (Tupoksi)</h2>
                         </div>
-                        <span class="fw-badge fw-badge-dark">
+                        <span
+                            style="background:#f4f4f5;color:#52525b;border-radius:99px;padding:2px 9px;font-size:0.7rem;font-weight:600;">
                             <%= tupoksi.length %> tugas
                         </span>
                     </div>
-                    <div class="fw-card-body">
 
-                        <%# Form tambah tupoksi baru %>
-                            <div class="fw-form-section" style="margin-bottom:1.25rem;">
-                                <div class="fw-form-section-header">
-                                    <span class="fw-form-section-title">Tambah Tugas Baru</span>
+                    <%# Form tambah tupoksi %>
+                        <div style="padding:1rem 1.25rem;background:#fafafa;border-bottom:1px solid #f4f4f5;">
+                            <p
+                                style="font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:#71717a;margin:0 0 0.75rem;">
+                                Tambah Tugas Baru</p>
+                            <form method="POST" action="/struktur-jabatan/<%= jabatan.id %>/tupoksi"
+                                style="display:flex;flex-wrap:wrap;gap:0.5rem;align-items:flex-end;">
+                                <div style="flex:2;min-width:160px;">
+                                    <label
+                                        style="display:block;font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:#71717a;margin-bottom:5px;">Judul
+                                        Tugas *</label>
+                                    <input type="text" name="title" placeholder="Judul tugas..." required
+                                        data-slot="input" style="height:36px;font-size:0.8125rem;"
+                                        class="w-full min-w-0 rounded-md border border-input bg-background px-3 text-sm shadow-xs outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 transition-[color,box-shadow]">
                                 </div>
-                                <div class="fw-form-section-body">
-                                    <form method="POST" action="/struktur-jabatan/<%= jabatan.id %>/tupoksi"
-                                        style="display:flex; gap:0.75rem; align-items:flex-end; flex-wrap:wrap;">
-                                        <div style="flex:2; min-width:180px;">
-                                            <label class="fw-label fw-label-required">Judul Tugas</label>
-                                            <input type="text" name="title" class="fw-input"
-                                                placeholder="Judul tugas..." required>
-                                        </div>
-                                        <div style="width:140px;">
-                                            <label class="fw-label fw-label-required">Tipe</label>
-                                            <select name="type" class="fw-input" required>
-                                                <option value="main">Main (Pokok)</option>
-                                                <option value="function">Function (Fungsi)</option>
-                                            </select>
-                                        </div>
-                                        <div style="flex:3; min-width:200px;">
-                                            <label class="fw-label fw-label-required">Deskripsi</label>
-                                            <input type="text" name="description" class="fw-input"
-                                                placeholder="Deskripsi tugas..." required>
-                                        </div>
-                                        <div style="width:80px;">
-                                            <label class="fw-label">Urutan</label>
-                                            <input type="number" name="order" class="fw-input" value="0" min="0">
-                                        </div>
-                                        <div>
-                                            <label class="fw-label" style="visibility:hidden;">_</label>
-                                            <button type="submit"
-                                                class="fw-btn fw-btn-primary fw-btn-sm">Tambah</button>
-                                        </div>
-                                    </form>
+                                <div style="width:140px;">
+                                    <label
+                                        style="display:block;font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:#71717a;margin-bottom:5px;">Tipe
+                                        *</label>
+                                    <select name="type" required data-slot="input"
+                                        style="height:36px;font-size:0.8125rem;"
+                                        class="w-full rounded-md border border-input bg-background px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 transition-[color,box-shadow]">
+                                        <option value="main">Main (Pokok)</option>
+                                        <option value="function">Function (Fungsi)</option>
+                                    </select>
                                 </div>
-                            </div>
+                                <div style="flex:3;min-width:160px;">
+                                    <label
+                                        style="display:block;font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:#71717a;margin-bottom:5px;">Deskripsi
+                                        *</label>
+                                    <input type="text" name="description" placeholder="Deskripsi tugas..." required
+                                        data-slot="input" style="height:36px;font-size:0.8125rem;"
+                                        class="w-full min-w-0 rounded-md border border-input bg-background px-3 text-sm shadow-xs outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 transition-[color,box-shadow]">
+                                </div>
+                                <div style="width:80px;">
+                                    <label
+                                        style="display:block;font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:#71717a;margin-bottom:5px;">Urutan</label>
+                                    <input type="number" name="order" value="0" min="0" data-slot="input"
+                                        style="height:36px;font-size:0.8125rem;"
+                                        class="w-full min-w-0 rounded-md border border-input bg-background px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 transition-[color,box-shadow]">
+                                </div>
+                                <button type="submit" class="btn"
+                                    style="height:36px;padding:0 1rem;font-size:0.8125rem;display:inline-flex;align-items:center;gap:5px;">
+                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2.5">
+                                        <line x1="12" y1="5" x2="12" y2="19" />
+                                        <line x1="5" y1="12" x2="19" y2="12" />
+                                    </svg>
+                                    Tambah
+                                </button>
+                            </form>
+                        </div>
 
+                        <%# Tupoksi table / empty %>
                             <% if (tupoksi.length===0) { %>
-                                <div class="fw-empty" style="padding:2rem 0;">
-                                    <div class="fw-empty-title" style="font-size:0.9rem;">Belum ada tupoksi</div>
-                                    <div class="fw-empty-desc">Gunakan form di atas untuk menambahkan tugas pokok dan
-                                        fungsi</div>
+                                <div style="text-align:center;padding:3rem 1.5rem;">
+                                    <p style="font-size:0.8125rem;color:#71717a;margin:0 0 4px;">Belum ada tupoksi</p>
+                                    <p style="font-size:0.75rem;color:#a1a1aa;margin:0;">Gunakan form di atas untuk
+                                        menambahkan tugas pokok dan fungsi</p>
                                 </div>
                                 <% } else { %>
-                                    <div class="fw-table-wrap">
-                                        <table class="fw-table">
-                                            <thead>
+                                    <div style="overflow-x:auto;">
+                                        <table class="pg-table" style="width:100%;border-collapse:collapse;">
+                                            <thead style="background:#fafafa;border-bottom:1px solid #f4f4f5;">
                                                 <tr>
-                                                    <th style="width:48px; text-align:center;">No</th>
-                                                    <th style="width:100px; text-align:center;">Tipe</th>
+                                                    <th class="center" style="width:50px;">No</th>
+                                                    <th class="center" style="width:100px;">Tipe</th>
                                                     <th>Judul Tugas</th>
                                                     <th>Deskripsi</th>
-                                                    <th style="width:80px; text-align:center;">Aksi</th>
+                                                    <th class="center" style="width:80px;">Aksi</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 <% tupoksi.forEach((t)=> { %>
                                                     <tr>
-                                                        <td
-                                                            style="text-align:center; color:#c8ccda; font-size:0.75rem;">
+                                                        <td style="text-align:center;color:#a1a1aa;font-size:0.7rem;">
                                                             <%= t.order || 0 %>
                                                         </td>
                                                         <td style="text-align:center;">
-                                                            <span
-                                                                class="fw-badge <%= t.type === 'main' ? 'fw-badge-dark' : 'fw-badge-slate' %>">
-                                                                <%= t.type.toUpperCase() %>
-                                                            </span>
+                                                            <% if (t.type==='main' ) { %>
+                                                                <span
+                                                                    style="display:inline-flex;align-items:center;background:#eef2ff;color:#6366f1;border:1px solid #c7d2fe;border-radius:99px;padding:2px 9px;font-size:0.65rem;font-weight:600;letter-spacing:0.04em;">MAIN</span>
+                                                                <% } else { %>
+                                                                    <span
+                                                                        style="display:inline-flex;align-items:center;background:#f4f4f5;color:#71717a;border:1px solid #e4e4e7;border-radius:99px;padding:2px 9px;font-size:0.65rem;font-weight:600;letter-spacing:0.04em;">FUNGSI</span>
+                                                                    <% } %>
                                                         </td>
-                                                        <td>
-                                                            <div class="fw-cell-name">
-                                                                <%= t.title %>
-                                                            </div>
+                                                        <td style="font-weight:500;color:#18181b;">
+                                                            <%= t.title %>
                                                         </td>
-                                                        <td class="fw-cell-muted">
+                                                        <td style="color:#71717a;font-size:0.75rem;">
                                                             <%= t.description %>
                                                         </td>
                                                         <td>
-                                                            <div class="fw-action-btns">
-                                                                <button type="button"
-                                                                    class="fw-action-btn fw-action-warn" title="Edit"
-                                                                    data-id="<%= t.id %>" data-title="<%= t.title %>"
+                                                            <div
+                                                                style="display:flex;align-items:center;justify-content:center;gap:2px;">
+                                                                <button type="button" class="action-btn edit"
+                                                                    title="Edit" data-id="<%= t.id %>"
+                                                                    data-title="<%= t.title %>"
                                                                     data-desc="<%= t.description %>"
                                                                     data-type="<%= t.type %>"
                                                                     data-order="<%= t.order %>"
                                                                     onclick="openEditTupoksi(this.dataset.id, this.dataset.title, this.dataset.desc, this.dataset.type, this.dataset.order)">
-                                                                    <svg width="14" height="14" viewBox="0 0 24 24"
+                                                                    <svg width="13" height="13" viewBox="0 0 24 24"
                                                                         fill="none" stroke="currentColor"
                                                                         stroke-width="2">
                                                                         <path
@@ -266,13 +409,12 @@
                                                                             d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
                                                                     </svg>
                                                                 </button>
-                                                                <button type="button"
-                                                                    class="fw-action-btn fw-action-danger" title="Hapus"
-                                                                    data-jabatanid="<%= jabatan.id %>"
+                                                                <button type="button" class="action-btn del"
+                                                                    title="Hapus" data-jabatanid="<%= jabatan.id %>"
                                                                     data-tupoksiid="<%= t.id %>"
                                                                     data-title="<%= t.title %>"
                                                                     onclick="fwShowDeleteModal('/struktur-jabatan/' + this.dataset.jabatanid + '/tupoksi/' + this.dataset.tupoksiid, this.dataset.title)">
-                                                                    <svg width="14" height="14" viewBox="0 0 24 24"
+                                                                    <svg width="13" height="13" viewBox="0 0 24 24"
                                                                         fill="none" stroke="currentColor"
                                                                         stroke-width="2">
                                                                         <polyline points="3 6 5 6 21 6" />
@@ -288,44 +430,65 @@
                                         </table>
                                     </div>
                                     <% } %>
-                    </div>
                 </div>
 
-                <%# ── Modal Edit Tupoksi ──────────────────────────────────── %>
+                <%# ── Modal Edit Tupoksi ── %>
                     <div id="modal-tupoksi"
-                        style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.5); z-index:1000; align-items:center; justify-content:center;">
-                        <div
-                            style="background:#fff; border:1px solid #e2e8f0; border-radius:0.75rem; padding:1.5rem; width:100%; max-width:500px; margin:1rem; box-shadow:0 20px 60px rgba(0,0,0,0.15);">
-                            <div style="font-size:1rem; font-weight:600; color:#0f172a; margin-bottom:1rem;">Edit Tugas
-                                Pokok & Fungsi</div>
-                            <form id="form-edit-tupoksi" method="POST" action="">
+                        style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;">
+                        <div data-slot="card" class="rounded-xl border bg-card shadow-xl"
+                            style="width:100%;max-width:480px;margin:1rem;padding:1.5rem;">
+                            <h3 style="font-size:0.875rem;font-weight:600;color:#18181b;margin:0 0 1.125rem;">Edit Tugas
+                                Pokok & Fungsi</h3>
+                            <form id="form-edit-tupoksi" method="POST" action=""
+                                style="display:flex;flex-direction:column;gap:0.875rem;">
                                 <input type="hidden" name="_method" value="PUT">
-                                <div style="margin-bottom:0.75rem;">
-                                    <label class="fw-label fw-label-required">Judul Tugas</label>
-                                    <input type="text" id="edit-tup-title" name="title" class="fw-input" required>
+                                <div>
+                                    <label
+                                        style="display:block;font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:#71717a;margin-bottom:6px;">Judul
+                                        Tugas *</label>
+                                    <input type="text" id="edit-tup-title" name="title" required data-slot="input"
+                                        style="height:40px;font-size:0.875rem;"
+                                        class="w-full min-w-0 rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 transition-[color,box-shadow]">
                                 </div>
-                                <div class="fw-grid-2" style="margin-bottom:0.75rem;">
+                                <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
                                     <div>
-                                        <label class="fw-label fw-label-required">Tipe Tugas</label>
-                                        <select id="edit-tup-type" name="type" class="fw-input" required>
+                                        <label
+                                            style="display:block;font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:#71717a;margin-bottom:6px;">Tipe
+                                            *</label>
+                                        <select id="edit-tup-type" name="type" required data-slot="input"
+                                            style="height:40px;font-size:0.875rem;"
+                                            class="w-full rounded-md border border-input bg-background px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 transition-[color,box-shadow]">
                                             <option value="main">Main (Pokok)</option>
                                             <option value="function">Function (Fungsi)</option>
                                         </select>
                                     </div>
                                     <div>
-                                        <label class="fw-label">Urutan</label>
-                                        <input type="number" id="edit-tup-order" name="order" class="fw-input">
+                                        <label
+                                            style="display:block;font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:#71717a;margin-bottom:6px;">Urutan</label>
+                                        <input type="number" id="edit-tup-order" name="order" data-slot="input"
+                                            style="height:40px;font-size:0.875rem;"
+                                            class="w-full min-w-0 rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 transition-[color,box-shadow]">
                                     </div>
                                 </div>
-                                <div style="margin-bottom:1rem;">
-                                    <label class="fw-label fw-label-required">Deskripsi</label>
-                                    <textarea id="edit-tup-desc" name="description" class="fw-input fw-textarea"
-                                        required></textarea>
+                                <div>
+                                    <label
+                                        style="display:block;font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:#71717a;margin-bottom:6px;">Deskripsi
+                                        *</label>
+                                    <textarea id="edit-tup-desc" name="description" required rows="3"
+                                        data-slot="textarea" style="padding:10px 12px;font-size:0.875rem;"
+                                        class="w-full min-w-0 rounded-md border border-input bg-transparent text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 resize-none transition-[color,box-shadow]"></textarea>
                                 </div>
-                                <div style="display:flex; gap:0.5rem; justify-content:flex-end;">
-                                    <button type="button" class="fw-btn fw-btn-ghost fw-btn-sm"
-                                        onclick="closeModal()">Batal</button>
-                                    <button type="submit" class="fw-btn fw-btn-primary fw-btn-sm">Simpan</button>
+                                <div style="display:flex;justify-content:flex-end;gap:0.625rem;padding-top:0.25rem;">
+                                    <button type="button" onclick="closeModal()" class="btn-outline"
+                                        style="height:38px;padding:0 1.125rem;font-size:0.875rem;display:inline-flex;align-items:center;">Batal</button>
+                                    <button type="submit" class="btn"
+                                        style="height:38px;padding:0 1.125rem;font-size:0.875rem;display:inline-flex;align-items:center;gap:5px;">
+                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2.5">
+                                            <polyline points="20 6 9 17 4 12" />
+                                        </svg>
+                                        Simpan
+                                    </button>
                                 </div>
                             </form>
                         </div>
