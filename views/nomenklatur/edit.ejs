@@ -1,81 +1,103 @@
 <%# views/nomenklatur/edit.ejs %>
 
-<div class="fw-page-header">
-  <div>
-    <a href="/nomenklatur/<%= nom.id %>" style="font-size:0.8rem; color:#94a3b8; text-decoration:none; display:inline-flex; align-items:center; gap:0.3rem; margin-bottom:0.5rem;"
-       onmouseover="this.style.color='#c8ccda'" onmouseout="this.style.color='#94a3b8'">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-      Kembali
-    </a>
-    <h1 class="fw-page-title">Edit Nomenklatur</h1>
-    <p class="fw-page-subtitle">Perbarui data nomenklatur jabatan</p>
-  </div>
+<style>
+  .fw-form-grid  { display:grid; grid-template-columns:1fr 1fr; gap:1.125rem; }
+  .fw-form-full  { grid-column:1 / -1; }
+  .fw-field-label{ display:block; font-size:0.6875rem; font-weight:600; text-transform:uppercase; letter-spacing:0.06em; color:#71717a; margin-bottom:8px; }
+  .fw-field-req  { color:#ef4444; }
+  .fw-hint       { font-size:0.7rem; color:#a1a1aa; margin-top:5px; }
+  .fw-section-hdr{ display:flex; align-items:center; gap:10px; padding:1rem 1.5rem; border-bottom:1px solid #f4f4f5; }
+  .fw-section-icon{ width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .fw-section-body{ padding:1.5rem; }
+  .fw-input      { height:44px !important; padding:0 14px !important; font-size:0.9375rem !important; border-radius:8px !important; }
+  .fw-textarea   { padding:12px 14px !important; font-size:0.9375rem !important; border-radius:8px !important; line-height:1.6 !important; }
+  @media(max-width:640px){ .fw-form-grid{ grid-template-columns:1fr; } }
+</style>
+
+<%# ── Page Header ── %>
+<div style="margin-bottom:1.5rem;">
+  <a href="/nomenklatur/<%= nom.id %>" style="display:inline-flex;align-items:center;gap:5px;font-size:0.75rem;color:#a1a1aa;text-decoration:none;margin-bottom:0.75rem;" onmouseover="this.style.color='#18181b'" onmouseout="this.style.color='#a1a1aa'">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+    Kembali ke Detail
+  </a>
+  <h1 style="font-size:1.125rem;font-weight:600;color:#18181b;margin:0 0 0.25rem;letter-spacing:-0.01em;">Edit Nomenklatur</h1>
+  <p style="font-size:0.8125rem;color:#a1a1aa;margin:0;">Perbarui data nomenklatur jabatan</p>
 </div>
 
+<%# Error alert %>
 <% if (typeof errors !== 'undefined' && errors.length > 0) { %>
-  <div class="fw-alert fw-alert-error">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0; margin-top:1px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+  <div style="display:flex;gap:12px;padding:0.875rem 1rem;background:#fef2f2;border:1px solid #fecaca;border-radius:10px;margin-bottom:1.25rem;">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" style="flex-shrink:0;margin-top:1px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
     <div>
-      <div style="font-weight:600; margin-bottom:0.25rem;">Terdapat <%= errors.length %> kesalahan</div>
-      <ul style="margin:0; padding-left:1rem; font-size:0.8rem;">
+      <p style="font-size:0.8125rem;font-weight:600;color:#b91c1c;margin:0 0 0.375rem;">Terdapat <%= errors.length %> kesalahan</p>
+      <ul style="margin:0;padding-left:1rem;font-size:0.75rem;color:#dc2626;">
         <% errors.forEach(e => { %><li><%= e %></li><% }) %>
       </ul>
     </div>
   </div>
 <% } %>
 
-<form action="/nomenklatur/<%= nom.id %>" method="POST">
+<form action="/nomenklatur/<%= nom.id %>" method="POST" style="display:flex;flex-direction:column;gap:0.875rem;">
   <input type="hidden" name="_method" value="PUT">
 
-  <%# Identitas Nomenklatur %>
-  <div class="fw-form-section">
-    <div class="fw-form-section-header">
-      <span style="font-size:1rem;">🏷️</span>
-      <span class="fw-form-section-title">Identitas Nomenklatur</span>
+  <%# 1. Identitas Nomenklatur %>
+  <div data-slot="card" class="rounded-xl border bg-card shadow-sm">
+    <div class="fw-section-hdr">
+      <div class="fw-section-icon" style="background:#eef2ff;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="1.75"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+      </div>
+      <span style="font-size:0.875rem;font-weight:600;color:#18181b;">Identitas Nomenklatur</span>
     </div>
-    <div class="fw-form-section-body">
-      <div class="fw-grid-2">
-        <div class="fw-col-span-2">
-          <label class="fw-label fw-label-required">Nama Nomenklatur</label>
-          <input type="text" name="name" value="<%= nom.name || '' %>" required class="fw-input"
-            placeholder="Contoh: Analis Kepegawaian Ahli Muda">
+    <div class="fw-section-body">
+      <div class="fw-form-grid">
+        <div class="fw-form-full">
+          <label class="fw-field-label">Nama Nomenklatur <span class="fw-field-req">*</span></label>
+          <input type="text" name="name" value="<%= nom.name || '' %>" required data-slot="input"
+            placeholder="Contoh: Analis Kepegawaian Ahli Muda"
+            class="fw-input w-full min-w-0 rounded-md border border-input bg-transparent text-sm shadow-xs outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 transition-[color,box-shadow]">
         </div>
-        <div class="fw-col-span-2">
-          <label class="fw-label fw-label-required">Golongan / Grade</label>
-          <input type="text" name="grade" value="<%= nom.grade || '' %>" required class="fw-input"
-            placeholder="Contoh: III/b">
+        <div class="fw-form-full">
+          <label class="fw-field-label">Golongan / Grade <span class="fw-field-req">*</span></label>
+          <input type="text" name="grade" value="<%= nom.grade || '' %>" required data-slot="input"
+            placeholder="Contoh: III/b"
+            class="fw-input w-full min-w-0 rounded-md border border-input bg-transparent text-sm shadow-xs outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 transition-[color,box-shadow]">
+          <p class="fw-hint">Contoh format: I/a, II/b, III/c, IV/d</p>
         </div>
       </div>
     </div>
   </div>
 
-  <%# Uraian Jabatan %>
-  <div class="fw-form-section">
-    <div class="fw-form-section-header">
-      <span style="font-size:1rem;">📋</span>
-      <span class="fw-form-section-title">Uraian Jabatan</span>
+  <%# 2. Uraian Jabatan %>
+  <div data-slot="card" class="rounded-xl border bg-card shadow-sm">
+    <div class="fw-section-hdr">
+      <div class="fw-section-icon" style="background:#f0fdf4;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="1.75"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+      </div>
+      <span style="font-size:0.875rem;font-weight:600;color:#18181b;">Uraian Jabatan</span>
     </div>
-    <div class="fw-form-section-body">
-      <div class="fw-grid-2">
-        <div class="fw-col-span-2">
-          <label class="fw-label fw-label-required">Kualifikasi</label>
-          <textarea name="qualification" rows="4" class="fw-input" style="resize:vertical;" required
-            placeholder="Jelaskan kualifikasi / persyaratan jabatan ini..."><%= nom.qualification || '' %></textarea>
-        </div>
-        <div class="fw-col-span-2">
-          <label class="fw-label fw-label-required">Uraian Tugas (Duties)</label>
-          <textarea name="duties" rows="4" class="fw-input" style="resize:vertical;" required
-            placeholder="Jelaskan tugas pokok dan tanggung jawab jabatan ini..."><%= nom.duties || '' %></textarea>
-        </div>
+    <div class="fw-section-body" style="display:flex;flex-direction:column;gap:1.125rem;">
+      <div>
+        <label class="fw-field-label">Kualifikasi <span class="fw-field-req">*</span></label>
+        <textarea name="qualification" rows="4" required data-slot="textarea"
+          placeholder="Jelaskan kualifikasi / persyaratan jabatan ini..."
+          class="fw-textarea w-full min-w-0 rounded-md border border-input bg-transparent text-sm shadow-xs outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 resize-vertical transition-[color,box-shadow]"><%= nom.qualification || '' %></textarea>
+      </div>
+      <div>
+        <label class="fw-field-label">Uraian Tugas (Duties) <span class="fw-field-req">*</span></label>
+        <textarea name="duties" rows="4" required data-slot="textarea"
+          placeholder="Jelaskan tugas pokok dan tanggung jawab jabatan ini..."
+          class="fw-textarea w-full min-w-0 rounded-md border border-input bg-transparent text-sm shadow-xs outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 resize-vertical transition-[color,box-shadow]"><%= nom.duties || '' %></textarea>
       </div>
     </div>
   </div>
 
-  <%# Tombol Aksi %>
-  <div class="fw-form-actions">
-    <a href="/nomenklatur/<%= nom.id %>" class="fw-btn fw-btn-outline">Batal</a>
-    <button type="submit" class="fw-btn fw-btn-primary">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+  <%# Action Buttons %>
+  <div style="display:flex;align-items:center;justify-content:flex-end;gap:0.75rem;padding-top:0.25rem;">
+    <a href="/nomenklatur/<%= nom.id %>" class="btn-outline" style="height:44px;padding:0 1.5rem;font-size:0.9375rem;display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;white-space:nowrap;">
+      Batal
+    </a>
+    <button type="submit" class="btn" style="height:44px;padding:0 1.5rem;font-size:0.9375rem;display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;white-space:nowrap;">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
       Simpan Perubahan
     </button>
   </div>
