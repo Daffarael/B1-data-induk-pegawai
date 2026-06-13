@@ -1,0 +1,139 @@
+<style>
+  .json-toolbar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: #18181b; color: #fff;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 1.5rem; height: 52px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.35); gap: 1rem;
+  }
+  .json-toolbar-left  { display: flex; align-items: center; gap: 0.75rem; }
+  .json-toolbar-title { font-size: 0.875rem; font-weight: 600; letter-spacing: -0.01em; }
+  .json-toolbar-actions { display: flex; align-items: center; gap: 0.5rem; }
+  .jt-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    height: 34px; padding: 0 1rem; border-radius: 6px;
+    font-size: 0.8125rem; font-weight: 500; border: none;
+    cursor: pointer; text-decoration: none; transition: all 0.12s;
+    white-space: nowrap; font-family: inherit;
+  }
+  .jt-btn-ghost       { background: rgba(255,255,255,0.08); color: #d4d4d8; }
+  .jt-btn-ghost:hover { background: rgba(255,255,255,0.14); color: #fff; }
+  .jt-btn-green       { background: #059669; color: #fff; }
+  .jt-btn-green:hover { background: #047857; }
+  .jt-btn-copied      { background: #059669 !important; color: #fff !important; }
+
+  body { background: #1c1c1e; margin: 0; padding: 0; font-family: 'Inter', -apple-system, sans-serif; }
+  *, *::before, *::after { box-sizing: border-box; }
+
+  .json-wrapper { padding: 68px 24px 40px; max-width: 1100px; margin: 0 auto; }
+
+  .json-stats { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; }
+  .json-stat-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px; padding: 6px 14px; font-size: 0.775rem; color: #d4d4d8;
+  }
+  .json-stat-chip strong { color: #fff; }
+
+  .json-code-wrap { background: #0d1117; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; overflow: hidden; }
+  .json-code-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 16px; background: rgba(255,255,255,0.04);
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+  }
+  .json-code-lang { display: flex; align-items: center; gap: 8px; font-size: 0.75rem; color: #a1a1aa; font-weight: 500; }
+  .json-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .json-pre {
+    margin: 0; padding: 20px;
+    font-family: 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+    font-size: 0.78rem; line-height: 1.7; overflow-x: auto;
+    color: #e6edf3; max-height: calc(100vh - 180px); overflow-y: auto;
+  }
+</style>
+
+<%# ── Toolbar ── %>
+<div class="json-toolbar">
+  <div class="json-toolbar-left">
+    <a href="/sbm" class="jt-btn jt-btn-ghost">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
+      </svg>
+      Kembali
+    </a>
+    <div style="display:flex;align-items:center;gap:0.5rem;">
+      <div class="json-toolbar-title">Export JSON SBM Perjadin</div>
+      <span style="background:rgba(255,255,255,0.1);color:#a1a1aa;font-size:0.65rem;font-weight:500;padding:2px 8px;border-radius:99px;letter-spacing:0.04em;">PREVIEW</span>
+    </div>
+  </div>
+  <div class="json-toolbar-actions">
+    <span style="font-size:0.7rem;color:#52525b;margin-right:0.25rem;"><%= total %> record</span>
+    <button class="jt-btn jt-btn-ghost" id="copyBtn" onclick="copyJson()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+      </svg>
+      Salin JSON
+    </button>
+    <a href="<%= downloadUrl %>" class="jt-btn jt-btn-green">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="7 10 12 15 17 10"/>
+        <line x1="12" y1="15" x2="12" y2="3"/>
+      </svg>
+      Unduh JSON
+    </a>
+  </div>
+</div>
+
+<%# ── Content ── %>
+<div class="json-wrapper">
+  <div class="json-stats">
+    <div class="json-stat-chip">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#71717a" stroke-width="2">
+        <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+      </svg>
+      Total: <strong><%= total %> tarif SBM</strong>
+    </div>
+    <div class="json-stat-chip">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#71717a" stroke-width="2">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/>
+      </svg>
+      Format: <strong>JSON (application/json)</strong>
+    </div>
+    <div class="json-stat-chip">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#71717a" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+      </svg>
+      Dibuat: <strong><%= new Date().toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' }) %></strong>
+    </div>
+  </div>
+
+  <div class="json-code-wrap">
+    <div class="json-code-header">
+      <div class="json-code-lang">
+        <div class="json-dot" style="background:#ff5f57"></div>
+        <div class="json-dot" style="background:#febc2e"></div>
+        <div class="json-dot" style="background:#28c840"></div>
+        <span style="margin-left:4px;">data-sbm-perjadin.json</span>
+      </div>
+      <span style="font-size:0.7rem;color:#52525b;"><%= (Buffer.byteLength(jsonString, 'utf8') / 1024).toFixed(1) %> KB</span>
+    </div>
+    <pre class="json-pre" id="jsonContent"><%= jsonString %></pre>
+  </div>
+</div>
+
+<script>
+  function copyJson() {
+    const text = document.getElementById('jsonContent').textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.getElementById('copyBtn');
+      btn.classList.add('jt-btn-copied');
+      btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Tersalin!`;
+      setTimeout(() => {
+        btn.classList.remove('jt-btn-copied');
+        btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Salin JSON`;
+      }, 2000);
+    }).catch(() => alert('Gagal menyalin.'));
+  }
+</script>

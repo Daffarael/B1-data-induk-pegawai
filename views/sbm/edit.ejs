@@ -1,95 +1,144 @@
 <%# views/sbm/edit.ejs %>
 
-<div class="fw-page-header">
-  <div>
-    <a href="/sbm/<%= sbm.id %>" style="font-size:0.8rem; color:#94a3b8; text-decoration:none; display:inline-flex; align-items:center; gap:0.3rem; margin-bottom:0.5rem;" onmouseover="this.style.color='#c8ccda'" onmouseout="this.style.color='#94a3b8'">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-      Kembali
-    </a>
-    <h1 class="fw-page-title">Edit Data SBM</h1>
-    <p class="fw-page-subtitle">Perbarui informasi tarif Standar Biaya Masukan</p>
-  </div>
+<style>
+  .fw-form-grid  { display:grid; grid-template-columns:1fr 1fr; gap:1.125rem; }
+  .fw-form-full  { grid-column:1 / -1; }
+  .fw-field-label{ display:block; font-size:0.6875rem; font-weight:600; text-transform:uppercase; letter-spacing:0.06em; color:#71717a; margin-bottom:8px; }
+  .fw-field-req  { color:#ef4444; }
+  .fw-hint       { font-size:0.7rem; color:#a1a1aa; margin-top:5px; }
+  .fw-section-hdr{ display:flex; align-items:center; gap:10px; padding:1rem 1.5rem; border-bottom:1px solid #f4f4f5; }
+  .fw-section-icon{ width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .fw-section-body{ padding:1.5rem; }
+  .fw-input      { height:44px !important; padding:0 14px !important; font-size:0.9375rem !important; border-radius:8px !important; }
+  .fw-select     { height:44px !important; padding:0 14px !important; font-size:0.9375rem !important; border-radius:8px !important; }
+  @media(max-width:640px){ .fw-form-grid{ grid-template-columns:1fr; } }
+</style>
+
+<%# ── Page Header ── %>
+<div style="margin-bottom:1.5rem;">
+  <a href="/sbm/<%= sbm.id %>" style="display:inline-flex;align-items:center;gap:5px;font-size:0.75rem;color:#a1a1aa;text-decoration:none;margin-bottom:0.75rem;" onmouseover="this.style.color='#18181b'" onmouseout="this.style.color='#a1a1aa'">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+    Kembali ke Detail
+  </a>
+  <h1 style="font-size:1.125rem;font-weight:600;color:#18181b;margin:0 0 0.25rem;letter-spacing:-0.01em;">Edit Data SBM</h1>
+  <p style="font-size:0.8125rem;color:#a1a1aa;margin:0;">Perbarui informasi tarif Standar Biaya Masukan</p>
 </div>
 
+<%# Error alert %>
 <% if (typeof errors !== 'undefined' && errors.length > 0) { %>
-  <div class="fw-alert fw-alert-error">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0; margin-top:1px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+  <div style="display:flex;gap:12px;padding:0.875rem 1rem;background:#fef2f2;border:1px solid #fecaca;border-radius:10px;margin-bottom:1.25rem;">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" style="flex-shrink:0;margin-top:1px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
     <div>
-      <div style="font-weight:600; margin-bottom:0.25rem;">Terdapat <%= errors.length %> kesalahan</div>
-      <ul style="margin:0; padding-left:1rem; font-size:0.8rem;">
+      <p style="font-size:0.8125rem;font-weight:600;color:#b91c1c;margin:0 0 0.375rem;">Terdapat <%= errors.length %> kesalahan</p>
+      <ul style="margin:0;padding-left:1rem;font-size:0.75rem;color:#dc2626;">
         <% errors.forEach(e => { %><li><%= e %></li><% }) %>
       </ul>
     </div>
   </div>
 <% } %>
 
-<form method="POST" action="/sbm/<%= sbm.id %>">
+<form method="POST" action="/sbm/<%= sbm.id %>" style="display:flex;flex-direction:column;gap:0.875rem;">
   <input type="hidden" name="_method" value="PUT">
-  <div class="fw-form-section">
-    <div class="fw-form-section-header">
-      <span style="font-size:1rem;">✈️</span>
-      <span class="fw-form-section-title">Informasi Tarif SBM</span>
+
+  <%# 1. Kota & Komponen %>
+  <div data-slot="card" class="rounded-xl border bg-card shadow-sm">
+    <div class="fw-section-hdr">
+      <div class="fw-section-icon" style="background:#eef2ff;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="1.75"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      </div>
+      <span style="font-size:0.875rem;font-weight:600;color:#18181b;">Lokasi & Komponen</span>
     </div>
-    <div class="fw-form-section-body">
-      <div class="fw-grid-2">
+    <div class="fw-section-body">
+      <div class="fw-form-grid">
         <div>
-          <label class="fw-label fw-label-required">Kota Tujuan</label>
-          <select name="city_id" class="fw-input" required>
-            <option value="">-- Pilih Kota --</option>
+          <label class="fw-field-label">Kota Tujuan <span class="fw-field-req">*</span></label>
+          <select name="city_id" required data-slot="input"
+            class="fw-select w-full min-w-0 rounded-md border border-input bg-transparent text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 transition-[color,box-shadow]">
+            <option value="">- Pilih Kota -</option>
             <% cities.forEach(c => { %>
               <option value="<%= c.id %>" <%= sbm.city_id == c.id ? 'selected' : '' %>><%= c.name %></option>
             <% }) %>
           </select>
         </div>
-
         <div>
-          <label class="fw-label fw-label-required">Komponen Biaya</label>
-          <select name="travel_cost_component_id" class="fw-input" required>
-            <option value="">-- Pilih Komponen --</option>
+          <label class="fw-field-label">Komponen Biaya <span class="fw-field-req">*</span></label>
+          <select name="travel_cost_component_id" required data-slot="input"
+            class="fw-select w-full min-w-0 rounded-md border border-input bg-transparent text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 transition-[color,box-shadow]">
+            <option value="">- Pilih Komponen -</option>
             <% components.forEach(c => { %>
               <option value="<%= c.id %>" <%= sbm.travel_cost_component_id == c.id ? 'selected' : '' %>><%= c.name %> (<%= c.code %>)</option>
             <% }) %>
           </select>
         </div>
       </div>
+    </div>
+  </div>
 
-      <div style="margin-top: 1.5rem;">
-        <div style="font-size:0.75rem; color:#94a3b8; margin-bottom:0.75rem; font-weight:600; text-transform:uppercase; letter-spacing:0.05em;">Peruntukan (Pilih salah satu atau kosongkan untuk semua)</div>
-        <div class="fw-grid-2">
-          <div>
-            <label class="fw-label">Jabatan Struktural</label>
-            <select name="structural_position_id" class="fw-input">
-              <option value="">-- Semua Jabatan --</option>
-              <% positions.forEach(p => { %>
-                <option value="<%= p.id %>" <%= sbm.structural_position_id == p.id ? 'selected' : '' %>><%= p.name %></option>
-              <% }) %>
-            </select>
-          </div>
-          <div>
-            <label class="fw-label">Golongan Pegawai</label>
-            <select name="employee_grade_id" class="fw-input">
-              <option value="">-- Semua Golongan --</option>
-              <% grades.forEach(g => { %>
-                <option value="<%= g.id %>" <%= sbm.employee_grade_id == g.id ? 'selected' : '' %>><%= g.name %></option>
-              <% }) %>
-            </select>
-          </div>
-        </div>
-        <p class="fw-form-hint" style="margin-top:0.4rem;">Kosongkan keduanya jika tarif ini berlaku untuk semua jabatan dan golongan.</p>
+  <%# 2. Peruntukan %>
+  <div data-slot="card" class="rounded-xl border bg-card shadow-sm">
+    <div class="fw-section-hdr">
+      <div class="fw-section-icon" style="background:#f0fdf4;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="1.75"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
       </div>
-
-      <div style="margin-top: 1.5rem;">
-        <label class="fw-label fw-label-required">Jumlah Tarif (Rp)</label>
-        <input type="number" name="amount" class="fw-input" value="<%= sbm.amount %>" min="0" step="1000" required>
+      <div>
+        <span style="font-size:0.875rem;font-weight:600;color:#18181b;">Peruntukan</span>
+        <p style="font-size:0.75rem;color:#a1a1aa;margin:2px 0 0;">Opsional — pilih salah satu atau kosongkan untuk semua</p>
+      </div>
+    </div>
+    <div class="fw-section-body">
+      <div class="fw-form-grid">
+        <div>
+          <label class="fw-field-label">Jabatan Struktural</label>
+          <select name="structural_position_id" data-slot="input"
+            class="fw-select w-full min-w-0 rounded-md border border-input bg-transparent text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 transition-[color,box-shadow]">
+            <option value="">- Semua Jabatan -</option>
+            <% positions.forEach(p => { %>
+              <option value="<%= p.id %>" <%= sbm.structural_position_id == p.id ? 'selected' : '' %>><%= p.name %></option>
+            <% }) %>
+          </select>
+          <p class="fw-hint">Kosongkan jika berlaku untuk semua jabatan</p>
+        </div>
+        <div>
+          <label class="fw-field-label">Golongan Pegawai</label>
+          <select name="employee_grade_id" data-slot="input"
+            class="fw-select w-full min-w-0 rounded-md border border-input bg-transparent text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 transition-[color,box-shadow]">
+            <option value="">- Semua Golongan -</option>
+            <% grades.forEach(g => { %>
+              <option value="<%= g.id %>" <%= sbm.employee_grade_id == g.id ? 'selected' : '' %>><%= g.name %></option>
+            <% }) %>
+          </select>
+          <p class="fw-hint">Kosongkan jika berlaku untuk semua golongan</p>
+        </div>
       </div>
     </div>
   </div>
 
-  <div class="fw-form-actions">
-    <a href="/sbm/<%= sbm.id %>" class="fw-btn fw-btn-ghost">Batal</a>
-    <button type="submit" class="fw-btn fw-btn-primary">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+  <%# 3. Tarif %>
+  <div data-slot="card" class="rounded-xl border bg-card shadow-sm">
+    <div class="fw-section-hdr">
+      <div class="fw-section-icon" style="background:#fffbeb;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="1.75"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      </div>
+      <span style="font-size:0.875rem;font-weight:600;color:#18181b;">Jumlah Tarif</span>
+    </div>
+    <div class="fw-section-body">
+      <label class="fw-field-label">Tarif (Rp) <span class="fw-field-req">*</span></label>
+      <input type="number" name="amount" value="<%= sbm.amount %>" required data-slot="input"
+        min="0" step="1000"
+        class="fw-input w-full min-w-0 rounded-md border border-input bg-transparent text-sm shadow-xs outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 transition-[color,box-shadow]">
+      <p class="fw-hint">Masukkan nominal dalam Rupiah, tanpa titik atau koma</p>
+    </div>
+  </div>
+
+  <%# Action Buttons %>
+  <div style="display:flex;align-items:center;justify-content:flex-end;gap:0.75rem;padding-top:0.25rem;">
+    <a href="/sbm/<%= sbm.id %>" class="btn-outline" style="height:44px;padding:0 1.5rem;font-size:0.9375rem;display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;white-space:nowrap;">
+      Batal
+    </a>
+    <button type="submit" class="btn" style="height:44px;padding:0 1.5rem;font-size:0.9375rem;display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;white-space:nowrap;">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
       Simpan Perubahan
     </button>
   </div>
+
 </form>
