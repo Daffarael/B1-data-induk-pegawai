@@ -156,3 +156,63 @@
                 </div>
 
         </form>
+
+        <script>
+            /* ── Client-side Validation ── */
+            (function () {
+                const form = document.querySelector('form[action="/struktur-jabatan"]');
+                if (!form) return;
+
+                function showError(fieldName, msg) {
+                    const el = form.querySelector(`[name="${fieldName}"]`);
+                    if (!el) return;
+                    el.style.borderColor = '#ef4444';
+                    let errEl = el.parentElement.querySelector('.cv-err');
+                    if (!errEl) {
+                        errEl = document.createElement('p');
+                        errEl.className = 'cv-err';
+                        errEl.style.cssText = 'font-size:0.7rem;color:#ef4444;margin:4px 0 0;';
+                        el.parentElement.appendChild(errEl);
+                    }
+                    errEl.textContent = msg;
+                }
+
+                function clearErrors() {
+                    form.querySelectorAll('.cv-err').forEach(e => e.remove());
+                    form.querySelectorAll('[name]').forEach(el => el.style.borderColor = '');
+                }
+
+                form.addEventListener('submit', function (e) {
+                    clearErrors();
+                    const errors = [];
+                    const val = name => (form.querySelector(`[name="${name}"]`)?.value || '').trim();
+
+                    // Hanya Nama dan Grade yang wajib
+                    const rules = [
+                        { field: 'name', label: 'Nama Jabatan' },
+                        { field: 'grade', label: 'Golongan / Grade' },
+                    ];
+
+                    rules.forEach(r => {
+                        if (!val(r.field)) {
+                            showError(r.field, `${r.label} wajib diisi`);
+                            errors.push(r.label);
+                        }
+                    });
+
+                    if (errors.length > 0) {
+                        e.preventDefault();
+                        const firstErr = form.querySelector('.cv-err');
+                        if (firstErr) firstErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                });
+
+                form.querySelectorAll('input, textarea').forEach(el => {
+                    el.addEventListener('input', function () {
+                        this.style.borderColor = '';
+                        const err = this.parentElement.querySelector('.cv-err');
+                        if (err) err.remove();
+                    });
+                });
+            })();
+        </script>
