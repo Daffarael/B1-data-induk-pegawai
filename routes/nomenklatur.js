@@ -4,6 +4,9 @@ const c = require('../controllers/nomenklaturController');
 const { isAuthenticated } = require('../middlewares/auth');
 const { hasRole } = require('../middlewares/acl');
 
+// GET /nomenklatur/api — Read-only JSON API (login required)
+router.get('/api', isAuthenticated, c.apiIndex);
+
 const guard = [isAuthenticated, hasRole('Admin Kepegawaian')];
 
 // ── Daftar & tambah ──
@@ -12,15 +15,11 @@ router.get('/create',    guard, c.create);
 router.post('/',         guard, c.store);
 
 // ── Export & Import ──
-router.get('/export/pdf',  guard, c.exportPdf);
-router.get('/export/json', guard, c.exportJson);
-router.post('/import',     guard, c.upload.single('csv_file'), c.importCsv);
-
-// GET  /nomenklatur/api          — Public API: daftar nomenklatur (JSON, tanpa login)
-router.get('/api', c.apiIndex);
-
-// GET  /nomenklatur/api/:id      — Public API: detail nomenklatur (JSON, tanpa login)
-router.get('/api/:id', c.apiShow);
+router.get('/export/pdf/preview',  guard, c.previewPdf);
+router.get('/export/pdf',          guard, c.exportPdf);
+router.get('/export/json/preview', guard, c.previewJson);
+router.get('/export/json',         guard, c.exportJson);
+router.post('/import',             guard, c.upload.single('csv_file'), c.importCsv);
 
 // ── Detail, Edit, Hapus Nomenklatur ──
 router.get('/:id',        guard, c.show);

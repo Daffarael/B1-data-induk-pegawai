@@ -10,14 +10,23 @@ const guard = [isAuthenticated, hasRole('Admin Kepegawaian')];
 // GET  /pegawai              — Daftar pegawai
 router.get('/', guard, pegawaiController.index);
 
-// GET  /pegawai/export/pdf   — Export PDF (harus SEBELUM /:id agar tidak bentrok)
+// GET  /pegawai/export/pdf/preview — Preview PDF sebelum unduh
+router.get('/export/pdf/preview', guard, pegawaiController.previewPdf);
+
+// GET  /pegawai/export/pdf   — Export PDF (langsung unduh, dipanggil dari preview)
 router.get('/export/pdf', guard, pegawaiController.exportPdf);
 
-// GET  /pegawai/export/json  — Export JSON
+// GET  /pegawai/export/json/preview — Preview JSON sebelum unduh
+router.get('/export/json/preview', guard, pegawaiController.previewJson);
+
+// GET  /pegawai/export/json  — Export JSON (langsung unduh, dipanggil dari preview)
 router.get('/export/json', guard, pegawaiController.exportJson);
 
 // POST /pegawai/import       — Import CSV
 router.post('/import', guard, pegawaiController.upload.single('csv_file'), pegawaiController.importCsv);
+
+// GET  /pegawai/api          — Read-only JSON API (login required)
+router.get('/api', isAuthenticated, pegawaiController.apiIndex);
 
 // GET  /pegawai/create       — Form tambah
 router.get('/create', guard, pegawaiController.create);

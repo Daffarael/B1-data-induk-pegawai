@@ -3,14 +3,13 @@ const router = express.Router();
 const c = require('../controllers/sbmController');
 const { isAuthenticated } = require('../middlewares/auth');
 
-// GET  /sbm/api          — Public API: daftar SBM (JSON, tanpa login)
-router.get('/api', c.apiIndex);
-
-// GET  /sbm/api/:id      — Public API: detail SBM (JSON, tanpa login)
-router.get('/api/:id', c.apiShow);
-
 router.use(isAuthenticated);
 
+// GET /sbm/api — Read-only JSON API (login required)
+router.get('/api', c.apiIndex);
+
+router.get('/export/pdf/preview',  c.previewPdf);
+router.get('/export/json/preview', c.previewJson);
 router.get('/export/pdf',  c.exportPdf);
 router.get('/export/json', c.exportJson);
 router.get('/import', (req, res) => res.redirect('/sbm'));

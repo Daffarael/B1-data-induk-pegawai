@@ -4,6 +4,9 @@ const c = require('../controllers/strukturJabatanController');
 const { isAuthenticated } = require('../middlewares/auth');
 const { hasRole } = require('../middlewares/acl');
 
+// GET /struktur-jabatan/api — Read-only JSON API (login required)
+router.get('/api', isAuthenticated, c.apiIndex);
+
 // Semua route di sini dilindungi auth dan acl
 router.use(isAuthenticated, hasRole('Admin Kepegawaian'));
 
