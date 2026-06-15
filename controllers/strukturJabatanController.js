@@ -522,5 +522,57 @@ module.exports = {
             if (next) next(err);
             else { req.flash('error', 'Gagal export JSON: ' + err.message); res.redirect('/struktur-jabatan'); }
         }
+    },
+
+    // ────────────────────────────────────────────────────────────────────
+    // GET /struktur-jabatan/api — Read-only JSON API (public, GET only)
+    // ────────────────────────────────────────────────────────────────────
+    apiIndex: async (req, res, next) => {
+        try {
+            const search = req.query.search || '';
+            const page   = parseInt(req.query.page)  || 1;
+            const limit  = parseInt(req.query.limit) || 20;
+            const offset = (page - 1) * limit;
+
+            let whereClause = '';
+            const params = [];
+            if (search) {
+                whereClause = `WHERE s.name LIKE ? OR s.grade LIKE ? OR p.name LIKE ?`;
+                params.push(`%${search}%`, `%${search}%`, `%${search}%`);
+            }
+
+            const [countResult] = await db.query(
+                `SELECT COUNT(*) AS total FROM structural_positions s
+                 LEFT JOIN structural_positions p ON s.parent_id = p.id
+                 ${whereClause}`,
+                params
+            );
+            const total      = countResult[0].total;
+            const totalPages = Math.ceil(total / limit);
+
+            const [rows] = await db.query(
+                `SELECT s.id, s.name, s.grade, s.qualification, s.description,
+                        p.name AS parent_name,
+                        (SELECT COUNT(*) FROM job_responsibilities jr WHERE jr.structural_position_id = s.id) AS jumlah_tupoksi
+                 FROM structural_positions s
+                 LEFT JOIN structural_positions p ON s.parent_id = p.id
+                 ${whereClause}
+                 ORDER BY s.name ASC
+                 LIMIT ? OFFSET ?`,
+                [...params, limit, offset]
+            );
+
+            res.json({
+                success: true,
+                meta: {
+                    resource:    'struktur-jabatan',
+                    description: 'Data Struktur Jabatan Struktural — FTI Universitas Andalas',
+                    accessed_at: new Date().toISOString(),
+                    query: { search },
+                    pagination: { page, limit, total, totalPages }
+                },
+                data: rows
+            });
+        } catch (err) { next(err); }
     }
 };

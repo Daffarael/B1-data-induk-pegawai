@@ -4,8 +4,8 @@ const mahasiswaController = require('../controllers/mahasiswaController');
 const { isAuthenticated } = require('../middlewares/auth');
 const { hasRole } = require('../middlewares/acl');
 
-// GET  /mahasiswa/api  — Public read-only JSON API (no login required)
-router.get('/api', mahasiswaController.apiIndex);
+// GET  /mahasiswa/api  — Read-only JSON API (login required)
+router.get('/api', isAuthenticated, mahasiswaController.apiIndex);
 
 // Hanya admin kemahasiswaan yang boleh mengakses modul ini
 router.use(isAuthenticated);
