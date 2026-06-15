@@ -141,3 +141,75 @@
   </div>
 
 </form>
+
+<script>
+/* ── Client-side Validation ── */
+(function () {
+  const form = document.querySelector('form[action="/sbm"]');
+  if (!form) return;
+
+  function showError(fieldName, msg) {
+    const el = form.querySelector(`[name="${fieldName}"]`);
+    if (!el) return;
+    el.style.borderColor = '#ef4444';
+    let errEl = el.parentElement.querySelector('.cv-err');
+    if (!errEl) {
+      errEl = document.createElement('p');
+      errEl.className = 'cv-err';
+      errEl.style.cssText = 'font-size:0.7rem;color:#ef4444;margin:4px 0 0;';
+      el.parentElement.appendChild(errEl);
+    }
+    errEl.textContent = msg;
+  }
+
+  function clearErrors() {
+    form.querySelectorAll('.cv-err').forEach(e => e.remove());
+    form.querySelectorAll('[name]').forEach(el => el.style.borderColor = '');
+  }
+
+  form.addEventListener('submit', function (e) {
+    clearErrors();
+    const errors = [];
+    const val = name => (form.querySelector(`[name="${name}"]`)?.value || '').trim();
+
+    // Kota dan Komponen wajib dipilih
+    if (!val('city_id')) {
+      showError('city_id', 'Kota Tujuan wajib dipilih');
+      errors.push('Kota Tujuan');
+    }
+    if (!val('travel_cost_component_id')) {
+      showError('travel_cost_component_id', 'Komponen Biaya wajib dipilih');
+      errors.push('Komponen Biaya');
+    }
+
+    // Tarif wajib diisi dan harus angka positif
+    const amount = val('amount');
+    if (!amount) {
+      showError('amount', 'Tarif wajib diisi');
+      errors.push('Tarif');
+    } else if (isNaN(amount) || parseFloat(amount) <= 0) {
+      showError('amount', 'Tarif harus berupa angka lebih dari 0');
+      errors.push('Format Tarif');
+    }
+
+    if (errors.length > 0) {
+      e.preventDefault();
+      const firstErr = form.querySelector('.cv-err');
+      if (firstErr) firstErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  });
+
+  form.querySelectorAll('input, select').forEach(el => {
+    el.addEventListener('input', function () {
+      this.style.borderColor = '';
+      const err = this.parentElement.querySelector('.cv-err');
+      if (err) err.remove();
+    });
+    el.addEventListener('change', function () {
+      this.style.borderColor = '';
+      const err = this.parentElement.querySelector('.cv-err');
+      if (err) err.remove();
+    });
+  });
+})();
+</script>
