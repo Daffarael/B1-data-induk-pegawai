@@ -5,6 +5,11 @@ const { isAuthenticated } = require('../middlewares/auth');
 
 router.use(isAuthenticated);
 
+// GET /sbm/api — Read-only JSON API (login required)
+router.get('/api', c.apiIndex);
+
+router.get('/export/pdf/preview',  c.previewPdf);
+router.get('/export/json/preview', c.previewJson);
 router.get('/export/pdf',  c.exportPdf);
 router.get('/export/json', c.exportJson);
 router.get('/import', (req, res) => res.redirect('/sbm'));

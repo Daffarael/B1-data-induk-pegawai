@@ -4,6 +4,9 @@ const c = require('../controllers/strukturJabatanController');
 const { isAuthenticated } = require('../middlewares/auth');
 const { hasRole } = require('../middlewares/acl');
 
+// GET /struktur-jabatan/api — Read-only JSON API (login required)
+router.get('/api', isAuthenticated, c.apiIndex);
+
 // Semua route di sini dilindungi auth dan acl
 router.use(isAuthenticated, hasRole('Admin Kepegawaian'));
 
@@ -12,7 +15,9 @@ router.get('/create', c.create);
 router.post('/', c.store);
 
 // Export & Import
+router.get('/export/pdf/preview', c.previewPdf);
 router.get('/export/pdf', c.exportPdf);
+router.get('/export/json/preview', c.previewJson);
 router.get('/export/json', c.exportJson);
 router.post('/import', (req, res, next) => {
     c.upload.single('csv_file')(req, res, (err) => {

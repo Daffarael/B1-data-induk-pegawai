@@ -439,6 +439,62 @@ module.exports = {
         }
     },
 
+    // GET /struktur-jabatan/export/pdf/preview
+    previewPdf: async (req, res, next) => {
+        try {
+            const search = req.query.search || '';
+            let query = `SELECT s.id, s.name, s.grade, s.qualification,
+                                p.name AS parent_name,
+                                COUNT(jr.id) AS jumlah_tupoksi
+                         FROM structural_positions s
+                         LEFT JOIN structural_positions p ON s.parent_id = p.id
+                         LEFT JOIN job_responsibilities jr ON jr.structural_position_id = s.id`;
+            const params = [];
+            if (search) {
+                query += ` WHERE s.name LIKE ? OR s.grade LIKE ? OR p.name LIKE ?`;
+                params.push(`%${search}%`, `%${search}%`, `%${search}%`);
+            }
+            query += ` GROUP BY s.id ORDER BY s.name ASC`;
+            const [rows] = await db.query(query, params);
+            const tanggal = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+            const downloadUrl = `/struktur-jabatan/export/pdf?search=${encodeURIComponent(search)}`;
+            res.render('struktur_jabatan/preview-pdf', {
+                title: 'Preview Ekspor PDF - Struktur Jabatan',
+                jabatan: rows,
+                tanggal,
+                downloadUrl,
+                layout: 'layouts/preview'
+            });
+        } catch (err) { next(err); }
+    },
+
+    // GET /struktur-jabatan/export/json/preview
+    previewJson: async (req, res, next) => {
+        try {
+            const search = req.query.search || '';
+            const [rows] = await db.query(
+                `SELECT s.id, s.name, s.grade, s.qualification, s.description,
+                        p.name AS parent_name,
+                        COUNT(jr.id) AS jumlah_tupoksi
+                 FROM structural_positions s
+                 LEFT JOIN structural_positions p ON s.parent_id = p.id
+                 LEFT JOIN job_responsibilities jr ON jr.structural_position_id = s.id
+                 GROUP BY s.id ORDER BY s.name ASC`,
+                []
+            );
+            const output = { exported_at: new Date().toISOString(), total: rows.length, data: rows };
+            const downloadUrl = `/struktur-jabatan/export/json?search=${encodeURIComponent(search)}`;
+            res.render('struktur_jabatan/preview-json', {
+                title: 'Preview Ekspor JSON - Struktur Jabatan',
+                jabatan: rows,
+                total: rows.length,
+                jsonData: JSON.stringify(output, null, 2),
+                downloadUrl,
+                layout: 'layouts/preview'
+            });
+        } catch (err) { next(err); }
+    },
+
     // GET /struktur-jabatan/export/json
     exportJson: async (req, res, next) => {
         try {
@@ -466,5 +522,57 @@ module.exports = {
             if (next) next(err);
             else { req.flash('error', 'Gagal export JSON: ' + err.message); res.redirect('/struktur-jabatan'); }
         }
+    },
+
+    // ────────────────────────────────────────────────────────────────────
+    // GET /struktur-jabatan/api — Read-only JSON API (public, GET only)
+    // ────────────────────────────────────────────────────────────────────
+    apiIndex: async (req, res, next) => {
+        try {
+            const search = req.query.search || '';
+            const page   = parseInt(req.query.page)  || 1;
+            const limit  = parseInt(req.query.limit) || 20;
+            const offset = (page - 1) * limit;
+
+            let whereClause = '';
+            const params = [];
+            if (search) {
+                whereClause = `WHERE s.name LIKE ? OR s.grade LIKE ? OR p.name LIKE ?`;
+                params.push(`%${search}%`, `%${search}%`, `%${search}%`);
+            }
+
+            const [countResult] = await db.query(
+                `SELECT COUNT(*) AS total FROM structural_positions s
+                 LEFT JOIN structural_positions p ON s.parent_id = p.id
+                 ${whereClause}`,
+                params
+            );
+            const total      = countResult[0].total;
+            const totalPages = Math.ceil(total / limit);
+
+            const [rows] = await db.query(
+                `SELECT s.id, s.name, s.grade, s.qualification, s.description,
+                        p.name AS parent_name,
+                        (SELECT COUNT(*) FROM job_responsibilities jr WHERE jr.structural_position_id = s.id) AS jumlah_tupoksi
+                 FROM structural_positions s
+                 LEFT JOIN structural_positions p ON s.parent_id = p.id
+                 ${whereClause}
+                 ORDER BY s.name ASC
+                 LIMIT ? OFFSET ?`,
+                [...params, limit, offset]
+            );
+
+            res.json({
+                success: true,
+                meta: {
+                    resource:    'struktur-jabatan',
+                    description: 'Data Struktur Jabatan Struktural — FTI Universitas Andalas',
+                    accessed_at: new Date().toISOString(),
+                    query: { search },
+                    pagination: { page, limit, total, totalPages }
+                },
+                data: rows
+            });
+        } catch (err) { next(err); }
     }
 };
