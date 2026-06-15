@@ -281,4 +281,87 @@ window.addEventListener('DOMContentLoaded', () => {
   const checked = document.querySelector('input[name="employee_type"]:checked');
   if (checked) toggleDosenSection(checked.value);
 });
+
+/* ── Client-side Validation ── */
+(function () {
+  const form = document.querySelector('form[method="POST"]');
+  if (!form) return;
+
+  function showError(fieldName, msg) {
+    const el = form.querySelector(`[name="${fieldName}"]`);
+    if (!el) return;
+    el.style.borderColor = '#ef4444';
+    let errEl = el.parentElement.querySelector('.cv-err');
+    if (!errEl) {
+      errEl = document.createElement('p');
+      errEl.className = 'cv-err';
+      errEl.style.cssText = 'font-size:0.7rem;color:#ef4444;margin:4px 0 0;';
+      el.parentElement.appendChild(errEl);
+    }
+    errEl.textContent = msg;
+  }
+
+  function clearErrors() {
+    form.querySelectorAll('.cv-err').forEach(e => e.remove());
+    form.querySelectorAll('[name]').forEach(el => el.style.borderColor = '');
+  }
+
+  form.addEventListener('submit', function (e) {
+    clearErrors();
+    const errors = [];
+    const val = name => (form.querySelector(`[name="${name}"]`)?.value || '').trim();
+    const isDosen = form.querySelector('input[name="employee_type"]:checked')?.value === 'Dosen';
+
+    const rules = [
+      { field: 'employee_number',       label: 'NIP / Nomor Pegawai' },
+      { field: 'name',                  label: 'Nama Lengkap' },
+      { field: 'birth_place',           label: 'Tempat Lahir' },
+      { field: 'birth_date',            label: 'Tanggal Lahir' },
+      { field: 'gender',                label: 'Jenis Kelamin' },
+      { field: 'address',               label: 'Alamat Lengkap' },
+      { field: 'organization_unit_id',  label: 'Unit Organisasi' },
+      { field: 'employment_status_id',  label: 'Status Kepegawaian' },
+      { field: 'hire_date',             label: 'Tanggal Masuk' },
+      { field: 'status',                label: 'Status Aktif' },
+    ];
+
+    rules.forEach(r => {
+      if (!val(r.field)) {
+        showError(r.field, `${r.label} wajib diisi`);
+        errors.push(r.label);
+      }
+    });
+
+    if (isDosen && !val('academic_rank')) {
+      showError('academic_rank', 'Pangkat Akademik wajib diisi untuk Dosen');
+      errors.push('Pangkat Akademik');
+    }
+
+    const nip = val('employee_number');
+    if (nip && !/^\d{10,18}$/.test(nip)) {
+      showError('employee_number', 'NIP harus berupa angka (10–18 digit)');
+      errors.push('Format NIP');
+    }
+
+    if (errors.length > 0) {
+      e.preventDefault();
+      const firstErr = form.querySelector('.cv-err');
+      if (firstErr) firstErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  });
+
+  form.querySelectorAll('input, select, textarea').forEach(el => {
+    el.addEventListener('input', function () {
+      this.style.borderColor = '';
+      const err = this.parentElement.querySelector('.cv-err');
+      if (err) err.remove();
+    });
+    el.addEventListener('change', function () {
+      this.style.borderColor = '';
+      const err = this.parentElement.querySelector('.cv-err');
+      if (err) err.remove();
+    });
+  });
+})();
 </script>
+
