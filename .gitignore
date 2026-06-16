@@ -63,3 +63,8 @@ typings/
 
 # Database dump files (jangan di-commit ke repo)
 *.sql
+
+# Playwright - hasil test (generated, tidak perlu di-commit)
+test-results/
+playwright-report/
+/playwright/.cache/
