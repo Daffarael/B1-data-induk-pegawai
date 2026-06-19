@@ -97,7 +97,60 @@
     </div>
   </div>
 
+  <%# Import CSV %>
+  <div style="padding:0.375rem 1rem;border-bottom:1px solid #f4f4f5;background:#fafafa;">
+    <details>
+      <summary style="font-size:0.7rem;color:#a1a1aa;cursor:pointer;display:flex;align-items:center;gap:6px;padding:4px 0;list-style:none;user-select:none;" class="hover:text-foreground transition-colors">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Import dari CSV
+      </summary>
+      <div style="padding:0.625rem 0 0.375rem;">
+        <form method="POST" action="/sbm/import" enctype="multipart/form-data">
+          <div style="display:flex;align-items:center;gap:0.625rem;flex-wrap:wrap;">
+            <input type="file" name="csv_file" accept=".csv" id="csvSbmFileInput"
+              style="position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;clip:rect(0,0,0,0);">
+            <label for="csvSbmFileInput" class="btn-sm-outline"
+              style="height:32px;padding:0 0.875rem;font-size:0.75rem;display:inline-flex;align-items:center;gap:6px;cursor:pointer;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              Pilih File CSV
+            </label>
+            <span id="csvSbmFileName"
+              style="font-size:0.7rem;color:#71717a;padding:0 0.625rem;height:32px;display:inline-flex;align-items:center;gap:5px;border:1px solid #e4e4e7;border-radius:6px;background:#fafafa;min-width:140px;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#a1a1aa" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              <span id="csvSbmFileNameText" style="color:#a1a1aa;font-style:italic;">Belum ada file dipilih</span>
+            </span>
+            <button type="submit"
+              style="height:32px;padding:0 0.875rem;font-size:0.75rem;background:#059669;color:#fff;border:none;border-radius:6px;display:inline-flex;align-items:center;gap:5px;font-weight:500;cursor:pointer;transition:background 0.12s;"
+              onmouseover="this.style.background='#047857'" onmouseout="this.style.background='#059669'">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              Upload & Import
+            </button>
+          </div>
+          <p style="font-size:0.65rem;color:#a1a1aa;margin-top:8px;">
+            Kolom wajib: <code style="background:#f4f4f5;padding:1px 5px;border-radius:4px;font-size:0.65rem;">city_id, travel_cost_component_id, amount</code>
+            &nbsp;· Opsional: <code style="background:#f4f4f5;padding:1px 5px;border-radius:4px;font-size:0.65rem;">structural_position_id, employee_grade_id</code>
+          </p>
+        </form>
+        <script>
+          document.getElementById('csvSbmFileInput').addEventListener('change', function() {
+            const nameEl = document.getElementById('csvSbmFileNameText');
+            if (this.files && this.files[0]) {
+              nameEl.textContent = this.files[0].name;
+              nameEl.style.color = '#18181b';
+              nameEl.style.fontStyle = 'normal';
+            } else {
+              nameEl.textContent = 'Belum ada file dipilih';
+              nameEl.style.color = '#a1a1aa';
+              nameEl.style.fontStyle = 'italic';
+            }
+          });
+        </script>
+      </div>
+    </details>
+  </div>
+
   <% if (sbm.length === 0) { %>
+
     <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4rem 1rem;text-align:center;">
       <div style="width:44px;height:44px;border-radius:10px;background:#f4f4f5;display:flex;align-items:center;justify-content:center;margin-bottom:0.875rem;">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a1a1aa" stroke-width="1.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
