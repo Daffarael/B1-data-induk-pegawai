@@ -774,14 +774,27 @@ const importCsv = async (req, res, next) => {
       );
       if (existing.length > 0) { skipped++; continue; }
 
-      const [result] = await conn.query(
+      const bcrypt = require('bcryptjs');
+      const defaultPassword = await bcrypt.hash(row.employee_number, 10);
+      const defaultEmail = `${row.employee_number}@facultyware.com`;
+
+      // 1. Insert ke tabel users dulu (wajib karena FK employees.id → users.id)
+      const [userResult] = await conn.query(
+        `INSERT INTO users (name, email, password, created_at, updated_at) VALUES (?, ?, ?, NOW(), NOW())`,
+        [row.name, defaultEmail, defaultPassword]
+      );
+      const newId = userResult.insertId;
+
+      // 2. Insert ke tabel employees dengan id dari users
+      await conn.query(
         `INSERT INTO employees
-           (employee_number, national_id_number, tax_id_number, name,
+           (id, employee_number, national_id_number, tax_id_number, name,
             birth_place, birth_date, gender, religion,
             address, phone_number, organization_unit_id, hire_date,
             employment_status_id, status, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
         [
+          newId,
           row.employee_number, row.national_id_number || null, row.tax_id_number || null,
           row.name, row.birth_place, row.birth_date,
           row.gender, row.religion || null,
@@ -791,12 +804,12 @@ const importCsv = async (req, res, next) => {
         ]
       );
 
-      // Jika ada kolom academic_rank → masukkan ke lecturers
+      // 3. Jika ada kolom academic_rank → masukkan ke lecturers juga
       if (row.academic_rank) {
         await conn.query(
           `INSERT INTO lecturers (id, academic_rank, functional_position, expertise, created_at, updated_at)
            VALUES (?, ?, ?, ?, NOW(), NOW())`,
-          [result.insertId, row.academic_rank, row.functional_position || null, row.expertise || null]
+          [newId, row.academic_rank, row.functional_position || null, row.expertise || null]
         );
       }
       imported++;
