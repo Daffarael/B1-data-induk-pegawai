@@ -208,7 +208,6 @@ module.exports = {
         }
     },
 
-    // 7. DELETE /struktur-jabatan/:id
     destroy: async (req, res) => {
         try {
             // Cek apakah punya bawahan
@@ -221,6 +220,12 @@ module.exports = {
             const [tupoksi] = await db.query('SELECT id FROM job_responsibilities WHERE structural_position_id = ? LIMIT 1', [req.params.id]);
             if (tupoksi.length > 0) {
                 throw new Error('Hapus semua Tupoksi terlebih dahulu sebelum menghapus jabatan.');
+            }
+
+            // Cek referensi di tabel SBM (travel_cost_standards)
+            const [sbm] = await db.query('SELECT id FROM travel_cost_standards WHERE structural_position_id = ? LIMIT 1', [req.params.id]);
+            if (sbm.length > 0) {
+                throw new Error('Tidak bisa dihapus karena jabatan ini masih digunakan di data SBM Perjalanan Dinas.');
             }
 
             await db.query('DELETE FROM structural_positions WHERE id = ?', [req.params.id]);
