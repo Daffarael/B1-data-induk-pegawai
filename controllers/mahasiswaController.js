@@ -216,27 +216,17 @@ const store = async (req, res, next) => {
       generatedCampusEmail = `${regno.trim()}_${firstName}_@gmail.com`;
     }
 
-    const bcrypt = require('bcryptjs');
-    const defaultPassword = await bcrypt.hash(regno.trim(), 10);
-    const defaultEmail = generatedCampusEmail || `${regno.trim()}@facultyware.com`;
-
-    // 1. Insert ke tabel users terlebih dahulu
-    const [userResult] = await conn.query(
-      `INSERT INTO users (name, email, password, created_at, updated_at) VALUES (?, ?, ?, NOW(), NOW())`,
-      [name.trim(), defaultEmail, defaultPassword]
-    );
-    const newId = userResult.insertId;
-
+    // Insert langsung ke tabel students (tanpa melalui users)
     await conn.query(
       `INSERT INTO students
-         (id, regno, name, birth_place, birth_date, gender, religion,
+         (regno, name, birth_place, birth_date, gender, religion,
           email, campus_email, phone_no, 
           home_address, home_town, home_province, home_postalcode,
           current_address, current_town, current_province, current_postalcode,
           department_id, year, status, advisor_id, citizenship, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
       [
-        newId, regno.trim(), name.trim(), birth_place?.trim() || null, birth_date, 
+        regno.trim(), name.trim(), birth_place?.trim() || null, birth_date, 
         gender || null, religion || null, email?.trim() || null, generatedCampusEmail, 
         phone_no?.trim() || null, home_address?.trim() || null, home_town?.trim() || null, 
         home_province?.trim() || null, home_postalcode?.trim() || null, current_address?.trim() || null, 
@@ -375,7 +365,6 @@ const destroy = async (req, res, next) => {
       return res.status(404).render('errors/404', { title: 'Tidak Ditemukan' });
     }
     await db.query('DELETE FROM students WHERE id = ?', [id]);
-    await db.query('DELETE FROM users WHERE id = ?', [id]);
     req.flash('success', `Data mahasiswa "${rows[0].name}" berhasil dihapus`);
     res.redirect('/mahasiswa');
   } catch (err) {
@@ -526,28 +515,16 @@ const importCsv = async (req, res, next) => {
     let imported = 0;
     let skipped = 0;
 
-    const [maxResult] = await conn.query('SELECT MAX(id) as maxId FROM students');
-    let currentMaxId = maxResult[0].maxId || 0;
-
     for (const row of records) {
       const [existing] = await conn.query('SELECT id FROM students WHERE regno = ?', [row.regno]);
       if (existing.length > 0) { skipped++; continue; }
 
-      const bcrypt = require('bcryptjs');
-      const defaultPassword = await bcrypt.hash(row.regno, 10);
-      const defaultEmail = `${row.regno}@facultyware.com`;
-
-      const [userResult] = await conn.query(
-        `INSERT INTO users (name, email, password, created_at, updated_at) VALUES (?, ?, ?, NOW(), NOW())`,
-        [row.name, defaultEmail, defaultPassword]
-      );
-      const newId = userResult.insertId;
-
+      // Insert langsung ke tabel students (tanpa melalui users)
       await conn.query(
         `INSERT INTO students
-           (id, regno, name, gender, year, status, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())`,
-        [newId, row.regno, row.name, row.gender || null, row.year || null, row.status || null]
+           (regno, name, gender, year, status, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, NOW(), NOW())`,
+        [row.regno, row.name, row.gender || null, row.year || null, row.status || null]
       );
       imported++;
     }
