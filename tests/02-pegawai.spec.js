@@ -33,6 +33,7 @@ test.describe('Modul Pegawai / Dosen — CRUD Lengkap', () => {
 
   // ── 1. AKSES & NAVIGASI ──────────────────────────────────────────────
   test('01 halaman daftar pegawai dapat diakses', async ({ page }) => {
+    await page.waitForTimeout(2000); // beri server waktu settle setelah beforeAll cleanup
     await login(page);
     await page.goto('/pegawai');
     await expect(page).toHaveURL(/\/pegawai/);

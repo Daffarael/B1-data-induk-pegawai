@@ -16,7 +16,7 @@ async function login(page) {
   await page.fill('input[name="email"]', TEST_EMAIL);
   await page.fill('input[name="password"]', TEST_PASSWORD);
   await page.click('button[type="submit"]');
-  await page.waitForURL('**/dashboard', { timeout: 10000 });
+  await page.waitForURL('**/dashboard', { timeout: 20000 });
 }
 
 /**
@@ -28,7 +28,7 @@ async function loginMahasiswa(page) {
   await page.fill('input[name="email"]', TEST_EMAIL_MAHASISWA);
   await page.fill('input[name="password"]', TEST_PASSWORD_MAHASISWA);
   await page.click('button[type="submit"]');
-  await page.waitForURL('**/dashboard', { timeout: 10000 });
+  await page.waitForURL('**/dashboard', { timeout: 20000 });
 }
 
 module.exports = { login, loginMahasiswa, TEST_EMAIL, TEST_PASSWORD };

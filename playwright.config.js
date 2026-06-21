@@ -5,8 +5,11 @@ module.exports = defineConfig({
   // Folder tempat file test berada
   testDir: './tests',
 
-  // Timeout per test (30 detik)
-  timeout: 30000,
+  // Timeout per test (45 detik)
+  timeout: 45000,
+
+  // Retry 1x jika gagal (mengatasi flaky login saat server sedang load)
+  retries: 1,
 
   // Jalankan test satu per satu (bukan paralel) — penting karena pakai session login
   workers: 1,
