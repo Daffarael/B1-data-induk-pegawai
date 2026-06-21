@@ -224,27 +224,15 @@ const store = async (req, res, next) => {
       });
     }
 
-    const bcrypt = require('bcryptjs');
-    const defaultPassword = await bcrypt.hash(employee_number.trim(), 10);
-    const defaultEmail = `${employee_number.trim()}@facultyware.com`;
-
-    // 1. Insert ke tabel users terlebih dahulu
-    const [userResult] = await conn.query(
-      `INSERT INTO users (name, email, password, created_at, updated_at) VALUES (?, ?, ?, NOW(), NOW())`,
-      [name.trim(), defaultEmail, defaultPassword]
-    );
-    const newId = userResult.insertId;
-
-    // 2. Insert ke tabel employees
+    // Insert langsung ke tabel employees (tanpa melalui users)
     const [result] = await conn.query(
       `INSERT INTO employees
-         (id, employee_number, national_id_number, tax_id_number, name,
+         (employee_number, national_id_number, tax_id_number, name,
           birth_place, birth_date, gender, religion,
           address, phone_number, organization_unit_id, hire_date,
           employment_status_id, status, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
       [
-        newId,
         employee_number.trim(),
         national_id_number?.trim() || null,
         tax_id_number?.trim() || null,
@@ -255,6 +243,7 @@ const store = async (req, res, next) => {
         employment_status_id, status
       ]
     );
+    const newId = result.insertId;
 
 
     // Jika tipe Dosen, insert ke tabel lecturers juga
@@ -464,8 +453,6 @@ const destroy = async (req, res, next) => {
     // Hapus dari employees
     await conn.query('DELETE FROM employees WHERE id = ?', [id]);
 
-    // Hapus dari users (karena pegawai punya akun login)
-    await conn.query('DELETE FROM users WHERE id = ?', [id]);
 
     await conn.commit();
     req.flash('success', `Data pegawai "${namaP}" berhasil dihapus`);
@@ -774,27 +761,15 @@ const importCsv = async (req, res, next) => {
       );
       if (existing.length > 0) { skipped++; continue; }
 
-      const bcrypt = require('bcryptjs');
-      const defaultPassword = await bcrypt.hash(row.employee_number, 10);
-      const defaultEmail = `${row.employee_number}@facultyware.com`;
-
-      // 1. Insert ke tabel users dulu (wajib karena FK employees.id → users.id)
-      const [userResult] = await conn.query(
-        `INSERT INTO users (name, email, password, created_at, updated_at) VALUES (?, ?, ?, NOW(), NOW())`,
-        [row.name, defaultEmail, defaultPassword]
-      );
-      const newId = userResult.insertId;
-
-      // 2. Insert ke tabel employees dengan id dari users
-      await conn.query(
+      // Insert langsung ke tabel employees (tanpa melalui users)
+      const [empResult] = await conn.query(
         `INSERT INTO employees
-           (id, employee_number, national_id_number, tax_id_number, name,
+           (employee_number, national_id_number, tax_id_number, name,
             birth_place, birth_date, gender, religion,
             address, phone_number, organization_unit_id, hire_date,
             employment_status_id, status, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
         [
-          newId,
           row.employee_number, row.national_id_number || null, row.tax_id_number || null,
           row.name, row.birth_place, row.birth_date,
           row.gender, row.religion || null,
@@ -804,12 +779,12 @@ const importCsv = async (req, res, next) => {
         ]
       );
 
-      // 3. Jika ada kolom academic_rank → masukkan ke lecturers juga
+      // Jika ada kolom academic_rank → masukkan ke lecturers juga
       if (row.academic_rank) {
         await conn.query(
           `INSERT INTO lecturers (id, academic_rank, functional_position, expertise, created_at, updated_at)
            VALUES (?, ?, ?, ?, NOW(), NOW())`,
-          [newId, row.academic_rank, row.functional_position || null, row.expertise || null]
+          [empResult.insertId, row.academic_rank, row.functional_position || null, row.expertise || null]
         );
       }
       imported++;
