@@ -8,7 +8,7 @@
 Kelompok B1 — Tugas Besar Pemrograman Web  
 Fakultas Teknologi Informasi, Universitas Andalas — 2026
 
-🌐 **Demo:** https://ftiunand.my.id
+🌐 **URL Deployment:** https://ftiunand.my.id
 
 ---
 
