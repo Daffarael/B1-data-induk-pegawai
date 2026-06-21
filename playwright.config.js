@@ -22,7 +22,7 @@ module.exports = defineConfig({
     baseURL: 'http://localhost:3000',
 
     // Tampilkan browser (headed) agar bisa dilihat prosesnya
-    headless: false,
+    headless: true,
 
     // Ambil screenshot kalau test gagal
     screenshot: 'only-on-failure',
@@ -32,7 +32,7 @@ module.exports = defineConfig({
 
     // Slowmo 300ms agar lebih mudah dipantau
     launchOptions: {
-      slowMo: 300,
+      slowMo: 0,
     },
   },
 
