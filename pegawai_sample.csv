@@ -1,9 +1,0 @@
-employee_number,national_id_number,tax_id_number,name,birth_place,birth_date,gender,religion,address,phone_number,organization_unit_id,hire_date,employment_status_id,status,academic_rank,functional_position,expertise
-197501012005041001,1271010101750001,012345678901000,Ahmad Fauzi,Padang,1975-01-01,male,Islam,Jl. Khatib Sulaiman No. 12 Padang,081234560001,3,2005-04-01,1,active,Lektor Kepala,Lektor Kepala,Kecerdasan Buatan
-198203152010042002,1271030201820001,023456789012000,Siti Rahmawati,Bukittinggi,1982-03-15,female,Islam,Jl. Sudirman No. 45 Padang,081234560002,1,2010-04-01,1,active,Profesor,Profesor,Jaringan Komputer
-198605202015041003,1271050201860001,034567890123000,Budi Santoso,Payakumbuh,1986-05-20,male,Islam,Jl. Veteran No. 78 Padang,081234560003,2,2015-04-01,1,active,Lektor,Asisten Ahli,Rekayasa Perangkat Lunak
-199001102020042004,1271010101900001,045678901234000,Dewi Permatasari,Solok,1990-01-10,female,Islam,Jl. Diponegoro No. 22 Padang,081234560004,3,2020-04-01,4,active,,,
-198808252018041005,1271080201880001,056789012345000,Rizki Pratama,Padang,1988-08-25,male,Islam,Jl. M. Yamin No. 55 Padang,081234560005,1,2018-04-01,4,active,,,
-199203101022041006,1271100301920001,067890123456000,Nurul Hidayah,Padang Panjang,1992-03-10,female,Islam,Jl. Sawahan No. 8 Padang,081234560006,2,2022-04-01,5,active,,,
-198001012000031007,1271010101800001,078901234567000,Hendra Wijaya,Pariaman,1980-01-01,male,Islam,Jl. Limau Manis No. 1 Padang,081234560007,3,2000-03-01,1,active,Lektor Kepala,Lektor Kepala,Sistem Informasi
-197803202003042008,1271200301780001,089012345678000,Rini Kusumawati,Padang,1978-03-20,female,Islam,Jl. Andalas No. 33 Padang,081234560008,1,2003-04-01,1,active,Profesor,Profesor,Teknik Komputer
