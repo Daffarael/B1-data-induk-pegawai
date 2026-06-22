@@ -171,4 +171,4 @@ npm run test:report
 
 ---
 
-*Kelompok B1 — Tugas Besar Pemrograman Web, Fakultas Teknologi Informasi, Universitas Andalas — Juni 2026*
+*Kelompok B1 — Tugas Besar Pemrograman Web, Departemen Sistem Informasi, Fakultas Teknologi Informasi, Universitas Andalas — Juni 2026*
